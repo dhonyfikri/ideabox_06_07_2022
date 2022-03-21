@@ -1,0 +1,1304 @@
+{
+	"info": {
+		"_postman_id": "f99726c3-d6ac-4767-98a6-974a042d6555",
+		"name": "Idea Services",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Submit Idea",
+			"item": [
+				{
+					"name": "Submit Idea",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "allowJoin",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "innovationTitle",
+									"value": "Dalapa",
+									"type": "text"
+								},
+								{
+									"key": "cover",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "description",
+									"value": "deskripsi",
+									"type": "text"
+								},
+								{
+									"key": "categories[]",
+									"value": "7",
+									"type": "text"
+								},
+								{
+									"key": "categories[]",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "categories[]",
+									"value": "37",
+									"type": "text"
+								},
+								{
+									"key": "why",
+									"value": "mengapa",
+									"type": "text"
+								},
+								{
+									"key": "what",
+									"value": "apa",
+									"type": "text"
+								},
+								{
+									"key": "how",
+									"value": "bagaimana",
+									"type": "text"
+								},
+								{
+									"key": "uniqueValue[]",
+									"value": "1 unik",
+									"type": "text"
+								},
+								{
+									"key": "uniqueValue[]",
+									"value": "2 unik",
+									"type": "text"
+								},
+								{
+									"key": "uniqueValue[]",
+									"value": "3 unik",
+									"type": "text"
+								},
+								{
+									"key": "customer[]",
+									"value": "1 siapa yang ingin kamu solusikan",
+									"type": "text"
+								},
+								{
+									"key": "customer[]",
+									"value": "2 siapa yang ingin kamu solusikan",
+									"type": "text"
+								},
+								{
+									"key": "customer[]",
+									"value": "3 siapa yang ingin kamu solusikan",
+									"type": "text"
+								},
+								{
+									"key": "problem[]",
+									"value": "1 apa problem mereka yang ingin disolusikan?",
+									"type": "text"
+								},
+								{
+									"key": "problem[]",
+									"value": "2 apa problem mereka yang ingin disolusikan?",
+									"type": "text"
+								},
+								{
+									"key": "problem[]",
+									"value": "3 apa problem mereka yang ingin disolusikan?",
+									"type": "text"
+								},
+								{
+									"key": "earlyAdopter[]",
+									"value": "1 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+									"type": "text"
+								},
+								{
+									"key": "earlyAdopter[]",
+									"value": "2 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+									"type": "text"
+								},
+								{
+									"key": "earlyAdopter[]",
+									"value": "3 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+									"type": "text"
+								},
+								{
+									"key": "existingSolution[]",
+									"value": "1 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+									"type": "text"
+								},
+								{
+									"key": "existingSolution[]",
+									"value": "2 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+									"type": "text"
+								},
+								{
+									"key": "existingSolution[]",
+									"value": "3 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+									"type": "text"
+								},
+								{
+									"key": "proposedSolution[]",
+									"value": "1 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+									"type": "text"
+								},
+								{
+									"key": "proposedSolution[]",
+									"value": "2 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+									"type": "text"
+								},
+								{
+									"key": "proposedSolution[]",
+									"value": "3 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+									"type": "text"
+								},
+								{
+									"key": "additionalAttachment",
+									"type": "file",
+									"src": "/C:/Magang/Dummy/Contoh_Image.jpg"
+								},
+								{
+									"key": "userId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "teamStructure",
+									"value": "HACKER",
+									"type": "text"
+								},
+								{
+									"key": "role",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "createdBy",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "user[]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "notes[]",
+									"value": "1 halo mari bergabung",
+									"type": "text"
+								},
+								{
+									"key": "user[]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "notes[]",
+									"value": "2 halo mari bergabung",
+									"type": "text"
+								},
+								{
+									"key": "user[]",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "notes[]",
+									"value": "3 halo mari bergabung",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://idea.desasembung.com/submitidea",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"submitidea"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Idea",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "ideaId",
+									"value": "32"
+								},
+								{
+									"key": "updatedBy",
+									"value": "1"
+								},
+								{
+									"key": "allowJoin",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "innovationTitle",
+									"value": "judul ide",
+									"type": "text"
+								},
+								{
+									"key": "cover",
+									"type": "file",
+									"src": "/C:/Users/ASUS/OneDrive - Universitas Atma Jaya Yogyakarta/Pictures/contoh data/31.UAJY.png"
+								},
+								{
+									"key": "description",
+									"value": "deskripsi",
+									"type": "text"
+								},
+								{
+									"key": "categories[]",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "categories[]",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "why",
+									"value": "mengapa",
+									"type": "text"
+								},
+								{
+									"key": "what",
+									"value": "apa",
+									"type": "text"
+								},
+								{
+									"key": "how",
+									"value": "bagaimana",
+									"type": "text"
+								},
+								{
+									"key": "uniqueValue[]",
+									"value": "1 unik",
+									"type": "text"
+								},
+								{
+									"key": "uniqueValue[]",
+									"value": "2 unik",
+									"type": "text"
+								},
+								{
+									"key": "uniqueValue[]",
+									"value": "3 unik",
+									"type": "text"
+								},
+								{
+									"key": "customer[]",
+									"value": "1 siapa yang ingin kamu solusikan",
+									"type": "text"
+								},
+								{
+									"key": "customer[]",
+									"value": "2 siapa yang ingin kamu solusikan",
+									"type": "text"
+								},
+								{
+									"key": "customer[]",
+									"value": "3 siapa yang ingin kamu solusikan",
+									"type": "text"
+								},
+								{
+									"key": "problem[]",
+									"value": "1 apa problem mereka yang ingin disolusikan?",
+									"type": "text"
+								},
+								{
+									"key": "problem[]",
+									"value": "2 apa problem mereka yang ingin disolusikan?",
+									"type": "text"
+								},
+								{
+									"key": "problem[]",
+									"value": "3 apa problem mereka yang ingin disolusikan?",
+									"type": "text"
+								},
+								{
+									"key": "earlyAdopter[]",
+									"value": "1 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+									"type": "text"
+								},
+								{
+									"key": "earlyAdopter[]",
+									"value": "2 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+									"type": "text"
+								},
+								{
+									"key": "earlyAdopter[]",
+									"value": "3 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+									"type": "text"
+								},
+								{
+									"key": "existingSolution[]",
+									"value": "1 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+									"type": "text"
+								},
+								{
+									"key": "existingSolution[]",
+									"value": "2 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+									"type": "text"
+								},
+								{
+									"key": "existingSolution[]",
+									"value": "3 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+									"type": "text"
+								},
+								{
+									"key": "proposedSolution[]",
+									"value": "1 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+									"type": "text"
+								},
+								{
+									"key": "proposedSolution[]",
+									"value": "2 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+									"type": "text"
+								},
+								{
+									"key": "proposedSolution[]",
+									"value": "3 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+									"type": "text"
+								},
+								{
+									"key": "additionalAttachment",
+									"type": "file",
+									"src": "/C:/Users/ASUS/OneDrive - Universitas Atma Jaya Yogyakarta/Pictures/contoh data/DaftarGambar.docx"
+								},
+								{
+									"key": "userId",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "teamStructure",
+									"value": "HACKER",
+									"type": "text"
+								},
+								{
+									"key": "role",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "createdBy",
+									"value": "3",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://idea.desasembung.com/MyIdeas/editideas",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"MyIdeas",
+								"editideas"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show All Ideas",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://idea.desasembung.com/showideas",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"showideas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Idea",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "3",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://idea.desasembung.com/SubmitIdea/deleteideas",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"SubmitIdea",
+								"deleteideas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Parent Category",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://idea.desasembung.com/SubmitIdea/getParent",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"SubmitIdea",
+								"getParent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Child Category",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://idea.desasembung.com/SubmitIdea/getChild?parentId=3",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"SubmitIdea",
+								"getChild"
+							],
+							"query": [
+								{
+									"key": "parentId",
+									"value": "3"
+								},
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Idea (Add Team Member)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "ideaId",
+									"value": "18"
+								},
+								{
+									"key": "createdBy",
+									"value": "1"
+								},
+								{
+									"key": "user[]",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "notes[]",
+									"value": "edit, halo mari bergabung",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://idea.desasembung.com/addteammember",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"addteammember"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "IdeaServices",
+			"item": [
+				{
+					"name": "getCategoryEvent(ideaServices)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://idea.desasembung.com/targetkaryawan",
+							"protocol": "https",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"targetkaryawan"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getTargetKaryawan (ideaServices)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://idea.desasembung.com/categoryevent",
+							"protocol": "https",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"categoryevent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/ideaservice/countidearecord?userId=7",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"ideaservice",
+								"countidearecord"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "7"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Event",
+			"item": [
+				{
+					"name": "getIdea",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/getideas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"getideas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getcategoryevent",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://idea.desasembung.com/getallcategoryevent",
+							"protocol": "https",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"getallcategoryevent"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get User Idea",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://idea.desasembung.com/getuseridea?userId=2",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"getuseridea"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "My Ideas",
+			"item": [
+				{
+					"name": "Show My Ideas",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "userId",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://idea.desasembung.com/showmyideas",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"showmyideas"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Talent Approval",
+			"item": [
+				{
+					"name": "Show all approval user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "userId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "id",
+									"value": "7",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://idea.desasembung.com/showapproval",
+							"protocol": "https",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"showapproval"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Join Idea (from explore)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "ideaId",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "userId",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "notes",
+									"value": "Bole Join gak?",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://idea.desasembung.com/joinidea",
+							"protocol": "https",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"joinidea"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Talent Approval",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "userId",
+									"value": "7",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "rejected",
+									"type": "text"
+								},
+								{
+									"key": "id",
+									"value": "10",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://idea.desasembung.com/TalentApproval/talentApproval",
+							"protocol": "https",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"TalentApproval",
+								"talentApproval"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request Support Idea",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "userId",
+									"value": "7",
+									"type": "text"
+								},
+								{
+									"key": "notes",
+									"value": "Mau sponsor ga?",
+									"type": "text"
+								},
+								{
+									"key": "ideaId",
+									"value": "5",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://idea.desasembung.com/requestsupport",
+							"protocol": "https",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"requestsupport"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Services",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/getapproval",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"getapproval"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Like Comment",
+			"item": [
+				{
+					"name": "Top Comment",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://idea.desasembung.com/topcomment",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"topcomment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Top Like",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://idea.desasembung.com/toplike",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"toplike"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Like",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "ideaId",
+									"value": "1",
+									"type": "string"
+								},
+								{
+									"key": "comment",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "createdBy",
+									"value": "5",
+									"type": "string"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://idea.desasembung.com/addlike",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"addlike"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Comment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://idea.desasembung.com/addcomment",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"addcomment"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dashboard Report",
+			"item": [
+				{
+					"name": "Total Ideas and Talent",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://idea.desasembung.com/totalideastalent",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"totalideastalent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CFU/FU Ideas Filter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://idea.desasembung.com/cfufuideasfilter",
+							"protocol": "http",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"cfufuideasfilter"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/dashboardreport/listidea",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"dashboardreport",
+								"listidea"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Category Management",
+			"item": [
+				{
+					"name": "Create Categories",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"data\":\r\n    {\r\n        \"parentId\": \"0\",\r\n        \"name\" : \"core\",\r\n        \"createdBy\" : \"1\",\r\n        \"isRequired\" : \"1\",\r\n        \"activeFlag\" : \"1\",\r\n        \"type\" : \"idea\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://idea.desasembung.com/categorymanagement/create",
+							"protocol": "https",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"categorymanagement",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Categories",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\" : \"6\",\r\n    \"data\":\r\n    {\r\n        \"parentId\": \"0\",\r\n        \"name\" : \"kategori inovasi 4\",\r\n        \"createdBy\" : \"1\",\r\n        \"isRequired\" : \"1\",\r\n        \"activeFlag\" : \"1\",\r\n        \"type\" : \"idea\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://idea.desasembung.com/categorymanagement/update",
+							"protocol": "https",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"categorymanagement",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Categories",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/categorymanagement/delete?id=6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"categorymanagement",
+								"delete"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "6"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show All Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://idea.desasembung.com/categorymanagement/index",
+							"protocol": "https",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"categorymanagement",
+								"index"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show Categories by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://idea.desasembung.com/categorymanagement/show?id=2",
+							"protocol": "https",
+							"host": [
+								"idea",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"categorymanagement",
+								"show"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

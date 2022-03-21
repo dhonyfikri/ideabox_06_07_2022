@@ -1,0 +1,22 @@
+[
+    {
+        "id" : 1,
+        "title" : "All Category",
+        "image" : "https://png.pngtree.com/element_our/20200702/ourlarge/pngtree-character-occupation-theme-of-engineer-illustration-image_2298384.jpg"
+    },
+    {
+        "id" : 2,
+        "title" : "Digital Platform",
+        "image" : "https://png.pngtree.com/element_our/20190601/ourlarge/pngtree-business-job-inquiry-boss-character-material-image_1363705.jpg"
+    },
+    {
+        "id" : 3,
+        "title" : "Digital Connectivity",
+        "image" : "https://png.pngtree.com/element_our/20200703/ourlarge/pngtree-business-work-greeting-character-material-image_2300789.jpg"
+    },
+    {
+        "id" : 4,
+        "title" : "Digital Service",
+        "image" : "https://media.istockphoto.com/vectors/vector-detailed-character-office-worker-vector-id531562342"
+    }
+]

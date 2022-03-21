@@ -1,0 +1,29 @@
+[
+    {
+        "id" : 1,
+        "title" : "Hack Idea",
+        "date" : "18 Desember 2020 - 24 Desember 2012",
+        "category" :"Digital Platform" ,
+        "maincategory" :"All Category" ,
+        "desc" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.",
+        "image" : "https://images.unsplash.com/photo-1552664730-d307ca884978?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8d29yayUyMGV2ZW50fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&w=1000&q=80"
+    },
+    {
+        "id" : 2,
+        "title" : "Jalan - Jalan ke Lembang",
+        "date" : "18 Desember 2020 - 24 Desember 2012",
+        "category" :"Digital Platform" ,
+        "maincategory" :"All Category" ,
+        "desc" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.",
+        "image" : "https://m3d8i7u2.stackpathcdn.com/wp-content/uploads/2019/03/workthatwork_blog_type_event.jpg"
+    },
+    {
+        "id" : 3,
+        "title" : "Telkom ideas from Amoeba",
+        "date" : "18 Desember 2020 - 24 Desember 2012",
+        "category" :"Digital Service" ,
+        "maincategory" :"All Category" ,
+        "desc" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.",
+        "image" : "https://blogmedia.evbstatic.com/wp-content/uploads/wpmulti/sites/3/2019/12/GP-working-01_Blog-Header-1200x630.png"
+    }
+]

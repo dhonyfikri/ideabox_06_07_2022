@@ -1,0 +1,26 @@
+[
+    {
+        "id" : 1,
+        "title" : "Karyawan",
+        "email" : "nicholaslindartono01@gmail.com",
+        "nik" : 79124
+    },
+    {
+        "id" : 2,
+        "title" : "Manager",
+        "email" : "nicholas@gmail.com",
+        "nik" : 79121
+    },
+    {
+        "id" : 3,
+        "title" : "Direktur",
+        "email" : "lindartono01@gmail.com",
+        "nik" : 79123
+    },
+    {
+        "id" : 4,
+        "title" : "CEO",
+        "email" : "nicholaslindartono01@yahoo.com",
+        "nik" : 79125
+    }
+]

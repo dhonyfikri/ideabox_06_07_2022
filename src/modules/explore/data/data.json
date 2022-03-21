@@ -1,0 +1,558 @@
+{
+  "status": 200,
+  "message": "GET Idea Successfully",
+  "data": [
+    {
+      "id": "7",
+      "version": "1",
+      "activeFlag": "1",
+      "desc": [
+        {
+          "field": "innovationTitle",
+          "value": "Hack Idea",
+          "ideaId": "7"
+        },
+        {
+          "field": "cover",
+          "value": "https://media.istockphoto.com/photos/carefree-excited-diverse-workers-having-fun-riding-oh-chairs-friday-picture-id1307398653?b=1&k=20&m=1307398653&s=170667a&w=0&h=yjgMuuPZCoJe4w0AYjvBVWnH_xi4Qqr_pJuLSLLFAQI=",
+          "ideaId": "7"
+        },
+        {
+          "field": "description",
+          "value": "Integritas sistem keuangan menjadi urgent, guna menciptakan stabilitas makro ekonomi. Karena melalui integritas, maka akan menciptakan sistem keuangan yang stabil, sehingga mampu membangun sistem keuangan yang kuat dan tahan terhadap berbagai gangguan ekonomi sehingga tetap mampu melakukan fungsi intermediasi, melaksanakan pembayaran dan menyebar risiko secara baik serta menciptakan kondisi yang kondusif dalam mendukung pertumbuhan ekonomi nasional. lntegritas sistem keuangan korporasi berarti keutuhan, kepatuhan dan kepatutan sistem keuangan korporasi sebagai sistem yang sah secara hukum (legitimate financial system). Upaya-upaya korporasi dalam meningkatkan nilai bisnis korporasinya terlindungi dari penyalahgunaan-penyalahgunaan (abuse of financial system) dalam berbagai bentuk modus kecurangan atau kejahatan keuangan, baik dilakukan oleh pihak yang berada dalam sistem (insider), pihak yang berasal dari luar sistem tersebut (outsider), ataupun kerjasama keduanya. Perlindungan atas integritas sistem keuangan diwujudkan dengan penerapan yang konsekuen atas komponen-komponen integritas sistem keuangan. Penerapan komponen-komponen ini secara konkret dilakukan dengan tiga strategi dasar yakni strategi umum, strategi anti kecurangan dan strategi anti pencucian uang. Strategi umum merupakan kerangka dasar yang dapat diterapkan untuk menanggulangi penyalahgunaan sistem keuangan, baik yang dilakukan oleh pihak dalam maupun pihak luar korporasi, sedangkan strategi anti-kecurangan korporasi ditujukan khusus untuk menanggulangi penyalahgunaan sistem keuangan. Ketiga strategi ini selanjutnya secara simultan membentuk upaya untuk menanggulangi penyalahgunaan sistem keuangan yang dilakukan secara terencana dan terorganisir melalui kerjasama antara pihak dalam dan pihak luar korporasi. Masing-masing strategi terdiri atas serangkaian upaya yang dapat diklasifikasikan dalam 3 aspek, yakni aspek kebijakan, aspek pengendalian dan aspek evaluasi. Tiga aspek tersebut terhubung secara bertahap membentuk siklus penanggulangan penyalahgunaan sistem keuangan korporasi yang berkesinambungan. Sistem keuangan ini menjadi jantung dari korporasi tersebut, sehingga apabila sistem keuangan ini tidak mampu dibangun dengan basis integritas yang memadai, maka risiko korporasi tersebut tidak hanya berkaitan dengan kejahatan pencucian dan kejahatan asalnya saja, tetapi juga kerentanan alas segala bentuk penyalahgunaan sistem keuangan (abuse of financial system) yang dapat berujung pada kerugian dan kegagalan korporasi tersebut. Penerapan strategi-strategi tersebut, tidak boleh diartikan hanya sebatas beban kepatuhan (compliance rule), tetapi harus diletakkan pada satu pemahaman bahwa penerapan strategi ini justru memberikan perlindungan hukum dengan dampak ekonomis siginifikan bagi korporasi itu sendiri. Sebab, dampak negatif yang ditimbulkan dari penyalahgunaan sistem keuangan korporasi tidak hanya sebatas kerugian korporasi itu saja, namun mengakibatkan stabilitas makro ekonomi akan terganggu karena merupakan bagian dari ekosistem keuangan yangntegritas sistem keuangan menjadi urgent, guna menciptakan stabilitas makro ekonomi. Karena melalui integritas, maka akan menciptakan sistem keuangan yang stabil, sehingga mampu membangun sistem keuangan yang kuat dan tahan terhadap berbagai gangguan ekonomi sehingga tetap mampu melakukan fungsi intermediasi, melaksanakan pembayaran dan menyebar risiko secara baik serta menciptakan kondisi yang kondusif dalam mendukung pertumbuhan ekonomi nasional. lntegritas sistem keuangan korporasi berarti keutuhan, kepatuhan dan kepatutan sistem keuangan korporasi sebagai sistem yang sah secara hukum (legitimate financial system). Upaya-upaya korporasi dalam meningkatkan nilai bisnis korporasinya terlindungi dari penyalahgunaan-penyalahgunaan (abuse of financial system) dalam berbagai bentuk modus kecurangan atau kejahatan keuangan, baik dilakukan oleh pihak yang berada dalam sistem (insider), pihak yang berasal dari luar sistem tersebut (outsider), ataupun kerjasama keduanya. Perlindungan atas integritas sistem keuangan diwujudkan dengan penerapan yang konsekuen atas komponen-komponen integritas sistem keuangan. Penerapan komponen-komponen ini secara konkret dilakukan dengan tiga strategi dasar yakni strategi umum, strategi anti kecurangan dan strategi anti pencucian uang. Strategi umum merupakan kerangka dasar yang dapat diterapkan untuk menanggulangi penyalahgunaan sistem keuangan, baik yang dilakukan oleh pihak dalam maupun pihak luar korporasi, sedangkan strategi anti-kecurangan korporasi ditujukan khusus untuk menanggulangi penyalahgunaan sistem keuangan. Ketiga strategi ini selanjutnya secara simultan membentuk upaya untuk menanggulangi penyalahgunaan sistem keuangan yang dilakukan secara terencana dan terorganisir melalui kerjasama antara pihak dalam dan pihak luar korporasi. Masing-masing strategi terdiri atas serangkaian upaya yang dapat diklasifikasikan dalam 3 aspek, yakni aspek kebijakan, aspek pengendalian dan aspek evaluasi. Tiga aspek tersebut terhubung secara bertahap membentuk siklus penanggulangan penyalahgunaan sistem keuangan korporasi yang berkesinambungan. Sistem keuangan ini menjadi jantung dari korporasi tersebut, sehingga apabila sistem keuangan ini tidak mampu dibangun dengan basis integritas yang memadai, maka risiko korporasi tersebut tidak hanya berkaitan dengan kejahatan pencucian dan kejahatan asalnya saja, tetapi juga kerentanan alas segala bentuk penyalahgunaan sistem keuangan (abuse of financial system) yang dapat berujung pada kerugian dan kegagalan korporasi tersebut. Penerapan strategi-strategi tersebut, tidak boleh diartikan hanya sebatas beban kepatuhan (compliance rule), tetapi harus diletakkan pada satu pemahaman bahwa penerapan strategi ini justru memberikan perlindungan hukum dengan dampak ekonomis siginifikan bagi korporasi itu sendiri. Sebab, dampak negatif yang ditimbulkan dari penyalahgunaan sistem keuangan korporasi tidak hanya sebatas kerugian korporasi itu saja, namun mengakibatkan stabilitas makro ekonomi akan terganggu karena merupakan bagian dari ekosistem keuangan yang ada.",
+          "ideaId": "7"
+        }
+      ],
+      "gc": [
+        {
+          "field": "why",
+          "value": "mengapa",
+          "ideaId": "7"
+        },
+        {
+          "field": "how",
+          "value": "bagaimana",
+          "ideaId": "7"
+        },
+        {
+          "field": "what",
+          "value": "apa",
+          "ideaId": "7"
+        }
+      ],
+      "lc": [
+        {
+          "field": "customer",
+          "value": "1 siapa yang ingin kamu solusikan",
+          "ideaId": "7"
+        },
+        {
+          "field": "customer",
+          "value": "2 siapa yang ingin kamu solusikan",
+          "ideaId": "7"
+        },
+        {
+          "field": "customer",
+          "value": "3 siapa yang ingin kamu solusikan",
+          "ideaId": "7"
+        },
+        {
+          "field": "problem",
+          "value": "1 apa problem mereka yang ingin disolusikan?",
+          "ideaId": "7"
+        },
+        {
+          "field": "problem",
+          "value": "2 apa problem mereka yang ingin disolusikan?",
+          "ideaId": "7"
+        },
+        {
+          "field": "problem",
+          "value": "3 apa problem mereka yang ingin disolusikan?",
+          "ideaId": "7"
+        },
+        {
+          "field": "earlyAdopter",
+          "value": "1 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+          "ideaId": "7"
+        },
+        {
+          "field": "earlyAdopter",
+          "value": "2 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+          "ideaId": "7"
+        },
+        {
+          "field": "earlyAdopter",
+          "value": "3 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+          "ideaId": "7"
+        },
+        {
+          "field": "existingSolution",
+          "value": "1 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+          "ideaId": "7"
+        },
+        {
+          "field": "existingSolution",
+          "value": "2 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+          "ideaId": "7"
+        },
+        {
+          "field": "existingSolution",
+          "value": "3 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+          "ideaId": "7"
+        },
+        {
+          "field": "uniqueValue",
+          "value": "1 unik",
+          "ideaId": "7"
+        },
+        {
+          "field": "uniqueValue",
+          "value": "2 unik",
+          "ideaId": "7"
+        },
+        {
+          "field": "uniqueValue",
+          "value": "3 unik",
+          "ideaId": "7"
+        },
+        {
+          "field": "proposedSolution",
+          "value": "1 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+          "ideaId": "7"
+        },
+        {
+          "field": "proposedSolution",
+          "value": "2 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+          "ideaId": "7"
+        },
+        {
+          "field": "proposedSolution",
+          "value": "3 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+          "ideaId": "7"
+        }
+      ],
+      "files": [
+        {
+          "field": "additionalAttachment",
+          "value": null,
+          "ideaId": "7"
+        }
+      ]
+    },
+    {
+      "id": "8",
+      "version": "1",
+      "activeFlag": "1",
+      "desc": [
+        {
+          "field": "innovationTitle",
+          "value": "Ideabox Athlon",
+          "ideaId": "8"
+        },
+        {
+          "field": "cover",
+          "value": "https://www.eventmarketer.com/wp-content/uploads/2019/08/best_places_featured_2019-copy.jpg",
+          "ideaId": "8"
+        },
+        {
+          "field": "description",
+          "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.",
+          "ideaId": "8"
+        }
+      ],
+      "gc": [
+        {
+          "field": "why",
+          "value": "mengapa",
+          "ideaId": "8"
+        },
+        {
+          "field": "how",
+          "value": "bagaimana",
+          "ideaId": "8"
+        },
+        {
+          "field": "what",
+          "value": "apa",
+          "ideaId": "8"
+        }
+      ],
+      "lc": [
+        {
+          "field": "customer",
+          "value": "1 siapa yang ingin kamu solusikan",
+          "ideaId": "8"
+        },
+        {
+          "field": "customer",
+          "value": "2 siapa yang ingin kamu solusikan",
+          "ideaId": "8"
+        },
+        {
+          "field": "customer",
+          "value": "3 siapa yang ingin kamu solusikan",
+          "ideaId": "8"
+        },
+        {
+          "field": "problem",
+          "value": "1 apa problem mereka yang ingin disolusikan?",
+          "ideaId": "8"
+        },
+        {
+          "field": "problem",
+          "value": "2 apa problem mereka yang ingin disolusikan?",
+          "ideaId": "8"
+        },
+        {
+          "field": "problem",
+          "value": "3 apa problem mereka yang ingin disolusikan?",
+          "ideaId": "8"
+        },
+        {
+          "field": "earlyAdopter",
+          "value": "1 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+          "ideaId": "8"
+        },
+        {
+          "field": "earlyAdopter",
+          "value": "2 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+          "ideaId": "8"
+        },
+        {
+          "field": "earlyAdopter",
+          "value": "3 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+          "ideaId": "8"
+        },
+        {
+          "field": "existingSolution",
+          "value": "1 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+          "ideaId": "8"
+        },
+        {
+          "field": "existingSolution",
+          "value": "2 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+          "ideaId": "8"
+        },
+        {
+          "field": "existingSolution",
+          "value": "3 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+          "ideaId": "8"
+        },
+        {
+          "field": "uniqueValue",
+          "value": "1 unik",
+          "ideaId": "8"
+        },
+        {
+          "field": "uniqueValue",
+          "value": "2 unik",
+          "ideaId": "8"
+        },
+        {
+          "field": "uniqueValue",
+          "value": "3 unik",
+          "ideaId": "8"
+        },
+        {
+          "field": "proposedSolution",
+          "value": "1 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+          "ideaId": "8"
+        },
+        {
+          "field": "proposedSolution",
+          "value": "2 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+          "ideaId": "8"
+        },
+        {
+          "field": "proposedSolution",
+          "value": "3 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+          "ideaId": "8"
+        }
+      ],
+      "files": [
+        {
+          "field": "additionalAttachment",
+          "value": null,
+          "ideaId": "8"
+        }
+      ]
+    },
+    {
+      "id": "9",
+      "version": "1",
+      "activeFlag": "1",
+      "desc": [
+        {
+          "field": "innovationTitle",
+          "value": "Event Desc",
+          "ideaId": "9"
+        },
+        {
+          "field": "cover",
+          "value": "https://eventorganizerbandung.co.id/img/virtual2.png",
+          "ideaId": "9"
+        },
+        {
+          "field": "description",
+          "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.",
+          "ideaId": "9"
+        }
+      ],
+      "gc": [
+        {
+          "field": "why",
+          "value": "mengapa",
+          "ideaId": "9"
+        },
+        {
+          "field": "how",
+          "value": "bagaimana",
+          "ideaId": "9"
+        },
+        {
+          "field": "what",
+          "value": "apa",
+          "ideaId": "9"
+        }
+      ],
+      "lc": [
+        {
+          "field": "customer",
+          "value": "1 siapa yang ingin kamu solusikan",
+          "ideaId": "9"
+        },
+        {
+          "field": "customer",
+          "value": "2 siapa yang ingin kamu solusikan",
+          "ideaId": "9"
+        },
+        {
+          "field": "customer",
+          "value": "3 siapa yang ingin kamu solusikan",
+          "ideaId": "9"
+        },
+        {
+          "field": "problem",
+          "value": "1 apa problem mereka yang ingin disolusikan?",
+          "ideaId": "9"
+        },
+        {
+          "field": "problem",
+          "value": "2 apa problem mereka yang ingin disolusikan?",
+          "ideaId": "9"
+        },
+        {
+          "field": "problem",
+          "value": "3 apa problem mereka yang ingin disolusikan?",
+          "ideaId": "9"
+        },
+        {
+          "field": "earlyAdopter",
+          "value": "1 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+          "ideaId": "9"
+        },
+        {
+          "field": "earlyAdopter",
+          "value": "2 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+          "ideaId": "9"
+        },
+        {
+          "field": "earlyAdopter",
+          "value": "3 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+          "ideaId": "9"
+        },
+        {
+          "field": "existingSolution",
+          "value": "1 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+          "ideaId": "9"
+        },
+        {
+          "field": "existingSolution",
+          "value": "2 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+          "ideaId": "9"
+        },
+        {
+          "field": "existingSolution",
+          "value": "3 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+          "ideaId": "9"
+        },
+        {
+          "field": "uniqueValue",
+          "value": "1 unik",
+          "ideaId": "9"
+        },
+        {
+          "field": "uniqueValue",
+          "value": "2 unik",
+          "ideaId": "9"
+        },
+        {
+          "field": "uniqueValue",
+          "value": "3 unik",
+          "ideaId": "9"
+        },
+        {
+          "field": "proposedSolution",
+          "value": "1 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+          "ideaId": "9"
+        },
+        {
+          "field": "proposedSolution",
+          "value": "2 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+          "ideaId": "9"
+        },
+        {
+          "field": "proposedSolution",
+          "value": "3 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+          "ideaId": "9"
+        }
+      ],
+      "files": [
+        {
+          "field": "additionalAttachment",
+          "value": "attach_1636962938_f21a69d116eddc988e33.png",
+          "ideaId": "9"
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "version": "1",
+      "activeFlag": "1",
+      "desc": [
+        {
+          "field": "innovationTitle",
+          "value": "Event Direction",
+          "ideaId": "10"
+        },
+        {
+          "field": "cover",
+          "value": "https://media.istockphoto.com/photos/blowing-confetti-on-party-picture-id923858614?k=20&m=923858614&s=612x612&w=0&h=U8sR-dOsLox7Cind3hSnqMifrUhrE7RwvTru25oVDfM=",
+          "ideaId": "10"
+        },
+        {
+          "field": "description",
+          "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.",
+          "ideaId": "10"
+        }
+      ],
+      "gc": [
+        {
+          "field": "why",
+          "value": "mengapa",
+          "ideaId": "10"
+        },
+        {
+          "field": "how",
+          "value": "bagaimana",
+          "ideaId": "10"
+        },
+        {
+          "field": "what",
+          "value": "apa",
+          "ideaId": "10"
+        }
+      ],
+      "lc": [
+        {
+          "field": "customer",
+          "value": "1 siapa yang ingin kamu solusikan",
+          "ideaId": "10"
+        },
+        {
+          "field": "customer",
+          "value": "2 siapa yang ingin kamu solusikan",
+          "ideaId": "10"
+        },
+        {
+          "field": "customer",
+          "value": "3 siapa yang ingin kamu solusikan",
+          "ideaId": "10"
+        },
+        {
+          "field": "problem",
+          "value": "1 apa problem mereka yang ingin disolusikan?",
+          "ideaId": "10"
+        },
+        {
+          "field": "problem",
+          "value": "2 apa problem mereka yang ingin disolusikan?",
+          "ideaId": "10"
+        },
+        {
+          "field": "problem",
+          "value": "3 apa problem mereka yang ingin disolusikan?",
+          "ideaId": "10"
+        },
+        {
+          "field": "earlyAdopter",
+          "value": "1 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+          "ideaId": "10"
+        },
+        {
+          "field": "earlyAdopter",
+          "value": "2 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+          "ideaId": "10"
+        },
+        {
+          "field": "earlyAdopter",
+          "value": "3 siapa saja dari target di atas yg bisa kamu gapai duluan dalam 3 bln ke depan?",
+          "ideaId": "10"
+        },
+        {
+          "field": "existingSolution",
+          "value": "1 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+          "ideaId": "10"
+        },
+        {
+          "field": "existingSolution",
+          "value": "2 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+          "ideaId": "10"
+        },
+        {
+          "field": "existingSolution",
+          "value": "3 per hari ini, bagaimana biasanya mereka mensolusikan probem-problem itu",
+          "ideaId": "10"
+        },
+        {
+          "field": "uniqueValue",
+          "value": "1 unik",
+          "ideaId": "10"
+        },
+        {
+          "field": "uniqueValue",
+          "value": "2 unik",
+          "ideaId": "10"
+        },
+        {
+          "field": "uniqueValue",
+          "value": "3 unik",
+          "ideaId": "10"
+        },
+        {
+          "field": "proposedSolution",
+          "value": "1 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+          "ideaId": "10"
+        },
+        {
+          "field": "proposedSolution",
+          "value": "2 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+          "ideaId": "10"
+        },
+        {
+          "field": "proposedSolution",
+          "value": "3 apa yang bikin kamu berbeda dan keren, jadi mereka mau pindah ke kamu",
+          "ideaId": "10"
+        }
+      ],
+      "files": [
+        {
+          "field": "additionalAttachment",
+          "value": "attach_1636963216_1eba59ff2f18b6101b5a.png",
+          "ideaId": "10"
+        }
+      ]
+    }
+  ]
+}

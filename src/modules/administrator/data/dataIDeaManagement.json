@@ -1,0 +1,22 @@
+[
+    {
+        "id" : 1,
+        "title" : "Memenangkan generasi Z",
+        "created" : "nicholas"
+    },
+    {
+        "id" : 2,
+        "title" : "Maju terus pantang mundur",
+        "created" : "renaldi"
+    },
+    {
+        "id" : 3,
+        "title" : "Sekalo maju tetap maju",
+        "created" : "rifki"
+    },
+    {
+        "id" : 4,
+        "title" : "Berjuang demi kemerdekaan",
+        "created" : "rohhmi"
+    }
+]

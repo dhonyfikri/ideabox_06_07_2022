@@ -1,0 +1,357 @@
+{
+	"info": {
+		"_postman_id": "4b1a53fb-5c26-4fc6-a3ad-90f9c5367bbc",
+		"name": "Event Services",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Event",
+			"item": [
+				{
+					"name": "Register Event",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Hack Idea #2",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Masukkan deskripsi event disini 2",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/C:/Magang/Dummy/Contoh_Image.jpg"
+								},
+								{
+									"key": "startDate",
+									"value": "2021-12-01 12:22:10",
+									"type": "text"
+								},
+								{
+									"key": "endDate",
+									"value": "2021-12-20 12:22:10",
+									"type": "text"
+								},
+								{
+									"key": "categoryEvent",
+									"value": "11",
+									"type": "text"
+								},
+								{
+									"key": "targetKaryawan",
+									"value": "17",
+									"type": "text"
+								},
+								{
+									"key": "createdBy",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://event.desasembung.com/registerevent",
+							"protocol": "http",
+							"host": [
+								"event",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"registerevent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Event",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Hack Idea #3",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Masukkan deskripsi event disini 3",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/C:/Magang/Dummy/Contoh_Image.jpg"
+								},
+								{
+									"key": "startDate",
+									"value": "2021-11-29 12:22:10",
+									"type": "text"
+								},
+								{
+									"key": "endDate",
+									"value": "2021-11-29 12:22:10",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "categoryEvent",
+									"value": "12",
+									"type": "text"
+								},
+								{
+									"key": "targetKaryawan",
+									"value": "21",
+									"type": "text"
+								},
+								{
+									"key": "createdBy",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "updatedBy",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://event.desasembung.com/editevent",
+							"protocol": "http",
+							"host": [
+								"event",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"editevent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Target Karyawan",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://event.desasembung.com/gettargetkaryawan",
+							"protocol": "http",
+							"host": [
+								"event",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"gettargetkaryawan"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Join Event",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "eventId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "ideaId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "createdBy",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://event.desasembung.com/joinevent",
+							"protocol": "http",
+							"host": [
+								"event",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"joinevent"
+							],
+							"query": [
+								{
+									"key": "eventId",
+									"value": "1",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category Event",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://event.desasembung.com/getcategoryevent",
+							"protocol": "http",
+							"host": [
+								"event",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"getcategoryevent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show All Event",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://event.desasembung.com/showevent",
+							"protocol": "http",
+							"host": [
+								"event",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"showevent"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserIdea",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://event.desasembung.com/getuseridea?userId=1",
+							"protocol": "http",
+							"host": [
+								"event",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"getuseridea"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Event Management / Event Status",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "eventId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "submission",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "deskripsi tahap pertama",
+									"type": "text"
+								},
+								{
+									"key": "sorting",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "isMovedToAmoeba",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "startDate",
+									"value": "2021-12-21 12:22:10",
+									"type": "text"
+								},
+								{
+									"key": "endDate",
+									"value": "2021-12-25 12:22:10",
+									"type": "text"
+								},
+								{
+									"key": "createdBy",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://event.desasembung.com/eventstatus",
+							"protocol": "http",
+							"host": [
+								"event",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"eventstatus"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

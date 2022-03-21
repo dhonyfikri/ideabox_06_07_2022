@@ -1,0 +1,38 @@
+[
+    {
+        "id" : 1,
+        "name" : "Joko Andi",
+        "title" : "Perkembangan Sistem Aplikasi yang berjalan",
+        "image" : "https://www.stepstherapy.com.au/wp-content/uploads/2018/10/Yazmin-profile-picture-square.jpg"
+    },
+    {
+        "id" : 2,
+        "name" : "Bryan Lutfi",
+        "title" : "Perjalan hidup seorang prajurit",
+        "image" : "https://elireview.com/wp-content/uploads/2016/12/reed-profile-square.jpg"
+    },
+    {
+        "id" : 3,
+        "name" : "Radit Gone",
+        "title" : "Kemajuan yang harus ditingkatkan",
+        "image" : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZbBkDsIMJR-qlj9lnHguxVonoV3ortTFvcdlmNKz4Ep8ZrdOht1ZoTKTUSQU4Xo6JXpk&usqp=CAU"
+    },
+    {
+        "id" : 4,
+        "name" : "Kurama Sinhai",
+        "title" : "PBelajar menjadi pribadi yang lebih baik",
+        "image" : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsEMkgJLM0UCwTgipGJyLh_O5xpRb3_bfNn1vd8bq1zKkTPgO9t6271gHg3trvWHl1bE8&usqp=CAU"
+    },
+    {
+        "id" : 5,
+        "name" : "Siti Andi",
+        "title" : "Kemajuan teknologi di Indonesia",
+        "image" : "https://www.stepstherapy.com.au/wp-content/uploads/2018/10/Yazmin-profile-picture-square.jpg"
+    },
+    {
+        "id" : 6,
+        "name" : "Sorpian",
+        "title" : "Semangat membangun industri 4.0",
+        "image" : "https://elireview.com/wp-content/uploads/2016/12/reed-profile-square.jpg"
+    }
+]

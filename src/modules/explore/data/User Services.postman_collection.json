@@ -1,0 +1,961 @@
+{
+	"info": {
+		"_postman_id": "bb56760a-c00f-4135-8910-855195a0849e",
+		"name": "User Services",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Profile",
+			"item": [
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "lenny",
+									"type": "text"
+								},
+								{
+									"key": "tglLahir",
+									"value": "1995-12-12",
+									"type": "text"
+								},
+								{
+									"key": "noTelp",
+									"value": "112221321321323",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "lennystephani@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "pictures",
+									"type": "file",
+									"src": "/C:/Users/ASUS/OneDrive - Universitas Atma Jaya Yogyakarta/Pictures/1542524910528.jpg"
+								},
+								{
+									"key": "nikAtasan",
+									"value": "123456",
+									"type": "text"
+								},
+								{
+									"key": "namaAtasan",
+									"value": "lola",
+									"type": "text"
+								},
+								{
+									"key": "longUnit",
+									"value": "lili",
+									"type": "text"
+								},
+								{
+									"key": "anakPerusahaan",
+									"value": "Amoeba",
+									"type": "text"
+								},
+								{
+									"key": "direktorat",
+									"value": "Telkom",
+									"type": "text"
+								},
+								{
+									"key": "regional",
+									"value": "Kalimantan",
+									"type": "text"
+								},
+								{
+									"key": "divisi",
+									"value": "Amoeba",
+									"type": "text"
+								},
+								{
+									"key": "witel",
+									"value": "witel",
+									"type": "text"
+								},
+								{
+									"key": "bandPosition",
+									"value": "position",
+									"type": "text"
+								},
+								{
+									"key": "teamStructure",
+									"value": "HACKER",
+									"type": "text"
+								},
+								{
+									"key": "jenisKelamin",
+									"value": "Perempuan",
+									"type": "text"
+								},
+								{
+									"key": "background",
+									"type": "file",
+									"src": "/C:/Users/ASUS/OneDrive - Universitas Atma Jaya Yogyakarta/Pictures/BackgroundKU.jpg"
+								},
+								{
+									"key": "bio",
+									"value": "terima kasih",
+									"type": "text"
+								},
+								{
+									"key": "loker",
+									"value": "Pontianak",
+									"type": "text"
+								},
+								{
+									"key": "jabatan",
+									"value": "mahasiswa",
+									"type": "text"
+								},
+								{
+									"key": "roleId",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://user.desasembung.com/profile/update/",
+							"protocol": "http",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"profile",
+								"update",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show Profile",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://user.desasembung.com/profile/index?id=1",
+							"protocol": "http",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"profile",
+								"index"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"item": [
+				{
+					"name": "Get Token (SSO)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "code",
+									"value": "47b6cacee1ee1f86c98d0599c7c66433b79fb7671d166a1aa8bc24a66158df35",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://user.desasembung.com/authorize/sso",
+							"protocol": "http",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"authorize",
+								"sso"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Git User (SSO)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://git.digitalamoeba.id/api/v4/user",
+							"protocol": "http",
+							"host": [
+								"git",
+								"digitalamoeba",
+								"id"
+							],
+							"path": [
+								"api",
+								"v4",
+								"user"
+							],
+							"query": [
+								{
+									"key": "access_token",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post Outh Token (SSO)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "code",
+									"value": "443569293c8f70564400222edeb055065d0256a5764962bcd5bc94aeba1bc08d",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "client_id",
+									"value": "e759b4cec673ee41df5ca6f7671c86e023e7318c7bdd6afb798adec61235438d",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "client_secret",
+									"value": "c09485cbff890236d66a19a1179acaeb66597278a8daea720bda179a1215c351",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "redirect_uri",
+									"value": "http://localhost/login",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://git.digitalamoeba.id/oauth/token",
+							"protocol": "http",
+							"host": [
+								"git",
+								"digitalamoeba",
+								"id"
+							],
+							"path": [
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LDAP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ldap\" : {\r\n        \"username\" : \"930241\",\r\n        \"password\" : \"Bandung24!\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://user.desasembung.com/authorize/ldap",
+							"protocol": "http",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"authorize",
+								"ldap"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/user?id=2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"user"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "Edit User Management",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://user.desasembung.com/usermanagement/edit?id=2&roleId=5&groupId=3&activeFlag=1&teamStructure=HACKER",
+							"protocol": "http",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"usermanagement",
+								"edit"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								},
+								{
+									"key": "roleId",
+									"value": "5"
+								},
+								{
+									"key": "groupId",
+									"value": "3"
+								},
+								{
+									"key": "activeFlag",
+									"value": "1"
+								},
+								{
+									"key": "teamStructure",
+									"value": "HACKER"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show all user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://user.desasembung.com/usermanagement/index",
+							"protocol": "http",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"usermanagement",
+								"index"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "6",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://user.desasembung.com/usermanagement/delete",
+							"protocol": "http",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"usermanagement",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Excel User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://user.desasembung.com/excelusermanagement",
+							"protocol": "http",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"excelusermanagement"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PDF User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://user.desasembung.com/pdfusermanagement",
+							"protocol": "http",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"pdfusermanagement"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "User Baru",
+									"type": "text"
+								},
+								{
+									"key": "noTelp",
+									"value": "089618182838",
+									"type": "text"
+								},
+								{
+									"key": "tglLahir",
+									"value": "1999-12-12",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "user_baru@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "bio (x)",
+									"value": "biodata user",
+									"type": "text"
+								},
+								{
+									"key": "jenisKelamin (x)",
+									"value": "perempuan",
+									"type": "text"
+								},
+								{
+									"key": "teamStructure ",
+									"value": "HIPSTER",
+									"type": "text"
+								},
+								{
+									"key": "roleId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "createdBy",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://user.desasembung.com/createuser",
+							"protocol": "http",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"createuser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit User Feature",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "featureId",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "userId",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://user.desasembung.com/createuserfeature",
+							"protocol": "http",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"createuserfeature"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Track Record",
+			"item": [
+				{
+					"name": "TrackRecord",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "userId",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://user.desasembung.com/trackrecord?userId=1",
+							"protocol": "http",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"trackrecord"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Role Management",
+			"item": [
+				{
+					"name": "Get All Role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://user.desasembung.com/RoleManagement/index",
+							"protocol": "https",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"RoleManagement",
+								"index"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User Feature",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "roleId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "updatedBy",
+									"value": "7",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://user.desasembung.com/edit",
+							"protocol": "https",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"edit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show Role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://user.desasembung.com/RoleManagement/show?id=1",
+							"protocol": "https",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"RoleManagement",
+								"show"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Role Management",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "role",
+									"value": "Innovation 2",
+									"type": "text"
+								},
+								{
+									"key": "createdBy",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "feature[]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "feature[]",
+									"value": "4",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8081/createrolemanagement",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"createrolemanagement"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Role Management",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id[]",
+									"value": "20",
+									"type": "text"
+								},
+								{
+									"key": "id[]",
+									"value": "20",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "feature[]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "feature[]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "feature[]",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "updatedBy",
+									"value": "2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://user.desasembung.com/editrolemanagement",
+							"protocol": "https",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"editrolemanagement"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role Management",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "19",
+									"type": "text"
+								},
+								{
+									"key": "updatedBy",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://user.desasembung.com/deleterolemanagement",
+							"protocol": "https",
+							"host": [
+								"user",
+								"desasembung",
+								"com"
+							],
+							"path": [
+								"deleterolemanagement"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "getUserIdea",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/ideaservice/getuser?id=1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"ideaservice",
+						"getuser"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserIdea Copy",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/ideaservice/getideasuser?userId=1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"ideaservice",
+						"getideasuser"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

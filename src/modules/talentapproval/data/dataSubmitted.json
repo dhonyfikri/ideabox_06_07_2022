@@ -1,0 +1,32 @@
+[
+    {
+        "id" : 1,
+        "title" : "Integritas Sistem Keuangan Guna Menciptakan Stabilitas Makro Ekonomi",
+        "createdby" : "Siti Anwar",
+        "createddate" : "2021-09-26 00:29:42",
+        "desc" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.",
+        "perusahaan" : "Telkom Amoeba",
+        "why":"Sistem keuangan ini menjadi jantung dari korporasi tersebut, sehingga apabila sistem keuangan ini tidak mampu dibangun dengan basis integritas yang memadai, maka risiko korporasi tersebut tidak hanya berkaitan dengan kejahatan pencucian dan kejahatan asalnya saja, tetapi juga kerentanan alas segala bentuk penyalahgunaan sistem keuangan (abuse of financial system) yang dapat berujung pada kerugian dan kegagalan korporasi tersebut.Penerapan strategi-strategi tersebut, tidak boleh diartikan hanya sebatas beban kepatuhan (compliance rule), tetapi harus diletakkan pada satu pemahaman bahwa penerapan strategi ini justru memberikan perlindungan hukum dengan dampak ekonomis siginifikan bagi korporasi itu sendiri. Sebab, dampak negatif yang ditimbulkan dari penyalahgunaan sistem keuangan korporasi tidak hanya sebatas kerugian korporasi itu saja, namun mengakibatkan stabilitas makro ekonomi akan terganggu karena merupakan bagian dari ekosistem keuangan yang ada.",
+        "image" : "https://www.stepstherapy.com.au/wp-content/uploads/2018/10/Yazmin-profile-picture-square.jpg"
+    },
+    {
+        "id" : 2,
+        "title" : "IPembangunan Sistem Keungan 4.0",
+        "createdby" : "Rudi Kabuki",
+        "createddate" : "2021-10-06 15:29:42",
+        "desc" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.",
+        "perusahaan" : "Telkom Indihome",
+        "why":"Sistem keuangan ini menjadi jantung dari korporasi tersebut, sehingga apabila sistem keuangan ini tidak mampu dibangun dengan basis integritas yang memadai, maka risiko korporasi tersebut tidak hanya berkaitan dengan kejahatan pencucian dan kejahatan asalnya saja, tetapi juga kerentanan alas segala bentuk penyalahgunaan sistem keuangan (abuse of financial system) yang dapat berujung pada kerugian dan kegagalan korporasi tersebut.Penerapan strategi-strategi tersebut, tidak boleh diartikan hanya sebatas beban kepatuhan (compliance rule), tetapi harus diletakkan pada satu pemahaman bahwa penerapan strategi ini justru memberikan perlindungan hukum dengan dampak ekonomis siginifikan bagi korporasi itu sendiri. Sebab, dampak negatif yang ditimbulkan dari penyalahgunaan sistem keuangan korporasi tidak hanya sebatas kerugian korporasi itu saja, namun mengakibatkan stabilitas makro ekonomi akan terganggu karena merupakan bagian dari ekosistem keuangan yang ada.",
+        "image" : "https://elireview.com/wp-content/uploads/2016/12/reed-profile-square.jpg"
+    },
+    {
+        "id" : 3,
+        "title" : "Kemajuan Teknologi yang pesat terhadap kehidupan",
+        "createdby" : "Ria Ruki",
+        "createddate" : "2020-09-21 00:29:42",
+        "desc" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est.",
+        "perusahaan" : "Telkom Telkomsel",
+        "why":"Sistem keuangan ini menjadi jantung dari korporasi tersebut, sehingga apabila sistem keuangan ini tidak mampu dibangun dengan basis integritas yang memadai, maka risiko korporasi tersebut tidak hanya berkaitan dengan kejahatan pencucian dan kejahatan asalnya saja, tetapi juga kerentanan alas segala bentuk penyalahgunaan sistem keuangan (abuse of financial system) yang dapat berujung pada kerugian dan kegagalan korporasi tersebut.Penerapan strategi-strategi tersebut, tidak boleh diartikan hanya sebatas beban kepatuhan (compliance rule), tetapi harus diletakkan pada satu pemahaman bahwa penerapan strategi ini justru memberikan perlindungan hukum dengan dampak ekonomis siginifikan bagi korporasi itu sendiri. Sebab, dampak negatif yang ditimbulkan dari penyalahgunaan sistem keuangan korporasi tidak hanya sebatas kerugian korporasi itu saja, namun mengakibatkan stabilitas makro ekonomi akan terganggu karena merupakan bagian dari ekosistem keuangan yang ada.",
+        "image" : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZbBkDsIMJR-qlj9lnHguxVonoV3ortTFvcdlmNKz4Ep8ZrdOht1ZoTKTUSQU4Xo6JXpk&usqp=CAU"
+    }
+]
