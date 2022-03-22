@@ -88,7 +88,7 @@ const InputProfile = ({navigation}) => {
 
   // dropdownJenisKelamin
   const [openDdJenisKelamin, setOpenDdJenisKelamin] = useState(false);
-  const [valueDdJenisKelamin, setValueDdJenisKelamin] = useState(2);
+  const [valueDdJenisKelamin, setValueDdJenisKelamin] = useState(null);
   const [itemsDdJenisKelamin, setItemsDdJenisKelamin] = useState([]);
 
   useEffect(() => {
@@ -104,7 +104,7 @@ const InputProfile = ({navigation}) => {
         ...AuthConfig,
       });
       if (data === defaultAuthState) {
-        return <LoadingScreen />;
+        return <LoadingScreen navigation={navigation} />;
       }
       GetDataProfile(data.id).then(jsonValue =>
         setDataProfile(jsonValue !== undefined ? jsonValue : null),
@@ -241,7 +241,7 @@ const InputProfile = ({navigation}) => {
         // categoryUnitId: value3,
         teamStructure: value1,
         skillSetId: value4,
-        gender: valueDdJenisKelamin,
+        jenisKelamin: valueDdJenisKelamin,
         perusahaan: 'dummyPerusahaan',
         pekerjaan: 'dummyPekerjaan',
       },
@@ -263,7 +263,7 @@ const InputProfile = ({navigation}) => {
     dataSkill === null ||
     dataJenisKelamin === null
   ) {
-    return <LoadingScreen />;
+    return <LoadingScreen navigation={navigation} />;
   }
   const getDataSuccess = data => {
     setSuccessModal(data);
@@ -352,17 +352,22 @@ const InputProfile = ({navigation}) => {
   if (dataProfile.teamStructure !== '' && value1 === null) {
     setValue1(dataProfile.teamStructure);
   }
+  if (dataProfile.jenisKelamin !== null && valueDdJenisKelamin === null) {
+    setValueDdJenisKelamin(parseInt(dataProfile.jenisKelamin));
+  }
   return (
     <SafeAreaView style={styles.container}>
       {successModal === 200 ? (
         <SuccesModal
           desc={'Congrats your profile have been updated!'}
           getData={getDataSuccess}
+          navigation={navigation}
         />
       ) : successModal !== null ? (
         <FailedModal
           desc={'Your data failed to update!'}
           getData={getDataSuccess}
+          navigation={navigation}
         />
       ) : null}
       <ScrollView>

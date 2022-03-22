@@ -25,7 +25,7 @@ const FailedModal = props => {
       transparent={true}
       visible={visible}
       onRequestClose={() => {
-        props.navigation.goBack();
+        props.navigation.pop();
       }}>
       <View style={styles.centeredView}>
         <View style={styles.centeredcontainer}>

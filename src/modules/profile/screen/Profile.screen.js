@@ -56,7 +56,7 @@ const Profile = ({navigation}) => {
     if (dataTrackRecord === '' || data === defaultAuthState) {
       getData().then(jsonValue => setData(jsonValue));
       if (data === defaultAuthState) {
-        return <LoadingScreen />;
+        return <LoadingScreen navigation={navigation} />;
       }
       GetDataTrackRecord(data.id).then(response =>
         setDataTrackRecord(response !== undefined ? response : ''),
@@ -65,7 +65,7 @@ const Profile = ({navigation}) => {
   });
 
   if (dataTrackRecord === '' || data === defaultAuthState) {
-    return <LoadingScreen />;
+    return <LoadingScreen navigation={navigation} />;
   }
   const handlePost = () => {
     axios({
@@ -118,11 +118,13 @@ const Profile = ({navigation}) => {
         <SuccesModal
           desc={'Congrats your track record have been updated!'}
           getData={getDataSuccess}
+          navigation={navigation}
         />
       ) : successModal !== null ? (
         <FailedModal
           desc={'Your data failed to update!'}
           getData={getDataSuccess}
+          navigation={navigation}
         />
       ) : null}
       <ScrollView>

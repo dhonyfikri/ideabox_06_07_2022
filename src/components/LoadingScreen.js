@@ -1,14 +1,14 @@
 import React from 'react';
 import {StyleSheet, ActivityIndicator, View, Alert, Modal} from 'react-native';
 
-const LoadingScreen = navigation => {
+const LoadingScreen = ({navigation}) => {
   return (
     <Modal
       animationType="none"
       transparent={true}
       visible={true}
       onRequestClose={() => {
-        navigation.goBack();
+        navigation.pop();
       }}>
       <View style={styles.centeredView}>
         <View style={styles.centeredcontainer}>
