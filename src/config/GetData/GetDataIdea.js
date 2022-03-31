@@ -1,7 +1,8 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 const GetDataIdea = () => {
   return axios
-    .get('https://dev-ideas.digitalamoeba.id/showideas')
+    .get(`${IdeaServiceBaseUrl}/showideas`)
     .then(response => {
       // setUpdate(response.data.data);
       return response.data.data;
@@ -15,7 +16,7 @@ const GetDetailIdea = id => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-ideas.digitalamoeba.id/showideas/getidea/',
+    url: `${IdeaServiceBaseUrl}/showideas/getidea/`,
     data: {
       ideaId: id,
     },

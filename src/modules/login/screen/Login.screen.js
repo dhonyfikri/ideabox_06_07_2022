@@ -24,6 +24,7 @@ import {
 import getData from '../../../components/GetData';
 import CheckBox from '@react-native-community/checkbox';
 import LoadingScreen from '../../../components/LoadingScreen';
+import {UserServiceBaseUrl} from '../../../config/Environment.cfg';
 
 const Login = ({navigation, route}) => {
   // route.params.data = null;
@@ -77,7 +78,7 @@ const Login = ({navigation, route}) => {
       axios({
         crossDomain: true,
         method: 'post',
-        url: 'https://dev-users.digitalamoeba.id/authorize/sso/mobile',
+        url: `${UserServiceBaseUrl}/authorize/sso/mobile`,
         data: {
           access_token: newAuthState.accessToken,
         },
@@ -105,7 +106,7 @@ const Login = ({navigation, route}) => {
       axios({
         crossDomain: true,
         method: 'post',
-        url: 'https://dev-users.digitalamoeba.id/authorize/ldap',
+        url: `${UserServiceBaseUrl}/authorize/ldap`,
         data: {
           ldap: {
             username: ldap.username,

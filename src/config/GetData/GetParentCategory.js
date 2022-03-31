@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 
 const GetParentCategory = type => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-ideas.digitalamoeba.id/categorymanagement/getparentcategories',
+    url: `${IdeaServiceBaseUrl}/categorymanagement/getparentcategories`,
     data: {
       type: type,
     },

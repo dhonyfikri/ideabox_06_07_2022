@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {prefetchConfiguration} from 'react-native-app-auth';
 import styles from '../style/Input.style';
 import getData from '../../../components/GetData';
@@ -34,7 +34,8 @@ import {
   GetDataUnit,
 } from '../../../config/GetData/GetDataCfu';
 import GetDataSkill from '../../../config/GetData/GetDataSkill';
-const InputProfile = ({navigation}) => {
+import {UserServiceBaseUrl} from '../../../config/Environment.cfg';
+const InputProfile = ({navigation, route}) => {
   const [data, setData] = useState(defaultAuthState);
   const [success, setSuccess] = useState(false);
   const [successModal, setSuccessModal] = useState(null);
@@ -46,10 +47,13 @@ const InputProfile = ({navigation}) => {
   const [profile, setProfile] = useState(null);
   const [imageCover, setImageCover] = useState(null);
   const [imageProfile, setImageProfile] = useState(null);
-  const [dataProfile, setDataProfile] = useState(null);
+  const [dataProfile, setDataProfile] = useState({success: false, data: {}});
   // const [dataCfu, setDataCfu] = useState(null);
-  const [dataSkill, setDataSkill] = useState(null);
-  const [dataJenisKelamin, setDataJenisKelamin] = useState(null);
+  const [dataSkill, setDataSkill] = useState({success: false, data: []});
+  const [dataJenisKelamin, setDataJenisKelamin] = useState({
+    success: false,
+    data: [],
+  });
   const [dataGender, setDataGender] = useState(null);
   // const [dataCategoryUnit, setDataCategoryUnit] = useState(null);
   // const [dataUnit, setDataUnit] = useState(null);
@@ -91,42 +95,152 @@ const InputProfile = ({navigation}) => {
   const [valueDdJenisKelamin, setValueDdJenisKelamin] = useState(null);
   const [itemsDdJenisKelamin, setItemsDdJenisKelamin] = useState([]);
 
-  useEffect(() => {
-    if (
-      dataProfile === null ||
-      // dataCfu === null ||
-      dataSkill === null ||
-      dataJenisKelamin === null
-    ) {
-      getData().then(jsonValue => setData(jsonValue));
-      prefetchConfiguration({
-        warmAndPrefetchChrome: Platform.OS === 'android',
-        ...AuthConfig,
-      });
-      if (data === defaultAuthState) {
-        return <LoadingScreen navigation={navigation} />;
-      }
-      GetDataProfile(data.id).then(jsonValue =>
-        setDataProfile(jsonValue !== undefined ? jsonValue : null),
-      );
-      // GetDataCfu().then(res => setDataCfu(res));
-      GetDataSkill().then(res => {
-        setDataSkill(res !== undefined ? res : null);
-      });
-      if (dataJenisKelamin === null) {
-        setDataJenisKelamin([
-          {
-            id: 1,
-            name: 'Laki-laki',
-          },
-          {
-            id: 2,
-            name: 'Perempuan',
-          },
-        ]);
-      }
+  const [openedDropdown, setOpenedDropdown] = useState({dropdownName: ''});
+
+  const dropdownOpenHandler = useCallback(type => () => {
+    if (type === openedDropdown.dropdownName) {
+      setOpenedDropdown({dropdownName: ''});
+    } else {
+      setOpenedDropdown({dropdownName: type});
     }
   });
+
+  useEffect(() => {
+    getData().then(jsonValue => setData(jsonValue));
+    prefetchConfiguration({
+      warmAndPrefetchChrome: Platform.OS === 'android',
+      ...AuthConfig,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (data !== defaultAuthState && !dataProfile.success) {
+      console.log('get profile');
+      GetDataProfile(data.id).then(jsonValue => {
+        setDataProfile(
+          jsonValue !== undefined
+            ? {success: true, data: jsonValue}
+            : {...dataProfile, success: false},
+        );
+      });
+    }
+    if (dataProfile.success) {
+      if (dataProfile.data.teamStructure !== '' && value1 === null) {
+        setValue1(dataProfile.data.teamStructure);
+      }
+      if (
+        dataProfile.data.jenisKelamin !== null &&
+        valueDdJenisKelamin === null
+      ) {
+        setValueDdJenisKelamin(dataProfile.data.jenisKelamin);
+      }
+      if (route.params.skill !== undefined) {
+        const userSkillTemp = [];
+        route.params.skill.map(item => {
+          userSkillTemp.push(item.id);
+        });
+        setValue4(userSkillTemp);
+      }
+    }
+  }, [dataProfile, data]);
+
+  useEffect(() => {
+    if (data !== defaultAuthState && !dataSkill.success) {
+      console.log('get skill');
+      GetDataSkill().then(res => {
+        setDataSkill(
+          res !== undefined
+            ? {success: true, data: res}
+            : {...dataSkill, success: false},
+        );
+      });
+    }
+    if (dataSkill.success) {
+      const skillDataTemp = [];
+      dataSkill.data.map(val => {
+        skillDataTemp.push({label: val.name, value: val.id});
+      });
+      setItems4(skillDataTemp);
+    }
+  }, [dataSkill, data]);
+
+  useEffect(() => {
+    if (data !== defaultAuthState && !dataJenisKelamin.success) {
+      console.log('get jenis kelamin');
+      const dataFromServer = [
+        {
+          id: 'PRIA',
+          name: 'Laki-laki',
+        },
+        {
+          id: 'WANITA',
+          name: 'Perempuan',
+        },
+      ];
+      setDataJenisKelamin({
+        success: true,
+        data: dataFromServer,
+      });
+    }
+    if (dataJenisKelamin.success) {
+      const genderDataTemp = [];
+      dataJenisKelamin.data.map(val => {
+        genderDataTemp.push({label: val.name, value: val.id});
+      });
+      setItemsDdJenisKelamin(genderDataTemp);
+    }
+  }, [dataJenisKelamin, data]);
+
+  if (
+    // dataProfile === null ||
+    // dataCfu === null ||
+    // dataSkill === null ||
+    // dataJenisKelamin === null
+    !dataProfile.success
+  ) {
+    console.log('loading');
+    return <LoadingScreen navigation={navigation} />;
+  }
+
+  // useEffect(() => {
+  //   // const xx = ['k', 'p'];
+  //   // console.log(Object.keys(xx).length);
+
+  //   if (
+  //     dataProfile === null ||
+  //     // dataCfu === null ||
+  //     dataSkill === null ||
+  //     dataJenisKelamin === null
+  //   ) {
+  //     getData().then(jsonValue => setData(jsonValue));
+  //     prefetchConfiguration({
+  //       warmAndPrefetchChrome: Platform.OS === 'android',
+  //       ...AuthConfig,
+  //     });
+  //     if (data === defaultAuthState) {
+  //       return <LoadingScreen navigation={navigation} />;
+  //     }
+  //     GetDataProfile(data.id).then(jsonValue =>
+  //       setDataProfile(jsonValue !== undefined ? jsonValue : null),
+  //     );
+  //     // GetDataCfu().then(res => setDataCfu(res));
+  //     GetDataSkill().then(res => {
+  //       setDataSkill(res !== undefined ? res : null);
+  //     });
+  //     if (dataJenisKelamin === null) {
+  //       setDataJenisKelamin([
+  //         {
+  //           id: 1,
+  //           name: 'Laki-laki',
+  //         },
+  //         {
+  //           id: 2,
+  //           name: 'Perempuan',
+  //         },
+  //       ]);
+  //     }
+  //   }
+  // });
   // useEffect(() => {
   //   setArray2(false);
   //   setItems2([]);
@@ -162,8 +276,8 @@ const InputProfile = ({navigation}) => {
 
   const storeDataLdap = async () => {
     try {
-      if (dataProfile.name !== '') {
-        const jsonValue = JSON.stringify(dataProfile);
+      if (dataProfile.data.name !== '') {
+        const jsonValue = JSON.stringify(dataProfile.data);
         await AsyncStorage.setItem('authState', jsonValue);
       }
     } catch (e) {
@@ -178,12 +292,12 @@ const InputProfile = ({navigation}) => {
       name: 'photo.jpeg',
       type: 'image/jpeg',
     };
-    formData.append('userId', dataProfile.id);
+    formData.append('userId', dataProfile.data.id);
     formData.append('background', img);
     axios({
       crossDomain: true,
       method: 'post',
-      url: 'https://dev-users.digitalamoeba.id/trackrecord/editbackground',
+      url: `${UserServiceBaseUrl}/trackrecord/editbackground`,
       data: formData,
       validateStatus: false,
     })
@@ -203,12 +317,12 @@ const InputProfile = ({navigation}) => {
       name: 'photo.jpeg',
       type: 'image/jpeg',
     };
-    formData.append('userId', dataProfile.id);
+    formData.append('userId', dataProfile.data.id);
     formData.append('pictures', img);
     axios({
       crossDomain: true,
       method: 'post',
-      url: 'https://dev-users.digitalamoeba.id/trackrecord/editpicture',
+      url: `${UserServiceBaseUrl}/trackrecord/editpicture`,
       data: formData,
       validateStatus: false,
     })
@@ -222,16 +336,33 @@ const InputProfile = ({navigation}) => {
       });
   };
   const handlePost = () => {
+    const mySentence = 'freeCodeCamp is an awesome resource';
+    const words = mySentence.split(' ');
+
+    for (let i = 0; i < words.length; i++) {
+      words[i] = words[i][0].toUpperCase() + words[i].substr(1);
+    }
+
+    words.join(' ');
+    console.log(words);
+    // const mySentence = 'freeCodeCamp is an awesome resource';
+    // const words = mySentence.split(' ');
+
+    // words
+    //   .map(word => {
+    //     return word[0].toUpperCase() + word.substring(1);
+    //   })
+    //   .join(' ');
     axios({
       crossDomain: true,
       method: 'post',
-      url: 'https://dev-users.digitalamoeba.id/trackrecord/editprofile',
+      url: `${UserServiceBaseUrl}/trackrecord/editprofile`,
       data: {
-        userId: dataProfile.id,
-        name: dataProfile.name,
+        userId: dataProfile.data.id,
+        name: dataProfile.data.name,
         // nik: dataProfile.nik,
-        email: dataProfile.email,
-        noTelp: dataProfile.noTelp,
+        email: dataProfile.data.email,
+        noTelp: dataProfile.data.noTelp,
         // tglLahir: dataProfile.tglLahir,
         // namaAtasan: dataProfile.namaAtasan,
         // nikAtasan: dataProfile.nikAtasan,
@@ -257,51 +388,32 @@ const InputProfile = ({navigation}) => {
         // need handling error
       });
   };
-  if (
-    dataProfile === null ||
-    // dataCfu === null ||
-    dataSkill === null ||
-    dataJenisKelamin === null
-  ) {
-    return <LoadingScreen navigation={navigation} />;
-  }
+
   const getDataSuccess = data => {
     setSuccessModal(data);
   };
   //calender
   const handleText = () =>
-    pickedDate ? moment(pickedDate).format('YYYY-MM-DD') : dataProfile.tglLahir;
-
-  //gender
-  if (dataJenisKelamin !== undefined) {
-    if (arrayDdJenisKelamin === false) {
-      if (dataJenisKelamin !== null) {
-        dataJenisKelamin.map(val => {
-          setItemsDdJenisKelamin(res => [
-            ...res,
-            {label: val.name, value: val.id},
-          ]);
-        });
-        setArrayDdJenisKelamin(true);
-      }
-    }
-  }
+    pickedDate
+      ? moment(pickedDate).format('YYYY-MM-DD')
+      : dataProfile.data.tglLahir;
 
   if (imageCover === null || imageProfile === null) {
-    setImageCover(dataProfile.background);
-    setImageProfile(dataProfile.pictures);
+    setImageCover(dataProfile.data.background);
+    setImageProfile(dataProfile.data.pictures);
   }
-  //skill
-  if (dataSkill !== undefined) {
-    if (array4 === false) {
-      if (dataSkill !== null) {
-        dataSkill.map(val => {
-          setItems4(res => [...res, {label: val.name, value: val.id}]);
-        });
-        setArray4(true);
-      }
-    }
-  }
+
+  // //skill
+  // if (dataSkill !== undefined) {
+  //   if (array4 === false) {
+  //     if (dataSkill !== null) {
+  //       dataSkill.map(val => {
+  //         setItems4(res => [...res, {label: val.name, value: val.id}]);
+  //       });
+  //       setArray4(true);
+  //     }
+  //   }
+  // }
   //cfu/fu
   // if (dataCfu !== undefined) {
   //   if (array === false) {
@@ -349,12 +461,11 @@ const InputProfile = ({navigation}) => {
   //     }
   //   }
   // }
-  if (dataProfile.teamStructure !== '' && value1 === null) {
-    setValue1(dataProfile.teamStructure);
-  }
-  if (dataProfile.jenisKelamin !== null && valueDdJenisKelamin === null) {
-    setValueDdJenisKelamin(parseInt(dataProfile.jenisKelamin));
-  }
+
+  // if (dataProfile.data.teamStructure !== '' && value1 === null) {
+  //   setValue1(dataProfile.data.teamStructure);
+  // }
+
   return (
     <SafeAreaView style={styles.container}>
       {successModal === 200 ? (
@@ -398,21 +509,23 @@ const InputProfile = ({navigation}) => {
               <Camera />
             </TouchableOpacity>
           </View>
-          <View style={styles.profilePicture}>
-            <TouchableOpacity
-              onPress={() => {
-                takePhotoFromLibraryProfile();
-              }}
-              style={{position: 'absolute', bottom: 0, zIndex: 3, right: 0}}>
-              <Image
-                source={require('../../../assets/icon/iconcameraprofile.png')}
-                style={{
-                  width: 35,
-                  height: 35,
+          <View style={styles.profilePictureWrapper}>
+            <View style={styles.profilePicture}>
+              <TouchableOpacity
+                onPress={() => {
+                  takePhotoFromLibraryProfile();
                 }}
-              />
-            </TouchableOpacity>
-            <Image source={{uri: imageProfile}} style={styles.profileImage} />
+                style={{position: 'absolute', bottom: 0, zIndex: 3, right: 0}}>
+                <Image
+                  source={require('../../../assets/icon/iconcameraprofile.png')}
+                  style={{
+                    width: 35,
+                    height: 35,
+                  }}
+                />
+              </TouchableOpacity>
+              <Image source={{uri: imageProfile}} style={styles.profileImage} />
+            </View>
           </View>
           <View style={styles.contentContainer}>
             <Text style={styles.h1}>PROFILE DATA</Text>
@@ -422,8 +535,13 @@ const InputProfile = ({navigation}) => {
             <Text style={styles.h2}>Name</Text>
             <TextInput
               style={styles.input}
-              value={dataProfile.name}
-              onChangeText={val => setDataProfile({...dataProfile, name: val})}
+              value={dataProfile.data.name}
+              onChangeText={val =>
+                setDataProfile({
+                  ...dataProfile,
+                  data: {...dataProfile.data, name: val},
+                })
+              }
               // need handle ASYNCSTORAGE
             />
             {/* <Text style={styles.h2}>NIK</Text>
@@ -435,15 +553,23 @@ const InputProfile = ({navigation}) => {
             <Text style={styles.h2}>Email</Text>
             <TextInput
               style={styles.input}
-              value={dataProfile.email}
-              onChangeText={val => setDataProfile({...dataProfile, email: val})}
+              value={dataProfile.data.email}
+              onChangeText={val =>
+                setDataProfile({
+                  ...dataProfile,
+                  data: {...dataProfile.data, email: val},
+                })
+              }
             />
             <Text style={styles.h2}>No. HP (Min 8 number)</Text>
             <TextInput
               style={styles.input}
-              value={dataProfile.noTelp}
+              value={dataProfile.data.noTelp}
               onChangeText={val =>
-                setDataProfile({...dataProfile, noTelp: val})
+                setDataProfile({
+                  ...dataProfile,
+                  data: {...dataProfile.data, noTelp: val},
+                })
               }
             />
             {/* <Text style={styles.h2}>Date of Birth</Text>
@@ -469,10 +595,10 @@ const InputProfile = ({navigation}) => {
               <DropDownPicker
                 listMode="SCROLLVIEW"
                 dropDownDirection="BOTTOM"
-                open={openDdJenisKelamin}
+                open={openedDropdown.dropdownName === 'JENIS_KELAMIN'}
                 value={valueDdJenisKelamin}
                 items={itemsDdJenisKelamin}
-                setOpen={setOpenDdJenisKelamin}
+                setOpen={dropdownOpenHandler('JENIS_KELAMIN')}
                 setValue={setValueDdJenisKelamin}
                 setItems={setItemsDdJenisKelamin}
                 style={styles.input}
@@ -489,17 +615,13 @@ const InputProfile = ({navigation}) => {
             <TextInput
               style={styles.input}
               value="Jaya Sentosa Indotama" //dummy
-              onChangeText={val =>
-                setDataProfile({...dataProfile, noTelp: val})
-              }
+              onChangeText={val => console.log(val)}
             />
             <Text style={styles.h2}>Pekerjaan</Text>
             <TextInput
               style={styles.input}
               value="Human Resource Development" //dummy
-              onChangeText={val =>
-                setDataProfile({...dataProfile, noTelp: val})
-              }
+              onChangeText={val => console.log(val)}
             />
             {/* <Text style={styles.h2}>Work Location :</Text>
             <TextInput
@@ -537,10 +659,10 @@ const InputProfile = ({navigation}) => {
               <DropDownPicker
                 listMode="SCROLLVIEW"
                 dropDownDirection="BOTTOM"
-                open={open1}
+                open={openedDropdown.dropdownName === 'TEAM_STRUCTURE'}
                 value={value1}
                 items={items1}
-                setOpen={setOpen1}
+                setOpen={dropdownOpenHandler('TEAM_STRUCTURE')}
                 setValue={setValue1}
                 setItems={setItems1}
                 style={styles.input}
@@ -550,6 +672,7 @@ const InputProfile = ({navigation}) => {
                 listItemContainerStyle={styles.listContainer}
                 placeholderStyle={styles.placeholder}
                 zIndex={7100}
+                zIndexInverse={7000}
                 maxHeight={120}
               />
             </View>
@@ -560,11 +683,11 @@ const InputProfile = ({navigation}) => {
                 min={0}
                 max={dataSkill.count}
                 listMode="SCROLLVIEW"
-                dropDownDirection="BOTTOM"
-                open={open4}
+                dropDownDirection="AUTO"
+                open={openedDropdown.dropdownName === 'SKILL'}
                 value={value4}
                 items={items4}
-                setOpen={setOpen4}
+                setOpen={dropdownOpenHandler('SKILL')}
                 setValue={setValue4}
                 setItems={setItems4}
                 style={styles.input}
@@ -574,6 +697,7 @@ const InputProfile = ({navigation}) => {
                 listItemContainerStyle={styles.listContainer}
                 placeholderStyle={styles.placeholder}
                 zIndex={7000}
+                zIndexInverse={7100}
                 maxHeight={120}
               />
             </View>

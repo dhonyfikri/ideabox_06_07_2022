@@ -1,8 +1,9 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 
 const GetDataCategoryManagement = () => {
   return axios
-    .get('https://dev-ideas.digitalamoeba.id/CategoryManagement/index')
+    .get(`${IdeaServiceBaseUrl}/CategoryManagement/index`)
     .then(response => {
       // setUpdate(response.data.data);
       return response.data.data;
@@ -13,7 +14,7 @@ const GetDataCategoryManagement = () => {
 };
 const GetDataIdeaManagement = () => {
   return axios
-    .get('https://dev-ideas.digitalamoeba.id/ideamanagement/showideas')
+    .get(`${IdeaServiceBaseUrl}/ideamanagement/showideas`)
     .then(response => {
       // setUpdate(response.data.data);
       return response.data.data;

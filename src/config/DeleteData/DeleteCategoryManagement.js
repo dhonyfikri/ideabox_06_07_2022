@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 
 const DeleteCategoryManagement = id => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-ideas.digitalamoeba.id/categorymanagement/delete',
+    url: `${IdeaServiceBaseUrl}/categorymanagement/delete`,
     data: {
       id: id,
     },

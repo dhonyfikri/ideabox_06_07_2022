@@ -1,8 +1,9 @@
 import axios from 'axios';
+import {UserServiceBaseUrl} from '../Environment.cfg';
 
 const GetDataCfu = () => {
   return axios
-    .get('https://dev-users.digitalamoeba.id/trackrecord/getcfufu')
+    .get(`${UserServiceBaseUrl}/trackrecord/getcfufu`)
     .then(response => {
       return response.data;
     })
@@ -14,7 +15,7 @@ const GetDataCategoryUnit = cfuid => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-users.digitalamoeba.id/trackrecord/getcategoryunit',
+    url: `${UserServiceBaseUrl}/trackrecord/getcategoryunit`,
     data: {
       cfufuId: cfuid,
     },
@@ -32,7 +33,7 @@ const GetDataUnit = categoryid => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-users.digitalamoeba.id/trackrecord/getunit',
+    url: `${UserServiceBaseUrl}/trackrecord/getunit`,
     data: {
       categoryUnitId: categoryid,
     },

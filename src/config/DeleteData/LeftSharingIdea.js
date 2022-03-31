@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 
 const LeftSharingIdea = (userId, id) => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-ideas.digitalamoeba.id/leavesharingidea',
+    url: `${IdeaServiceBaseUrl}/leavesharingidea`,
     data: {
       userId: userId,
       id: id,

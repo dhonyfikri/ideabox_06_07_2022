@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 
 const GetDataTalentApproval = id => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-ideas.digitalamoeba.id/showapproval',
+    url: `${IdeaServiceBaseUrl}/showapproval`,
     data: {
       userId: id,
     },

@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 
 const PostTalentApproval = (userId, status, id) => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-ideas.digitalamoeba.id/TalentApproval/talentApproval',
+    url: `${IdeaServiceBaseUrl}/TalentApproval/talentApproval`,
     data: {
       userId: userId,
       status: status,

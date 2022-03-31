@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 
 const DeleteIdeaManagement = id => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-ideas.digitalamoeba.id/ideamanagement/deleteideas',
+    url: `${IdeaServiceBaseUrl}/ideamanagement/deleteideas`,
     data: {
       id: id,
     },

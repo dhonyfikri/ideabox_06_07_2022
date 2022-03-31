@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {UserServiceBaseUrl} from '../Environment.cfg';
 
 const DeleteAchievement = (id, userId) => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-users.digitalamoeba.id/trackrecord/deleteachievement',
+    url: `${UserServiceBaseUrl}/trackrecord/deleteachievement`,
     data: {
       achievementId: id,
       userId: userId,

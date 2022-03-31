@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 
 const JoinIdea = (ideaId, userId, notes) => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-ideas.digitalamoeba.id/joinidea',
+    url: `${IdeaServiceBaseUrl}/joinidea`,
     data: {
       ideaId: ideaId,
       userId: userId,

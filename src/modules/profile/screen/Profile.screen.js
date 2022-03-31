@@ -28,6 +28,7 @@ import FailedModal from '../../../components/FailedModal';
 import DropDownPicker from 'react-native-dropdown-picker';
 import AddAchievement from '../../../config/PostData/AddAchievement';
 import DeleteAchievement from '../../../config/DeleteData/DeleteAchievement';
+import {UserServiceBaseUrl} from '../../../config/Environment.cfg';
 
 const Tag = props => {
   return (
@@ -54,8 +55,8 @@ const Profile = ({navigation}) => {
   var indexJoin = 0;
   useEffect(() => {
     if (dataTrackRecord === '' || data === defaultAuthState) {
-      getData().then(jsonValue => setData(jsonValue));
       if (data === defaultAuthState) {
+        getData().then(jsonValue => setData(jsonValue));
         return <LoadingScreen navigation={navigation} />;
       }
       GetDataTrackRecord(data.id).then(response =>
@@ -71,7 +72,7 @@ const Profile = ({navigation}) => {
     axios({
       crossDomain: true,
       method: 'post',
-      url: 'https://dev-users.digitalamoeba.id/trackrecord/editabout',
+      url: `${UserServiceBaseUrl}/trackrecord/editabout`,
       data: {
         userId: data.id,
         bio: about,
@@ -181,7 +182,12 @@ const Profile = ({navigation}) => {
             <Text style={styles.h2}>{dataTrackRecord.user.regional}</Text>
             <Text style={styles.h3}>{dataTrackRecord.user.loker}</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.replace('InputProfile')}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.replace('InputProfile', {
+                skill: dataTrackRecord.skillSet,
+              })
+            }>
             <View style={styles.Button}>
               <Edit />
             </View>
@@ -230,7 +236,11 @@ const Profile = ({navigation}) => {
             </View>
             {/* Textbox using const */}
             <View style={styles.textBox}>
-              <Text style={style.h5}>{dataTrackRecord.user.bio}</Text>
+              <Text style={style.h5}>
+                {dataTrackRecord.user.bio
+                  ? dataTrackRecord.user.bio
+                  : 'Belum ada biografi'}
+              </Text>
             </View>
           </View>
 
@@ -241,9 +251,11 @@ const Profile = ({navigation}) => {
             </View>
             {/* Tag */}
             <View style={styles.tagContainer}>
-              {dataTrackRecord.skillSet.map(val => (
-                <Tag title={val.name} />
-              ))}
+              {Object.keys(dataTrackRecord.skillSet).length > 0 ? (
+                dataTrackRecord.skillSet.map(val => <Tag title={val.name} />)
+              ) : (
+                <Text style={style.h5}>Belum ada keahlian</Text>
+              )}
             </View>
           </View>
 
@@ -261,13 +273,19 @@ const Profile = ({navigation}) => {
               </View>
             </View>
             <View style={styles.achievementContainer}>
-              {dataTrackRecord.achievement.map(val => (
-                <CardAchievement
-                  title={val.ideaId.title.value}
-                  desc={val.pencapaian}
-                  delete={() => handleDelete(val.id)}
-                />
-              ))}
+              {Object.keys(dataTrackRecord.achievement).length > 0 ? (
+                dataTrackRecord.achievement.map(val => (
+                  <CardAchievement
+                    title={val.ideaId.title.value}
+                    desc={val.pencapaian}
+                    delete={() => handleDelete(val.id)}
+                  />
+                ))
+              ) : (
+                <View style={{paddingHorizontal: 10, paddingBottom: 10}}>
+                  <Text style={style.h5}>Belum ada pencapaian</Text>
+                </View>
+              )}
             </View>
           </View>
 
@@ -277,56 +295,79 @@ const Profile = ({navigation}) => {
               <Text style={styles.title}>Innovation</Text>
             </View>
             <View style={styles.textInnovation}>
-              {dataTrackRecord.ideas.map((val, index) => {
-                var numberJoin = 0;
-                var numberPromote = 0;
-                return (
-                  <View>
-                    {index === 0 ? null : (
-                      <View
-                        style={{
-                          height: 1,
-                          width: '100%',
-                          backgroundColor: 'grey',
-                          marginVertical: 15,
-                        }}
-                      />
-                    )}
-
-                    <View
-                      style={{
-                        width: '100%',
-                        height: 200,
-                        borderWidth: 1,
-                        borderRadius: 10,
-                      }}>
-                      <Image
-                        style={{flex: 1, resizeMode: 'cover', borderRadius: 10}}
-                        source={{uri: val.desc[1].value}}
-                      />
-                    </View>
+              {Object.keys(dataTrackRecord.ideas).length > 0 ? (
+                dataTrackRecord.ideas.map((val, index) => {
+                  var numberJoin = 0;
+                  var numberPromote = 0;
+                  return (
                     <View>
-                      <Text style={[style.h4, {marginVertical: 10}]}>
-                        {val.desc[0].value}
-                      </Text>
-                      <Text style={[style.h5]}>{val.desc[2].value}</Text>
-                      <Text style={[style.h4, {marginVertical: 10}]}>
-                        Team:
-                      </Text>
+                      {index === 0 ? null : (
+                        <View
+                          style={{
+                            height: 1,
+                            width: '100%',
+                            backgroundColor: 'grey',
+                            marginVertical: 15,
+                          }}
+                        />
+                      )}
+
                       <View
                         style={{
-                          flexDirection: 'row',
                           width: '100%',
-                          flexWrap: 'wrap',
+                          height: 200,
+                          borderWidth: 1,
+                          borderRadius: 10,
                         }}>
+                        <Image
+                          style={{
+                            flex: 1,
+                            resizeMode: 'cover',
+                            borderRadius: 10,
+                          }}
+                          source={{uri: val.desc[1].value}}
+                        />
+                      </View>
+                      <View>
+                        <Text style={[style.h4, {marginVertical: 10}]}>
+                          {val.desc[0].value}
+                        </Text>
+                        <Text style={[style.h5]}>{val.desc[2].value}</Text>
+                        <Text style={[style.h4, {marginVertical: 10}]}>
+                          Team:
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            width: '100%',
+                            flexWrap: 'wrap',
+                          }}>
+                          {val.approvalTeam.map(data => {
+                            if (data.request === 'join') {
+                              numberJoin = numberJoin + 1;
+                              return (
+                                <View style={{marginRight: 10}}>
+                                  <Text style={[style.h5]}>
+                                    {' '}
+                                    {numberJoin}. {data.approvalTo.name}
+                                  </Text>
+                                </View>
+                              );
+                            }
+                            return null;
+                          })}
+                        </View>
+                        <Text style={[style.h4, {marginVertical: 10}]}>
+                          Support:
+                        </Text>
                         {val.approvalTeam.map(data => {
-                          if (data.request === 'join') {
-                            numberJoin = numberJoin + 1;
+                          if (data.request === 'support') {
+                            numberPromote = numberPromote + 1;
                             return (
                               <View style={{marginRight: 10}}>
                                 <Text style={[style.h5]}>
                                   {' '}
-                                  {numberJoin}. {data.approvalTo.name}
+                                  {numberPromote}. {data.approvalTo.name}
                                 </Text>
                               </View>
                             );
@@ -334,27 +375,12 @@ const Profile = ({navigation}) => {
                           return null;
                         })}
                       </View>
-                      <Text style={[style.h4, {marginVertical: 10}]}>
-                        Support:
-                      </Text>
-                      {val.approvalTeam.map(data => {
-                        if (data.request === 'support') {
-                          numberPromote = numberPromote + 1;
-                          return (
-                            <View style={{marginRight: 10}}>
-                              <Text style={[style.h5]}>
-                                {' '}
-                                {numberPromote}. {data.approvalTo.name}
-                              </Text>
-                            </View>
-                          );
-                        }
-                        return null;
-                      })}
                     </View>
-                  </View>
-                );
-              })}
+                  );
+                })
+              ) : (
+                <Text style={style.h5}>Belum ada inovasi</Text>
+              )}
             </View>
           </View>
         </View>

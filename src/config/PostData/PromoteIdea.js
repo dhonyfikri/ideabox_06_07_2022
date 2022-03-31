@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 
 const PromoteIdea = (ideaId, notes) => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-ideas.digitalamoeba.id/requestsupport',
+    url: `${IdeaServiceBaseUrl}/requestsupport`,
     data: {
       ideaId: ideaId,
       userId: 2,

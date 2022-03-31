@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   textBox: {
-    minHeight: 120,
+    // minHeight: 120,
     backgroundColor: '#FFFFFF',
     width: '100%',
     padding: 10,
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 5,
   },
   textInnovation: {
-    minHeight: 300,
+    // minHeight: 300,
     backgroundColor: '#FFFFFF',
     width: '100%',
     padding: 10,

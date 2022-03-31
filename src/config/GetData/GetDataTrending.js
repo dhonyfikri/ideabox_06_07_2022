@@ -1,7 +1,8 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 const GetDataTopComment = () => {
   return axios
-    .get('https://dev-ideas.digitalamoeba.id/topcomment')
+    .get(`${IdeaServiceBaseUrl}/topcomment`)
     .then(response => {
       // setUpdate(response.data.data);
       return response.data.data;
@@ -12,7 +13,7 @@ const GetDataTopComment = () => {
 };
 const GetDataTopLike = () => {
   return axios
-    .get('https://dev-ideas.digitalamoeba.id/toplike')
+    .get(`${IdeaServiceBaseUrl}/toplike`)
     .then(response => {
       // setUpdate(response.data.data);
       return response.data.data;
@@ -23,7 +24,7 @@ const GetDataTopLike = () => {
 };
 const GetDataTrending = () => {
   return axios
-    .get('https://dev-ideas.digitalamoeba.id/toptrending')
+    .get(`${IdeaServiceBaseUrl}/toptrending`)
     .then(response => {
       // setUpdate(response.data.data);
       return response.data.data;

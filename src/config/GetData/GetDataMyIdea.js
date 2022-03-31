@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 
 const GetDataSubmittedIdea = id => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-ideas.digitalamoeba.id/showmyideas',
+    url: `${IdeaServiceBaseUrl}/showmyideas`,
     data: {
       userId: id,
     },
@@ -25,7 +26,7 @@ const GetDataSharingIdea = id => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-ideas.digitalamoeba.id/showmyideassharing',
+    url: `${IdeaServiceBaseUrl}/showmyideassharing`,
     data: {
       userId: id,
     },

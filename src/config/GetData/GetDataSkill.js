@@ -1,8 +1,18 @@
 import axios from 'axios';
+import {UserServiceBaseUrl} from '../Environment.cfg';
 
 const GetDataSkill = () => {
+  // let source = axios.CancelToken.source();
+  // setTimeout(() => {
+  //   source.cancel();
+  // }, 5000);
   return axios
-    .get('https://dev-users.digitalamoeba.id/trackrecord/getskillset')
+    .get(
+      `${UserServiceBaseUrl}/trackrecord/getskillset`,
+      // , {
+      //   cancelToken: source.token,
+      // }
+    )
     .then(response => {
       return response.data;
     })

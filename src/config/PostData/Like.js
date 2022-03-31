@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 
 const LikeIdea = (ideaId, createdBy) => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-ideas.digitalamoeba.id/addlike',
+    url: `${IdeaServiceBaseUrl}/addlike`,
     data: {
       ideaId: ideaId,
       createdBy: createdBy,

@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {UserServiceBaseUrl} from '../Environment.cfg';
 
 const GetDataProfile = id => {
   return axios({
     crossDomain: true,
     method: 'post',
-    url: 'https://dev-users.digitalamoeba.id/profile',
+    url: `${UserServiceBaseUrl}/profile`,
     data: {
       id: id,
     },

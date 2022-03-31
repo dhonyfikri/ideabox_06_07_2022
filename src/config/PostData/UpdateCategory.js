@@ -1,10 +1,11 @@
 import axios from 'axios';
+import {IdeaServiceBaseUrl} from '../Environment.cfg';
 
 const UpdateCategory = (id, parentId, name, updatedBy, type) => {
   return axios({
     crossDomain: true,
     method: 'put',
-    url: 'https://dev-ideas.digitalamoeba.id/categorymanagement/update',
+    url: `${IdeaServiceBaseUrl}/categorymanagement/update`,
     data: {
       id: id,
       parentId: parentId,
