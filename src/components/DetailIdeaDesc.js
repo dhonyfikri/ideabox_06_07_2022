@@ -12,8 +12,6 @@ const DetailIdeaDesc = props => {
         </View>
         <Text style={styles.h2}>Idea Description</Text>
         <Text style={styles.text}>{props.title}</Text>
-        <Text style={styles.h2}>CFU / FU</Text>
-        <Text style={styles.text}>{props.cfufu}</Text>
         <Text style={styles.h2}>Deskrispsi Ide</Text>
         <Text style={styles.text}>{props.desc}</Text>
       </View>

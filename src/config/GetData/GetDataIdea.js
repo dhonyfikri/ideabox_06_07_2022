@@ -28,7 +28,7 @@ const GetDetailIdea = id => {
       }
     })
     .catch(function (error) {
-      console.log(error);
+      console.log('gagal, error: ', error);
       // need handling error
     });
 };

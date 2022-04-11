@@ -12,6 +12,7 @@ const TabNavigation = () => {
   return (
     <NativeBaseProvider>
       <Tab.Navigator
+        initialRouteName="Home"
         screenOptions={{
           tabBarShowLabel: false,
           tabBarStyle: {

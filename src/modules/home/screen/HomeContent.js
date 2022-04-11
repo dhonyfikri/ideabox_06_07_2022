@@ -19,6 +19,7 @@ import Header from '../../../components/Header';
 import Carousel from 'react-native-snap-carousel';
 import {WhiteDotHome} from '../../../assets/icon';
 import getData from '../../../components/GetData';
+import LoadingScreen from '../../../components/LoadingScreen';
 
 const HomeContent = ({navigation}) => {
   const image = [

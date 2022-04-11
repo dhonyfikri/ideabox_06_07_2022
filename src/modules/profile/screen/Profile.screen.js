@@ -1,34 +1,32 @@
-import React, {useEffect, useState} from 'react';
-import {prefetchConfiguration} from 'react-native-app-auth';
-import styles from '../style/Profile.style';
-import getData from '../../../components/GetData';
-import {AuthConfig, defaultAuthState} from '../../../config/Auth.cfg';
-import {Back, Cross, Edit, Notif} from '../../../assets/icon';
-import {
-  Text,
-  View,
-  ScrollView,
-  SafeAreaView,
-  Image,
-  TouchableOpacity,
-  Platform,
-  TextInput,
-  Modal,
-  Alert,
-} from 'react-native';
-import CardTrackRecord from '../../../components/CardTrackRecord';
-import CardAchievement from '../../../components/CardAchievement';
-import CardContent from '../../../components/CardContent';
-import style from '../../../config/Style/style.cfg';
-import LoadingScreen from '../../../components/LoadingScreen';
-import GetDataTrackRecord from '../../../config/GetData/GetDataTrackRecord';
+import {useBackHandler} from '@react-native-community/hooks';
 import axios from 'axios';
-import SuccesModal from '../../../components/SuccesModal';
-import FailedModal from '../../../components/FailedModal';
+import React, {useEffect, useState} from 'react';
+import {
+  Alert,
+  Image,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
-import AddAchievement from '../../../config/PostData/AddAchievement';
+import {Back, Cross, Edit, Notif} from '../../../assets/icon';
+import CardAchievement from '../../../components/CardAchievement';
+import CardTrackRecord from '../../../components/CardTrackRecord';
+import FailedModal from '../../../components/FailedModal';
+import getData from '../../../components/GetData';
+import LoadingScreen from '../../../components/LoadingScreen';
+import SuccesModal from '../../../components/SuccesModal';
+import {defaultAuthState} from '../../../config/Auth.cfg';
 import DeleteAchievement from '../../../config/DeleteData/DeleteAchievement';
 import {UserServiceBaseUrl} from '../../../config/Environment.cfg';
+import GetDataTrackRecord from '../../../config/GetData/GetDataTrackRecord';
+import AddAchievement from '../../../config/PostData/AddAchievement';
+import style from '../../../config/Style/style.cfg';
+import styles from '../style/Profile.style';
 
 const Tag = props => {
   return (
@@ -38,7 +36,7 @@ const Tag = props => {
   );
 };
 
-const Profile = ({navigation}) => {
+const Profile = ({navigation, route}) => {
   const [data, setData] = useState(defaultAuthState);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalAboutVisible, setModalAboutVisible] = useState(false);
@@ -53,6 +51,25 @@ const Profile = ({navigation}) => {
   const [array, setArray] = useState(false);
   var indexSupport = 0;
   var indexJoin = 0;
+
+  const [isProfileUpdated, setIsProfileUpdated] = useState(false);
+
+  const backToPreviousPage = () => {
+    if (isProfileUpdated) {
+      navigation.navigate('DrawerNavigation', {onResume: {refresh: true}});
+    } else {
+      navigation.goBack();
+    }
+  };
+
+  // on resume handler from other page
+  useEffect(() => {
+    if (route.params?.onResume.refresh) {
+      console.log('refreshing in profile');
+      setIsProfileUpdated(true);
+    }
+  }, [route.params?.onResume]);
+
   useEffect(() => {
     if (dataTrackRecord === '' || data === defaultAuthState) {
       if (data === defaultAuthState) {
@@ -63,6 +80,11 @@ const Profile = ({navigation}) => {
         setDataTrackRecord(response !== undefined ? response : ''),
       );
     }
+  });
+
+  useBackHandler(() => {
+    backToPreviousPage();
+    return true;
   });
 
   if (dataTrackRecord === '' || data === defaultAuthState) {
@@ -132,10 +154,7 @@ const Profile = ({navigation}) => {
         {/* header */}
         <View style={styles.head}>
           <View style={styles.Button}>
-            <TouchableOpacity
-              onPress={() => {
-                navigation.replace('DrawerNavigation');
-              }}>
+            <TouchableOpacity onPress={backToPreviousPage}>
               <Back />
             </TouchableOpacity>
           </View>
@@ -184,7 +203,7 @@ const Profile = ({navigation}) => {
           </View>
           <TouchableOpacity
             onPress={() =>
-              navigation.replace('InputProfile', {
+              navigation.navigate('InputProfile', {
                 skill: dataTrackRecord.skillSet,
               })
             }>

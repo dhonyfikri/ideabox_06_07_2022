@@ -17,14 +17,19 @@ const DetailExplore = ({route, navigation}) => {
   const data = route.params.data;
   const item = route.params.item;
   const [detailIdea, setDetailIdea] = useState(null);
+
   useEffect(() => {
     if (data === null) {
       return <LoadingScreen />;
     }
-    GetDetailIdea(data.id).then(response => setDetailIdea(response));
+    GetDetailIdea(data.id).then(response => {
+      console.log(response);
+      setDetailIdea(response);
+    });
   }, [data]);
+
   if (detailIdea === null) {
-    return <LoadingScreen />;
+    return <LoadingScreen navigation={navigation} />;
   }
   return (
     <SafeAreaView style={styles.container}>
@@ -105,21 +110,11 @@ const DetailExplore = ({route, navigation}) => {
         {/* Content */}
         <ScrollView>
           <View style={styles.content}>
-            {detailIdea.CFUFU[0] === undefined ? (
-              <DetailIdeaDesc
-                title={detailIdea.desc[0].value}
-                cfufu={'-'}
-                desc={detailIdea.desc[2].value}
-                image={data.desc[1].value}
-              />
-            ) : (
-              <DetailIdeaDesc
-                title={detailIdea.desc[0].value}
-                cfufu={detailIdea.CFUFU[0].name}
-                desc={detailIdea.desc[2].value}
-                image={data.desc[1].value}
-              />
-            )}
+            <DetailIdeaDesc
+              title={detailIdea.desc[0].value}
+              desc={detailIdea.desc[2].value}
+              image={data.desc[1].value}
+            />
           </View>
         </ScrollView>
       </View>

@@ -1,40 +1,36 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import moment from 'moment';
+import React, {useCallback, useEffect, useState} from 'react';
+import {
+  Image,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {prefetchConfiguration} from 'react-native-app-auth';
-import styles from '../style/Input.style';
+import DropDownPicker from 'react-native-dropdown-picker';
+import ImagePicker from 'react-native-image-crop-picker';
+import {Camera, Cross, Notif} from '../../../assets/icon';
+import FailedModal from '../../../components/FailedModal';
 import getData from '../../../components/GetData';
+import LoadingScreen from '../../../components/LoadingScreen';
+import SuccesModal from '../../../components/SuccesModal';
 import {
   AuthConfig,
   defaultAuthState,
   defaulthAuthData,
 } from '../../../config/Auth.cfg';
-import {Camera, Cross, Notif} from '../../../assets/icon';
-import {
-  Text,
-  View,
-  ScrollView,
-  SafeAreaView,
-  Image,
-  TouchableOpacity,
-  TextInput,
-  Platform,
-} from 'react-native';
-import axios from 'axios';
-import {DatePicker} from 'react-native-woodpicker';
-import ImagePicker from 'react-native-image-crop-picker';
-import LoadingScreen from '../../../components/LoadingScreen';
-import GetDataProfile from '../../../config/GetData/GetDataProfile';
-import SuccesModal from '../../../components/SuccesModal';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import FailedModal from '../../../components/FailedModal';
-import moment from 'moment';
-import DropDownPicker from 'react-native-dropdown-picker';
-import {
-  GetDataCfu,
-  GetDataCategoryUnit,
-  GetDataUnit,
-} from '../../../config/GetData/GetDataCfu';
-import GetDataSkill from '../../../config/GetData/GetDataSkill';
 import {UserServiceBaseUrl} from '../../../config/Environment.cfg';
+import GetDataProfile from '../../../config/GetData/GetDataProfile';
+import GetDataSkill from '../../../config/GetData/GetDataSkill';
+import styles from '../style/Input.style';
+import {useBackHandler} from '@react-native-community/hooks';
+
 const InputProfile = ({navigation, route}) => {
   const [data, setData] = useState(defaultAuthState);
   const [success, setSuccess] = useState(false);
@@ -97,6 +93,8 @@ const InputProfile = ({navigation, route}) => {
 
   const [openedDropdown, setOpenedDropdown] = useState({dropdownName: ''});
 
+  const [isUpdated, setIsUpdated] = useState(false);
+
   const dropdownOpenHandler = useCallback(type => () => {
     if (type === openedDropdown.dropdownName) {
       setOpenedDropdown({dropdownName: ''});
@@ -104,6 +102,14 @@ const InputProfile = ({navigation, route}) => {
       setOpenedDropdown({dropdownName: type});
     }
   });
+
+  const backToPreviousPage = () => {
+    if (isUpdated) {
+      navigation.navigate('Profile', {onResume: {refresh: true}});
+    } else {
+      navigation.goBack();
+    }
+  };
 
   useEffect(() => {
     getData().then(jsonValue => setData(jsonValue));
@@ -190,6 +196,11 @@ const InputProfile = ({navigation, route}) => {
       setItemsDdJenisKelamin(genderDataTemp);
     }
   }, [dataJenisKelamin, data]);
+
+  useBackHandler(() => {
+    backToPreviousPage();
+    return true;
+  });
 
   if (
     // dataProfile === null ||
@@ -336,15 +347,16 @@ const InputProfile = ({navigation, route}) => {
       });
   };
   const handlePost = () => {
-    const mySentence = 'freeCodeCamp is an awesome resource';
-    const words = mySentence.split(' ');
+    // const mySentence = 'freeCodeCamp is an awesome resource';
+    // const words = mySentence.split(' ');
 
-    for (let i = 0; i < words.length; i++) {
-      words[i] = words[i][0].toUpperCase() + words[i].substr(1);
-    }
+    // for (let i = 0; i < words.length; i++) {
+    //   words[i] = words[i][0].toUpperCase() + words[i].substr(1);
+    // }
 
-    words.join(' ');
-    console.log(words);
+    // words.join(' ');
+    // console.log(words);
+
     // const mySentence = 'freeCodeCamp is an awesome resource';
     // const words = mySentence.split(' ');
 
@@ -380,6 +392,7 @@ const InputProfile = ({navigation, route}) => {
     })
       .then((response, status) => {
         console.log(response);
+        setIsUpdated(true);
         setSuccessModal(response.status);
         storeDataLdap();
       })
@@ -485,7 +498,7 @@ const InputProfile = ({navigation, route}) => {
         {/* header */}
         <View style={styles.head}>
           <View style={styles.Button}>
-            <TouchableOpacity onPress={() => navigation.replace('Profile')}>
+            <TouchableOpacity onPress={backToPreviousPage}>
               <Cross />
             </TouchableOpacity>
           </View>
@@ -572,6 +585,7 @@ const InputProfile = ({navigation, route}) => {
                 })
               }
             />
+
             {/* <Text style={styles.h2}>Date of Birth</Text>
             <DatePicker
               style={styles.input}

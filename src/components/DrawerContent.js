@@ -24,7 +24,7 @@ const DrawerContent = props => {
   };
   const LogoutHandle = () => {
     removeData('authState');
-    props.navigation.replace('Login', {checked: false});
+    props.navigation.replace('Login');
   };
 
   const {state, descriptors, navigation} = props;

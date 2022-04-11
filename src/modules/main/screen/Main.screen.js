@@ -1,8 +1,8 @@
 import React from 'react';
-import {View, Text, ScrollView, TouchableOpacity, Image} from 'react-native';
-import {Line, MainImage} from '../../../assets/icon';
-import styles from '../style/Main.style';
+import {Image, ScrollView, Text, TouchableOpacity, View} from 'react-native';
+import {Line} from '../../../assets/icon';
 import style from '../../../config/Style/style.cfg';
+import styles from '../style/Main.style';
 const Main = ({navigation}) => {
   return (
     <View style={styles.container}>
@@ -26,7 +26,7 @@ const Main = ({navigation}) => {
             </Text>
           </View>
           <TouchableOpacity
-            onPress={() => navigation.replace('Login', {checked: false})}
+            onPress={() => navigation.replace('Login')}
             style={styles.button}>
             <Text style={styles.getstarted}>GET STARTED</Text>
           </TouchableOpacity>

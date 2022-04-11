@@ -1,51 +1,108 @@
-import React, {useEffect, useState} from 'react';
-import {Image, View} from 'react-native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import DrawerContent from './DrawerContent';
-import TabNavigation from './Tabs';
-import MyIdea from '../modules/myidea/screen/MyIdea.route';
-import TalentBooster from '../modules/talentBooster/screen/TalentBooster.screen';
-import TalentApprovalRoute from '../modules/talentapproval/screen/TalentApproval.route';
-import IdeaManagement from '../modules/administrator/screen/IdeaManagement.screen';
-import {Admin, HomeDrawer, IconFaq, Idea, Talent} from '../assets/icon';
-import RoleManagement from '../modules/administrator/screen/RoleManagement.screen';
-import RoutesUserManagement from '../config/Routes/RoutesUserManagement';
-import RoutesCategoryManagement from '../config/Routes/RoutesCategoryManagement';
-import Faq from '../modules/faq/screen/Faq.screen';
-import Latihan from '../modules/latihan/screen/Latihan.screen';
-import Dashboard from '../modules/dashboard/screen/Dashboard.screen';
-import getData from './GetData';
-import RoutesTalentApproval from '../config/Routes/RoutesTalentApproval';
-import TalentApproval from '../modules/talentapproval/screen/TalentApproval.screen';
-import EventManagement from '../modules/eventmanagement/screen/Event.route';
-import LoadingScreen from './LoadingScreen';
+import {useNavigationState} from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {HomeDrawer, IconFaq} from '../assets/icon';
+import {defaultAuthState} from '../config/Auth.cfg';
 import GetDataProfile from '../config/GetData/GetDataProfile';
+import RoutesCategoryManagement from '../config/Routes/RoutesCategoryManagement';
+import RoutesTalentApproval from '../config/Routes/RoutesTalentApproval';
+import IdeaManagement from '../modules/administrator/screen/IdeaManagement.screen';
+import Faq from '../modules/faq/screen/Faq.screen';
+import MyIdea from '../modules/myidea/screen/MyIdea.route';
+import {
+  getAsyncStorageObject,
+  storeAsyncStorageObject,
+} from '../utils/AsyncStorage/StoreAsyncStorage';
+import DrawerContent from './DrawerContent';
+import getData from './GetData';
+import TabNavigation from './Tabs';
+
 const Drawer = createDrawerNavigator();
 
-const DrawerNavigation = () => {
-  const [data, setData] = useState('');
-  const [dataProfile, setDataProfile] = useState('');
-  useEffect(() => {
-    if (data === '' || dataProfile === '') {
-      getData().then(jsonValue => setData(jsonValue));
-      if (data === '') {
-        return <LoadingScreen />;
+const DrawerNavigation = ({navigation, route}) => {
+  const dispatch = useDispatch();
+  const stateGlobal = useSelector(state => state);
+
+  const [data, setData] = useState(defaultAuthState);
+  const [dataProfile, setDataProfile] = useState({});
+
+  const getOnlineDataAndStoreToStorage = () => {
+    dispatch({
+      type: 'SET_SHOW_LOADING',
+      value: {show: true, message: 'Getting Data...'},
+    });
+    dispatch({
+      type: 'SET_SHOW_REFRESH_BUTTON',
+      value: {
+        ...stateGlobal.showRefreshButton,
+        show: false,
+      },
+    });
+    GetDataProfile(data.id).then(res => {
+      dispatch({
+        type: 'SET_SHOW_LOADING',
+        value: {...stateGlobal.showLoading, show: false},
+      });
+      if (res !== undefined) {
+        storeAsyncStorageObject('DATA_PROFILE', res);
+        setDataProfile(res);
+      } else {
+        dispatch({
+          type: 'SET_SHOW_REFRESH_BUTTON',
+          value: {
+            ...stateGlobal.showRefreshButton,
+            show: true,
+            onPress: getOnlineDataAndStoreToStorage,
+            message: 'Failed to get data from server',
+          },
+        });
       }
-      GetDataProfile(data.id).then(res =>
-        setDataProfile(res !== undefined ? res : ''),
-      );
+    });
+  };
+
+  useEffect(() => {
+    getData().then(jsonValue => setData(jsonValue));
+  }, []);
+
+  useEffect(() => {
+    if (data !== defaultAuthState) {
+      getAsyncStorageObject('DATA_PROFILE')
+        .then(val => {
+          if (val) {
+            setDataProfile(val);
+          }
+          getOnlineDataAndStoreToStorage();
+        })
+        .catch(err => {
+          console.log('ooppss... no result with message: ', err);
+          getOnlineDataAndStoreToStorage();
+        });
     }
-  });
-  if (data === '' || dataProfile === '') {
-    return <LoadingScreen />;
-  }
+  }, [data]);
+
+  // example to get route name
+  const screenName = useNavigationState(
+    state => state.routes[state.index].name,
+  );
+
+  // example to get route index
+  const routeIndex = useNavigationState(state => state.index);
+
+  // on resume handler from other page
+  useEffect(() => {
+    if (route.params?.onResume.refresh) {
+      getOnlineDataAndStoreToStorage();
+    }
+  }, [route.params?.onResume]);
+
   return (
     <Drawer.Navigator
       drawerContent={props => (
         <DrawerContent
           {...props}
-          nama={data.name}
-          email={data.email}
+          nama={dataProfile.name}
+          email={dataProfile.email}
           profile={{uri: dataProfile.pictures}}
           profileIf={dataProfile.pictures}
         />
@@ -61,15 +118,15 @@ const DrawerNavigation = () => {
         }}
       />
       {/* <Drawer.Screen
-        name="TalentBooster"
-        component={TalentBooster}
-        options={{
-          drawerLabel: 'Talent Booster',
-          headerShown: false,
-          drawerIcon: () => <Talent />,
-          activeTintColor: '#085D7A',
-        }}
-      /> */}
+          name="TalentBooster"
+          component={TalentBooster}
+          options={{
+            drawerLabel: 'Talent Booster',
+            headerShown: false,
+            drawerIcon: () => <Talent />,
+            activeTintColor: '#085D7A',
+          }}
+        /> */}
       <Drawer.Screen
         name="RoutesSubmittedIdea"
         component={MyIdea}
@@ -93,16 +150,16 @@ const DrawerNavigation = () => {
         }}
       />
       {/* <Drawer.Screen
-        name="UserManagement"
-        component={RoutesUserManagement}
-        options={{
-          drawerLabel: 'User Management',
-          headerShown: false,
-          drawerLabelStyle: {marginLeft: 60, fontSize: 14},
-          activeTintColor: '#085D7A',
-          groupName: 'Administrator',
-        }}
-      /> */}
+          name="UserManagement"
+          component={RoutesUserManagement}
+          options={{
+            drawerLabel: 'User Management',
+            headerShown: false,
+            drawerLabelStyle: {marginLeft: 60, fontSize: 14},
+            activeTintColor: '#085D7A',
+            groupName: 'Administrator',
+          }}
+        /> */}
       {dataProfile.roleId === 5 || dataProfile.roleId === 6 ? (
         <Drawer.Screen
           name="CategoryManagement"
@@ -155,16 +212,16 @@ const DrawerNavigation = () => {
       )}
 
       {/* <Drawer.Screen
-        name="RoleManagement"
-        component={RoleManagement}
-        options={{
-          drawerLabel: 'Role Management',
-          headerShown: false,
-          drawerLabelStyle: {marginLeft: 60, fontSize: 14},
-          activeTintColor: '#085D7A',
-          groupName: 'Administrator',
-        }}
-      /> */}
+          name="RoleManagement"
+          component={RoleManagement}
+          options={{
+            drawerLabel: 'Role Management',
+            headerShown: false,
+            drawerLabelStyle: {marginLeft: 60, fontSize: 14},
+            activeTintColor: '#085D7A',
+            groupName: 'Administrator',
+          }}
+        /> */}
 
       <Drawer.Screen
         name="Faq"
@@ -177,33 +234,33 @@ const DrawerNavigation = () => {
         }}
       />
       {/* <Drawer.Screen
-        name="Dashboard"
-        component={Dashboard}
-        options={{
-          drawerLabel: 'Dashboard',
-          headerShown: false,
-          drawerIcon: () => <Talent />,
-          activeTintColor: '#085D7A',
-        }}
-      /> */}
+          name="Dashboard"
+          component={Dashboard}
+          options={{
+            drawerLabel: 'Dashboard',
+            headerShown: false,
+            drawerIcon: () => <Talent />,
+            activeTintColor: '#085D7A',
+          }}
+        /> */}
       {/* <Drawer.Screen
-        name="Latihan"
-        component={Latihan}
-        options={{
-          drawerLabel: 'Notification',
-          headerShown: false,
-          drawerIcon: () => <HomeDrawer />,
-        }}
-      /> */}
+          name="Latihan"
+          component={Latihan}
+          options={{
+            drawerLabel: 'Notification',
+            headerShown: false,
+            drawerIcon: () => <HomeDrawer />,
+          }}
+        /> */}
       {/* <Drawer.Screen
-        name="EventManagement"
-        component={EventManagement}
-        options={{
-          drawerLabel: 'Event Management',
-          headerShown: false,
-          drawerIcon: () => <HomeDrawer />,
-        }}
-      /> */}
+          name="EventManagement"
+          component={EventManagement}
+          options={{
+            drawerLabel: 'Event Management',
+            headerShown: false,
+            drawerIcon: () => <HomeDrawer />,
+          }}
+        /> */}
     </Drawer.Navigator>
   );
 };

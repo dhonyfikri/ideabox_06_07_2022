@@ -1,9 +1,10 @@
-import { StyleSheet } from 'react-native';
-import { windowHeight, windowWidth } from '../../../components/WindowDimensions';
+import {StyleSheet} from 'react-native';
+import {windowHeight, windowWidth} from '../../../components/WindowDimensions';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingVertical: 20,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#085D7A',
@@ -33,6 +34,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 5,
   },
+  touchableButton: {
+    backgroundColor: '#F9CC2C',
+    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+  },
+  touchableButtonNonActive: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+  },
   center: {
     alignItems: 'center',
   },
@@ -50,7 +63,7 @@ const styles = StyleSheet.create({
   term: {
     marginVertical: 20,
     marginLeft: 15,
-    color: '#FFFFFF'
+    color: '#FFFFFF',
   },
 });
 

@@ -32,6 +32,7 @@ const SearchHeader = props => {
           </View>
           <TextInput
             style={styles.inputSearch}
+            value={props.searchText}
             placeholder={props.placeholder}
             placeholderTextColor={'grey'}
             onChangeText={val => props.getData(val)}
