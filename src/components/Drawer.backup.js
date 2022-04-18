@@ -34,11 +34,9 @@ const DrawerNavigation = ({navigation, route}) => {
     GetDataProfile(data.id).then(res => {
       setSynchronizing({status: false});
       if (res !== undefined) {
-        console.log('yes');
         storeAsyncStorageObject('DATA_PROFILE', res);
         setDataProfile(res);
       } else {
-        console.log('no');
         setShowRefresh(true);
       }
     });

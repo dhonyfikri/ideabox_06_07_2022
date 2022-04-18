@@ -281,6 +281,7 @@ const InputProfile = ({navigation, route}) => {
       height: 200,
       cropping: true,
     }).then(image => {
+      console.log(image.size);
       setImageProfile(image.path);
     });
   };

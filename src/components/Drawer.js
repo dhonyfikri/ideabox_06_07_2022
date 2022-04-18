@@ -1,5 +1,6 @@
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {useNavigationState} from '@react-navigation/native';
+import moment from 'moment';
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {HomeDrawer, IconFaq} from '../assets/icon';
@@ -62,7 +63,21 @@ const DrawerNavigation = ({navigation, route}) => {
   };
 
   useEffect(() => {
-    getData().then(jsonValue => setData(jsonValue));
+    getData().then(jsonValue => {
+      //sementara (nanti bisa dihandle dengan unauthorize user di backend)
+      // if (jsonValue.expireAt < moment().unix()) {
+      if (jsonValue.name === '') {
+        // redirect ke Login Page untuk unauthorized user (berlaku juga untuk deep link)
+        dispatch({
+          type: 'SET_SHOW_LOADING',
+          value: {...stateGlobal.showLoading, show: false},
+        });
+        navigation.replace('Login');
+      } else {
+        // intinya yang ini
+        setData(jsonValue);
+      }
+    });
   }, []);
 
   useEffect(() => {

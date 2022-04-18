@@ -6,6 +6,7 @@ import DetailStoryBehind from '../../modules/explore/screen/DetailStoryBehind.sc
 import DetailLeanCanvas from '../../modules/explore/screen/DetailLeanCanvas.screen';
 import DetailTeams from '../../modules/explore/screen/DetailTeams.screen';
 import ProfileUser from '../../modules/profileuser/screen/ProfileUser.screen';
+import TopTabNavigation from '../../modules/riset/TopTabNavigation';
 
 const Stack = createNativeStackNavigator();
 
@@ -42,6 +43,11 @@ const RoutesExplore = () => {
       <Stack.Screen
         name="ProfileUser"
         component={ProfileUser}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="TopTabNavigation"
+        component={TopTabNavigation}
         options={{headerShown: false}}
       />
     </Stack.Navigator>

@@ -1,124 +1,91 @@
 import React, {useEffect, useState} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {SafeAreaView, ScrollView} from 'react-native';
 import CardProfile from '../../../components/CardProfile';
-import DetailIdeaDesc from '../../../components/DetailIdeaDesc';
 import Header from '../../../components/Header';
-import LoadingScreen from '../../../components/LoadingScreen';
-import SearchHeader from '../../../components/SearchHeader';
+import LoadingFull from '../../../components/LoadingFull';
+import RefreshFull from '../../../components/RefreshFull';
+import TopTabDetailIdeaNavigation from '../../../components/TopTabDetailIdeaNavigation';
 import {GetDetailIdea} from '../../../config/GetData/GetDataIdea';
+import {useDispatch, useSelector} from 'react-redux';
 import styles from '../style/Explore.style';
+
 const DetailExplore = ({route, navigation}) => {
-  const data = route.params.data;
-  const item = route.params.item;
-  const [detailIdea, setDetailIdea] = useState(null);
+  const dispatch = useDispatch();
+  const stateGlobal = useSelector(state => state);
+
+  const ideaId = route.params.ideaId;
+  // const [detailIdea, setDetailIdea] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showRefreshButton, setShowRefreshButton] = useState(false);
+
+  const fetchDetailIdea = () => {
+    setIsLoading(true);
+    GetDetailIdea(ideaId).then(response => {
+      setIsLoading(false);
+      if (response !== undefined) {
+        dispatch({
+          type: 'SET_DETAIL_IDEA',
+          value: response,
+        });
+      } else {
+        setShowRefreshButton(true);
+      }
+    });
+  };
 
   useEffect(() => {
-    if (data === null) {
-      return <LoadingScreen />;
-    }
-    GetDetailIdea(data.id).then(response => {
-      console.log(response);
-      setDetailIdea(response);
-    });
-  }, [data]);
+    fetchDetailIdea();
+  }, []);
 
-  if (detailIdea === null) {
-    return <LoadingScreen navigation={navigation} />;
-  }
   return (
-    <SafeAreaView style={styles.container}>
-      <Header
-        onPress={() => navigation.openDrawer()}
-        notification={() => navigation.navigate('Notification')}
-      />
-
-      {/* Profile */}
-      {item.user.pictures === '' ? (
-        <CardProfile
-          onPress={() => navigation.goBack()}
-          profile={() => navigation.navigate('ProfileUser', {data: item})}
-          image={require('../../../assets/icon/profilepicture.png')}
-          name={detailIdea.user.name}
-          nik={detailIdea.user.nik}
+    <>
+      <SafeAreaView style={styles.container}>
+        <Header
+          onPress={() => navigation.openDrawer()}
+          notification={() => navigation.navigate('Notification')}
         />
-      ) : (
+
+        {/* Profile */}
+
         <CardProfile
           onPress={() => navigation.goBack()}
-          profile={() => navigation.navigate('ProfileUser', {data: item})}
-          image={{uri: item.user.pictures}}
-          name={detailIdea.user.name}
-          nik={detailIdea.user.nik}
+          profile={
+            stateGlobal.detailIdea !== null
+              ? () =>
+                  navigation.navigate('ProfileUser', {
+                    data: stateGlobal.detailIdea,
+                  })
+              : () => {}
+          }
+          image={
+            stateGlobal.detailIdea === null ||
+            stateGlobal.detailIdea.user.pictures === ''
+              ? require('../../../assets/icon/profilepicture.png')
+              : {uri: stateGlobal.detailIdea.user.pictures}
+          }
+          name={stateGlobal.detailIdea?.user.name}
+          nik={stateGlobal.detailIdea?.user.nik}
+        />
+
+        {/* content */}
+
+        <ScrollView contentContainerStyle={{flex: 1}}>
+          <TopTabDetailIdeaNavigation />
+        </ScrollView>
+      </SafeAreaView>
+      {isLoading && <LoadingFull message="Getting Detail Idea..." />}
+      {showRefreshButton && (
+        <RefreshFull
+          backgroundOpacity={0}
+          message="Failed get idea details"
+          onOffsetTouch={() => setShowRefreshButton(false)}
+          onPress={() => {
+            setShowRefreshButton(false);
+            fetchDetailIdea();
+          }}
         />
       )}
-
-      {/* content */}
-
-      <View style={styles.contentContainer}>
-        {/* Header navigation */}
-        <View style={styles.headerContainer2}>
-          <View style={styles.headerWrapDetail}>
-            <TouchableOpacity style={styles.wrap} onPress={() => {}}>
-              <View style={styles.tabBarActive}>
-                <Text style={styles.textActive}>Idea Description</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.wrap}
-              onPress={() =>
-                navigation.navigate('DetailStoryBehind', {
-                  data: detailIdea,
-                  item: data,
-                })
-              }>
-              <View style={styles.tabBar}>
-                <Text style={styles.textNonActive}>Story Behind</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.wrap}
-              onPress={() =>
-                navigation.navigate('DetailLeanCanvas', {
-                  data: detailIdea,
-                  item: data,
-                })
-              }>
-              <View style={styles.tabBar}>
-                <Text style={styles.textNonActive}>Lean Canvas</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.wrap}
-              onPress={() =>
-                navigation.navigate('DetailTeams', {
-                  data: detailIdea,
-                  item: data,
-                })
-              }>
-              <View style={styles.tabBar}>
-                <Text style={styles.textNonActive}>Teams</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Content */}
-        <ScrollView>
-          <View style={styles.content}>
-            <DetailIdeaDesc
-              title={detailIdea.desc[0].value}
-              desc={detailIdea.desc[2].value}
-              image={data.desc[1].value}
-            />
-          </View>
-        </ScrollView>
-      </View>
-    </SafeAreaView>
+    </>
   );
 };
 

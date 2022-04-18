@@ -19,9 +19,55 @@ import RefreshFull from '../components/RefreshFull';
 const App = () => {
   const stateGlobal = useSelector(state => state);
 
+  const config = {
+    screens: {
+      Main: 'main',
+      Login: {
+        path: 'login/:message?',
+        parse: {
+          message: val => `${val}`,
+        },
+      },
+      DrawerNavigation: {
+        screens: {
+          TabNavigation: {
+            screens: {
+              Home: {
+                screens: {
+                  HomeContent: 'home',
+                },
+              },
+              Explore: {
+                initialRouteName: 'ExploreContent',
+                screens: {
+                  ExploreContent: 'list-idea',
+                  DetailIdeaUser: {
+                    path: 'detail-idea/:ideaId',
+                    parse: {
+                      ideaId: val => `${val}`,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      Page404: '*',
+    },
+  };
+
   return (
     <>
-      <NavigationContainer linking={links}>
+      <NavigationContainer
+        linking={{
+          prefixes: [
+            'm-ideabox://app',
+            'https://ideabox.id',
+            'http://ideabox.id',
+          ],
+          config,
+        }}>
         <Routes />
       </NavigationContainer>
       {stateGlobal.showLoading.show && (

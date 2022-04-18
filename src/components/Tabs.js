@@ -7,7 +7,9 @@ import Event from '../modules/event/screen/Event.route';
 import {NativeBaseProvider} from 'native-base';
 import {windowHeight} from './WindowDimensions';
 import Trending from '../modules/trending/screen/Trending.route';
+
 const Tab = createBottomTabNavigator();
+
 const TabNavigation = () => {
   return (
     <NativeBaseProvider>
@@ -16,7 +18,7 @@ const TabNavigation = () => {
         screenOptions={{
           tabBarShowLabel: false,
           tabBarStyle: {
-            position: 'absolute',
+            // position: 'absolute',
             height: windowHeight / 12.34,
             backgroundColor: '#FFFFFF',
             shadowColor: '#000',

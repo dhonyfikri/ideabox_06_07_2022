@@ -29,11 +29,15 @@ import CommentIdea from '../../../config/PostData/Comment';
 import JoinIdea from '../../../config/PostData/JoinIdea';
 import PromoteIdea from '../../../config/PostData/PromoteIdea';
 import RefreshFull from '../../../components/RefreshFull';
+import {useDispatch, useSelector} from 'react-redux';
 
 import style from '../../../config/Style/style.cfg';
 import styles from '../style/Explore.style';
 
 const ExploreContent = ({navigation, route}) => {
+  const dispatch = useDispatch();
+  const stateGlobal = useSelector(state => state);
+
   const [isLoading, setLoading] = useState(true);
   const [idLike, setIdLike] = useState(null);
   const [idCommentReply, setIdCommentReply] = useState(null);
@@ -78,10 +82,8 @@ const ExploreContent = ({navigation, route}) => {
     GetDataIdea().then(res => {
       setFetchLoading(false);
       if (res) {
-        console.log('yes');
         setData({isSet: true, data: res});
       } else {
-        console.log('no');
         setShowRefreshButton(true);
       }
     });
@@ -328,12 +330,17 @@ const ExploreContent = ({navigation, route}) => {
                         like={val.like}
                         likedBy={val.totalLike}
                         cover={{uri: val.desc[1].value}}
-                        more={() =>
+                        more={() => {
+                          if (stateGlobal.detailIdea !== null) {
+                            dispatch({
+                              type: 'SET_DETAIL_IDEA',
+                              value: null,
+                            });
+                          }
                           navigation.navigate('DetailIdeaUser', {
-                            data: val,
-                            item: val,
-                          })
-                        }
+                            ideaId: val.id,
+                          });
+                        }}
                         comment={() => {
                           setModalComment(true);
                           setIdIdea(index);

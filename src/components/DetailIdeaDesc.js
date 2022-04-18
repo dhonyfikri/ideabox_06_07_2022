@@ -5,31 +5,26 @@ import {windowHeight} from './WindowDimensions';
 
 const DetailIdeaDesc = props => {
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <View style={styles.imageWrap}>
-          <Image source={{uri: props.image}} style={styles.imageContent} />
-        </View>
-        <Text style={styles.h2}>Idea Description</Text>
-        <Text style={styles.text}>{props.title}</Text>
-        <Text style={styles.h2}>Deskrispsi Ide</Text>
-        <Text style={styles.text}>{props.desc}</Text>
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={styles.imageWrap}>
+        <Image source={{uri: props.image}} style={styles.imageContent} />
       </View>
+      <Text style={styles.h2}>Idea Description</Text>
+      <Text style={styles.text(false)}>{props.title}</Text>
+      <Text style={styles.h2}>Deskrispsi Ide</Text>
+      <Text style={styles.text(true)}>{props.desc}</Text>
     </ScrollView>
   );
 };
 
 export default DetailIdeaDesc;
 const styles = StyleSheet.create({
-  container: {
-    padding: 5,
-  },
-  text: {
+  text: isLast => ({
     color: 'black',
     fontSize: 12,
-    marginBottom: 10,
+    marginBottom: isLast ? 0 : 10,
     textAlign: 'justify',
-  },
+  }),
   textnoedit: {
     borderWidth: 1,
     borderRadius: 5,
@@ -51,7 +46,7 @@ const styles = StyleSheet.create({
   imageWrap: {
     borderWidth: 2,
     borderRadius: 10,
-    marginVertical: 10,
+    marginBottom: 10,
   },
   imageContent: {
     width: '100%',
