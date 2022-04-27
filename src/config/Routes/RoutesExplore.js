@@ -20,11 +20,11 @@ const RoutesExplore = () => {
         component={ExploreContent}
         options={{headerShown: false}}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="DetailIdeaUser"
         component={DetailExplore}
         options={{headerShown: false}}
-      />
+      /> */}
       <Stack.Screen
         name="DetailStoryBehind"
         component={DetailStoryBehind}

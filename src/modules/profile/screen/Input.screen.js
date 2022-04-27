@@ -20,6 +20,7 @@ import FailedModal from '../../../components/FailedModal';
 import getData from '../../../components/GetData';
 import LoadingScreen from '../../../components/LoadingScreen';
 import SuccesModal from '../../../components/SuccesModal';
+import Header from '../../../components/Header';
 import {
   AuthConfig,
   defaultAuthState,
@@ -497,21 +498,12 @@ const InputProfile = ({navigation, route}) => {
       ) : null}
       <ScrollView>
         {/* header */}
-        <View style={styles.head}>
-          <View style={styles.Button}>
-            <TouchableOpacity onPress={backToPreviousPage}>
-              <Cross />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.Button}>
-            <TouchableOpacity
-              onPress={() => {
-                navigation.replace('Notification');
-              }}>
-              <Notif />
-            </TouchableOpacity>
-          </View>
-        </View>
+        <Header
+          backButton
+          backText="Back"
+          onBackPress={() => navigation.goBack()}
+          onNotificationPress={() => navigation.navigate('Notification')}
+        />
         <View style={styles.mainContainer}>
           <View style={styles.imageBackground}>
             <Image source={{uri: imageCover}} style={styles.backgroundImage} />

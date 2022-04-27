@@ -37,10 +37,10 @@ const HomeContent = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       {/* header */}
-      <Header
-        onPress={() => navigation.openDrawer()}
-        notification={() => navigation.navigate('Notification')}
-      />
+      {/* <Header
+        title="Home"
+        onNotificationPress={() => navigation.navigate('Notification')}
+      /> */}
       <ScrollView>
         <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
           <Carousel

@@ -3,7 +3,7 @@ import {ScrollView, StyleSheet, Text, View} from 'react-native';
 
 const DetailLeanCanvasDesc = props => {
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <View>
       <Text style={styles.h2}>CUSTOMER, siapa yang ingin kamu solusikan?*</Text>
       <View style={styles.inputContainer(false)}>
         {props.data?.map(res => {
@@ -90,7 +90,7 @@ const DetailLeanCanvasDesc = props => {
           }
         })}
       </View>
-    </ScrollView>
+    </View>
   );
 };
 

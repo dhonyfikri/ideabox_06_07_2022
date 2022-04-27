@@ -1,32 +1,34 @@
+import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
 import React from 'react';
-import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
-import {BackBlue} from '../assets/icon';
-import {windowHeight, windowWidth} from './WindowDimensions';
+import {colors} from '../utils/ColorsConfig/Colors';
+import {IcButtonJoin} from '../assets/icon';
+import Gap from '../components/Gap';
+import fonts from '../utils/FontsConfig/Fonts';
 
-const CardProfile = props => {
+const CardProfile = () => {
   return (
     <View style={styles.container}>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          width: '100%',
-        }}>
-        <TouchableOpacity onPress={props.profile} style={{width: '100%'}}>
-          <View style={styles.profile}>
-            <Image source={props.image} style={styles.imageProfileProductive} />
-            <View style={styles.content}>
-              <Text style={styles.textProfileProductive}>{props.name}</Text>
-              <Text style={styles.textLikeProductive}>{props.nik} </Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-        <View style={styles.iconBack}>
-          <TouchableOpacity onPress={props.onPress}>
-            <BackBlue />
-          </TouchableOpacity>
-        </View>
+      <Image
+        style={styles.profileImage}
+        source={require('../assets/image/user_dummy.png')}
+      />
+      <Gap width={10} />
+      <View style={styles.detailWrapper}>
+        <Text numberOfLines={2} ellipsizeMode="tail" style={styles.nameText}>
+          Reno Sudrajat
+        </Text>
+        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.zipText}>
+          15475
+        </Text>
       </View>
+      <Gap width={10} />
+      <TouchableOpacity>
+        <View style={styles.button}>
+          <IcButtonJoin />
+          <Gap width={8} />
+          <Text style={styles.textButton}>Join Idea</Text>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -35,68 +37,47 @@ export default CardProfile;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: windowWidth / 42.3,
-    marginVertical: windowHeight / 86.4,
-    borderRadius: 10,
-    padding: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-
-    elevation: 2,
-  },
-  profile: {
     flexDirection: 'row',
+    backgroundColor: colors.white,
+    paddingVertical: 15,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
   },
-  imageProfileProductive: {
-    width: windowWidth / 7,
-    height: windowHeight / 14,
-    borderRadius: 1000 / 2,
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 50 / 2,
   },
-  textProfile: {
-    fontWeight: '700',
-    fontSize: 10,
-    fontFamily: 'Roboto',
-    marginTop: windowWidth / 100,
-    marginLeft: windowHeight / 84.6,
+  detailWrapper: {
+    flex: 1,
   },
-  textProfileProductive: {
-    fontWeight: '700',
-    fontSize: 14,
-    fontFamily: 'Roboto',
-    marginTop: windowWidth / 100,
-    marginLeft: windowHeight / 84.6,
+  nameText: {
+    color: colors.text.primary,
+    fontFamily: fonts.secondary[600],
+    fontSize: 12,
+    lineHeight: 15,
   },
-  content: {
-    flexDirection: 'column',
-    width: '100%',
-    marginLeft: windowWidth / 42.3,
+  zipText: {
+    color: colors.text.secondary,
+    fontFamily: fonts.secondary[400],
+    fontSize: 12,
+    lineHeight: 17,
   },
-  titleContent: {
-    fontWeight: 'bold',
-    fontSize: windowHeight > 800 ? 20 : 14,
-    fontFamily: 'Roboto',
-    marginTop: windowWidth / 100,
-    marginLeft: windowHeight / 84.6,
+  button: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: colors.primary,
+    borderRadius: 32,
+    alignItems: 'center',
   },
-  textLike: {
-    fontSize: windowHeight > 800 ? 10 : 8,
-    fontFamily: 'Roboto',
-    marginTop: windowWidth / 100,
-    marginLeft: windowHeight / 84.6,
-  },
-  textLikeProductive: {
-    fontSize: windowHeight > 800 ? 16 : 12,
-    fontFamily: 'Roboto',
-    marginTop: windowWidth / 300,
-    marginLeft: windowHeight / 84.6,
-  },
-  iconBack: {
-    justifyContent: 'center',
+  textButton: {
+    color: colors.white,
+    fontFamily: fonts.secondary[600],
+    fontSize: 12,
+    lineHeight: 15,
   },
 });

@@ -3,23 +3,24 @@ import React, {useEffect, useRef, useState} from 'react';
 import {
   Alert,
   Modal,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  RefreshControl,
 } from 'react-native';
 import {MentionInput} from 'react-native-controlled-mentions';
 import GestureRecognizer from 'react-native-swipe-gestures';
+import {useDispatch, useSelector} from 'react-redux';
 import {Cross, Join, Promote, TopLine} from '../../../assets/icon';
 import CardComment from '../../../components/CardComment';
 import CardContent from '../../../components/CardContent';
 import CardReplyComment from '../../../components/CardReplyComment';
 import FailedModal from '../../../components/FailedModal';
 import getData from '../../../components/GetData';
-import LoadingScreen from '../../../components/LoadingScreen';
+import RefreshFull from '../../../components/RefreshFull';
 import SearchHeader from '../../../components/SearchHeader';
 import SuccesModal from '../../../components/SuccesModal';
 import WarningModal from '../../../components/WarningModal';
@@ -28,9 +29,6 @@ import {GetDataIdea} from '../../../config/GetData/GetDataIdea';
 import CommentIdea from '../../../config/PostData/Comment';
 import JoinIdea from '../../../config/PostData/JoinIdea';
 import PromoteIdea from '../../../config/PostData/PromoteIdea';
-import RefreshFull from '../../../components/RefreshFull';
-import {useDispatch, useSelector} from 'react-redux';
-
 import style from '../../../config/Style/style.cfg';
 import styles from '../style/Explore.style';
 
@@ -174,9 +172,6 @@ const ExploreContent = ({navigation, route}) => {
   // };
   // End Sugesstion
 
-  // if (!data.success) {
-  //   return <LoadingScreen />;
-  // }
   const getDataSuccess = data => {
     setSuccess(data);
   };
@@ -711,17 +706,16 @@ const ExploreContent = ({navigation, route}) => {
           </>
         )}
       </>
-      {showRefreshButton && (
-        <RefreshFull
-          backgroundOpacity={0}
-          message="Failed fetching data"
-          onOffsetTouch={() => setShowRefreshButton(false)}
-          onPress={() => {
-            setShowRefreshButton(false);
-            fetchIdeas(true);
-          }}
-        />
-      )}
+      <RefreshFull
+        visible={showRefreshButton}
+        backgroundOpacity={0}
+        message="Failed fetching data"
+        onOffsetTouch={() => setShowRefreshButton(false)}
+        onPress={() => {
+          setShowRefreshButton(false);
+          fetchIdeas(true);
+        }}
+      />
     </SafeAreaView>
   );
 };

@@ -1,6 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import CheckBox from '@react-native-community/checkbox';
-import axios from 'axios';
 import moment from 'moment';
 import {
   Button,
@@ -10,32 +8,30 @@ import {
   Text,
   VStack,
 } from 'native-base';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-  Alert,
   Platform,
   ScrollView,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {authorize, prefetchConfiguration} from 'react-native-app-auth';
+import {prefetchConfiguration} from 'react-native-app-auth';
+import {useSelector} from 'react-redux';
 import {FontTampilan} from '../../../assets/font/Font';
 import {IconGit} from '../../../assets/icon';
 import {IconEmail, IconPassword} from '../../../assets/icon/Icon';
 import getData from '../../../components/GetData';
+import LoadingFull from '../../../components/LoadingFull';
 import {
   AuthConfig,
   defaultAuthState,
   defaultAuthStateLogin,
 } from '../../../config/Auth.cfg';
-import {UserServiceBaseUrl} from '../../../config/Environment.cfg';
 import {storeAsyncStorageObject} from '../../../utils/AsyncStorage/StoreAsyncStorage';
-import {useDispatch, useSelector} from 'react-redux';
 import styles from '../style/Login.style';
 
 const Login = ({navigation, route}) => {
-  const dispatch = useDispatch();
   const stateGlobal = useSelector(state => state);
 
   let _toggleCheckBox = false;
@@ -43,89 +39,22 @@ const Login = ({navigation, route}) => {
     _toggleCheckBox = route.params.checked;
   }
 
-  const [authState, setAuthState] = useState(defaultAuthState);
   const [data, setData] = useState(defaultAuthState);
   const [ldap, setLdap] = useState(defaultAuthStateLogin);
   const [toggleCheckBox, setToggleCheckBox] = useState(_toggleCheckBox);
   const [login, setLogin] = useState(true);
+  const [showLoading, setShowLoading] = useState(false);
 
   const expiredCheck = () => {
     // if not expired
     if (data.expireAt > moment().unix()) {
-      navigation.replace('DrawerNavigation');
+      navigation.replace('TabNavigation');
     }
   };
-
-  const storeData = async () => {
-    try {
-      if (authState.name !== '') {
-        const jsonValue = JSON.stringify(authState);
-        await AsyncStorage.setItem('authState', jsonValue);
-        setData(authState);
-      }
-    } catch (e) {
-      console.log('failed to store data');
-    }
-  };
-
-  const handleAuthorize = useCallback(async () => {
-    try {
-      const newAuthState = await authorize(AuthConfig);
-      axios({
-        crossDomain: true,
-        method: 'post',
-        url: `${UserServiceBaseUrl}/authorize/sso/mobile`,
-        data: {
-          access_token: newAuthState.accessToken,
-        },
-        validateStatus: false,
-      })
-        .then(function ({status, data}) {
-          if (status === 200) {
-            setAuthState({
-              hasLoggedInOnce: true,
-              ...data.data,
-            });
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-          // need handling error
-        });
-    } catch (error) {
-      Alert.alert('Failed to log in', error.message);
-    }
-  }, [storeData()]);
 
   const handleAuthorizeLdap = () => {
-    // loginLDAP(ldap.username, ldap.password)
-    //   .then(res => {
-    //     // todo something
-    //     if (!res.rejectFromServer) {
-    //       console.log(res.data.data);
-    //       setLoading(false);
-    //       storeAsyncStorageObject('authState', {
-    //         hasLoggedInOnce: true,
-    //         ...res.data.data,
-    //       }).then(navigation.replace('DrawerNavigation'));
-    //     } else {
-    //       console.log('error, with code ' + res.code);
-    //       setLoading(false);
-    //       setLogin(false);
-    //     }
-    //   })
-    //   .catch(err => {
-    //     // todo something
-    //     console.log(err);
-    //     setLoading(false);
-    //   });
-
     // dummy selagi server gagal
-
-    dispatch({
-      type: 'SET_SHOW_LOADING',
-      value: {show: true, message: 'Loading...'},
-    });
+    setShowLoading(true);
     setTimeout(() => {
       storeAsyncStorageObject('authState', {
         hasLoggedInOnce: true,
@@ -138,18 +67,11 @@ const Login = ({navigation, route}) => {
         provider_id: '930241',
       })
         .then(() => {
-          dispatch({
-            type: 'SET_SHOW_LOADING',
-            value: {show: true, message: 'Opening Main App...'},
-          });
-
-          navigation.replace('DrawerNavigation');
+          navigation.replace('TabNavigation');
+          setShowLoading(false);
         })
         .catch(() => {
-          dispatch({
-            type: 'SET_SHOW_LOADING',
-            value: {show: false, message: 'Loading...'},
-          });
+          setShowLoading(false);
         });
     }, 500);
   };
@@ -226,7 +148,7 @@ const Login = ({navigation, route}) => {
               Login
             </Button> */}
             <TouchableOpacity
-              disabled={!toggleCheckBox || stateGlobal.showLoading.show}
+              disabled={!toggleCheckBox || showLoading}
               style={
                 toggleCheckBox
                   ? styles.touchableButton
@@ -249,7 +171,7 @@ const Login = ({navigation, route}) => {
             <Button
               style={toggleCheckBox ? styles.button : styles.buttonNonActive}
               _text={{color: '#085D7A', fontWeight: '700'}}
-              onPress={toggleCheckBox ? handleAuthorize : () => {}}
+              onPress={toggleCheckBox ? () => {} : () => {}}
               leftIcon={<IconGit />}>
               Login with GIT
             </Button>
@@ -284,6 +206,7 @@ const Login = ({navigation, route}) => {
           </VStack>
         </View>
       </ScrollView>
+      <LoadingFull visible={showLoading} message="Please Wait..." />
     </NativeBaseProvider>
   );
 };

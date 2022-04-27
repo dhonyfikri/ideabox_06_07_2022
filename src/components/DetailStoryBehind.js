@@ -4,7 +4,7 @@ import {ScrollView} from 'react-native-gesture-handler';
 
 const DetailStoryBehindDesc = props => {
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <View>
       <Text style={styles.h2(true)}>Why</Text>
       <View style={styles.box}>
         <ScrollView>
@@ -23,7 +23,7 @@ const DetailStoryBehindDesc = props => {
           <Text style={styles.text}>{props.what}</Text>
         </ScrollView>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 

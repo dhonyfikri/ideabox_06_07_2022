@@ -48,6 +48,39 @@ import ArrowDown from './arrowdownblue.svg';
 import ArrowUp from './arrowup.svg';
 import ArrowRight from './arrowright.svg';
 import Export from './export.svg';
+import IcButtonJoin from './ic_button_join.svg';
+import IcUnactiveLike from './ic_unactive_like.svg';
+import IcComment from './ic_comment.svg';
+import IcEnvelope from './ic_envelope.svg';
+import IcScrollArrowUp from './ic_scroll_arrow_up.svg';
+import IcScrollArrowDown from './ic_scroll_arrow_down.svg';
+import IcNotificationBell from './ic_notivication_bell.svg';
+import IcChevronLeft from './ic_chevron_left.svg';
+import IcChevronRight from './ic_chevron_right.svg';
+import IcChevronDown from './ic_chevron_down.svg';
+import IcHomeActive from './ic_home_active.svg';
+import IcHomeInactive from './ic_home_inactive.svg';
+import IcEventActive from './ic_event_active.svg';
+import IcEventInactive from './ic_event_inactive.svg';
+import IcDashboardActive from './ic_dashboard_active.svg';
+import IcDashboardInactive from './ic_dashboard_inactive.svg';
+import IcUserActive from './ic_user_active.svg';
+import IcUserInactive from './ic_user_inactive.svg';
+import IcCamera from './ic_camera.svg';
+import IcBulbIdea from './ic_bulb_idea.svg';
+import IcPencilEdit from './ic_pencil_edit.svg';
+import IcActivePencilEdit from './ic_active_pencil_edit.svg';
+import IcOutlinedClose from './ic_outlined_close.svg';
+import IcEmailContact from './ic_email_contact.svg';
+import IcPhoneContact from './ic_phone_contact.svg';
+import IcRemoveTag from './ic_remove_tag.svg';
+import IcVerticalDivider from './ic_vertical_divider.svg';
+import IcAdd from './ic_add.svg';
+import IcAdd2 from './ic_add2.svg';
+import IcOutlinedAdd from './ic_outlined_add.svg';
+import IcActiveTrash from './ic_active_trash.svg';
+import IcCalendar from './ic_calendar.svg';
+
 export {
   IconEvent,
   IconExplore,
@@ -99,4 +132,36 @@ export {
   ArrowUp,
   ArrowRight,
   Export,
+  IcButtonJoin,
+  IcUnactiveLike,
+  IcComment,
+  IcEnvelope,
+  IcScrollArrowUp,
+  IcScrollArrowDown,
+  IcNotificationBell,
+  IcChevronLeft,
+  IcChevronRight,
+  IcHomeActive,
+  IcHomeInactive,
+  IcEventActive,
+  IcEventInactive,
+  IcDashboardActive,
+  IcDashboardInactive,
+  IcUserActive,
+  IcUserInactive,
+  IcCamera,
+  IcBulbIdea,
+  IcPencilEdit,
+  IcOutlinedClose,
+  IcEmailContact,
+  IcPhoneContact,
+  IcRemoveTag,
+  IcVerticalDivider,
+  IcAdd,
+  IcAdd2,
+  IcOutlinedAdd,
+  IcActivePencilEdit,
+  IcActiveTrash,
+  IcCalendar,
+  IcChevronDown,
 };

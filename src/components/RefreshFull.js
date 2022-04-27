@@ -1,7 +1,15 @@
 import React from 'react';
-import {StyleSheet, View, Text, Image, TouchableOpacity} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Modal,
+} from 'react-native';
 
 const RefreshFull = ({
+  visible,
   message,
   onPress,
   disabled,
@@ -11,28 +19,34 @@ const RefreshFull = ({
   const textToShow = message !== undefined ? message : 'Failed';
   const opacity = backgroundOpacity !== undefined ? backgroundOpacity : 0.5;
   return (
-    <TouchableOpacity
-      style={styles.wrapper(opacity)}
-      onPress={onOffsetTouch}
-      activeOpacity={onOffsetTouch ? 0.2 : 1}>
-      <View style={styles.container}>
-        <Image
-          style={{width: 60, height: 60, marginBottom: 5}}
-          source={require('../assets/image/noInternet.png')}
-        />
-        <Text style={styles.message}>{textToShow}</Text>
-        <TouchableOpacity
-          style={styles.button(disabled)}
-          onPress={onPress}
-          disabled={disabled}>
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onOffsetTouch}>
+      <TouchableOpacity
+        style={styles.wrapper(opacity)}
+        onPress={onOffsetTouch}
+        activeOpacity={onOffsetTouch ? 0.2 : 1}>
+        <View style={styles.container}>
           <Image
-            style={{width: 20, height: 20}}
-            source={require('../assets/image/refresh.png')}
+            style={{width: 60, height: 60, marginBottom: 5}}
+            source={require('../assets/image/noInternet.png')}
           />
-          <Text style={styles.text}>Refresh</Text>
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
+          <Text style={styles.message}>{textToShow}</Text>
+          <TouchableOpacity
+            style={styles.button(disabled)}
+            onPress={onPress}
+            disabled={disabled}>
+            <Image
+              style={{width: 20, height: 20}}
+              source={require('../assets/image/refresh.png')}
+            />
+            <Text style={styles.text}>Refresh</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </Modal>
   );
 };
 

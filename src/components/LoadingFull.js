@@ -1,16 +1,25 @@
 import React from 'react';
-import {StyleSheet, View, Text, ActivityIndicator} from 'react-native';
+import {StyleSheet, View, Text, ActivityIndicator, Modal} from 'react-native';
 
-const LoadingFull = ({message, backgroundOpacity}) => {
-  const textToShow = message !== undefined ? message : 'Loading...';
-  const alphaColor = backgroundOpacity !== undefined ? backgroundOpacity : 0.5;
+const LoadingFull = ({
+  visible = false,
+  message = 'Loading...',
+  backgroundOpacity = 0.5,
+  onRequestClose,
+}) => {
   return (
-    <View style={styles.wrapper(alphaColor)}>
-      <View style={styles.container}>
-        <ActivityIndicator size="small" color="white" />
-        <Text style={styles.text}>{textToShow}</Text>
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onRequestClose}>
+      <View style={styles.wrapper(backgroundOpacity)}>
+        <View style={styles.container}>
+          <ActivityIndicator size="small" color="white" />
+          <Text style={styles.text}>{message}</Text>
+        </View>
       </View>
-    </View>
+    </Modal>
   );
 };
 

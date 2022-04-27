@@ -28,6 +28,7 @@ const App = () => {
           message: val => `${val}`,
         },
       },
+      MyProfile: 'my_profile',
       DrawerNavigation: {
         screens: {
           TabNavigation: {

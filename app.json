@@ -1,4 +1,10 @@
 {
   "name": "Ideabox",
-  "displayName": "Ideabox"
+  "displayName": "Ideabox",
+  "expo": {
+    "packagerOpts": {
+      "config": "metro.config.js",
+      "sourceExts": ["js", "jsx", "json", "wasm", "svg"]
+    }
+  }
 }

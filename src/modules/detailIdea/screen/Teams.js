@@ -1,38 +1,69 @@
 import {StyleSheet, Text, View, ScrollView} from 'react-native';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import CardDetailTeamDesc from '../../../components/CardDetailTeamsDesc';
 import React from 'react';
+import {colors} from '../../../utils/ColorsConfig/Colors';
+import {useIsFocused} from '@react-navigation/native';
+import fonts from '../../../utils/FontsConfig/Fonts';
 
 const Teams = () => {
+  const dispatch = useDispatch();
   const stateGlobal = useSelector(state => state);
+
+  const isFocus = useIsFocused();
+  console.log('lean canvas ', isFocus);
+
+  if (
+    isFocus &&
+    stateGlobal.detailIdeaPageHeight !== stateGlobal.teamsHeight + 246
+  ) {
+    dispatch({
+      type: 'SET_DETAIL_IDEA_PAGE_HEIGHT',
+      value: stateGlobal.teamsHeight + 246,
+    });
+  }
 
   return (
     <View style={styles.page}>
-      <View style={styles.titleContent}>
-        <View style={styles.email}>
-          <Text>No</Text>
-        </View>
-        <View style={styles.title}>
-          <Text>Nama</Text>
-        </View>
-        <View style={styles.title}>
-          <Text>NIP</Text>
-        </View>
-        <View style={styles.title}>
-          <Text>CFU/FU</Text>
-        </View>
-      </View>
-      <ScrollView>
-        {stateGlobal.detailIdea?.approval.map((val, index) => {
-          return (
-            <CardDetailTeamDesc
-              number={index + 1}
-              name={val.approvalTo.name}
-              nip={val.approvalTo.nik}
-              cfu={val.approvalTo.cfufuName}
-            />
-          );
-        })}
+      <ScrollView
+        contentContainerStyle={{minHeight: 250}}
+        showsVerticalScrollIndicator={false}
+        onContentSizeChange={(_, height) => {
+          dispatch({
+            type: 'SET_TEAMS_HEIGHT',
+            value: height,
+          });
+        }}>
+        {stateGlobal.detailIdea !== null &&
+          (stateGlobal.detailIdea?.approval.length > 0 ? (
+            stateGlobal.detailIdea?.approval.map((item, index) => {
+              return (
+                <CardDetailTeamDesc
+                  no={index + 1}
+                  nama={item.approvalTo.name}
+                  nip={item.approvalTo.nik}
+                  unit={item.approvalTo.unitName}
+                />
+              );
+            })
+          ) : (
+            <View
+              style={{
+                flex: 1,
+                marginBottom: 12,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontFamily: fonts.secondary[500],
+                  fontSize: 12,
+                }}>
+                Not Available
+              </Text>
+            </View>
+          ))}
       </ScrollView>
     </View>
   );
@@ -42,25 +73,9 @@ export default Teams;
 
 const styles = StyleSheet.create({
   page: {
-    flex: 1,
-    margin: 10,
-    padding: 10,
-    backgroundColor: '#EBEFF5',
-    borderRadius: 10,
-  },
-  titleContent: {
-    flexDirection: 'row',
-  },
-  email: {
-    flex: 1,
-    padding: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    flex: 2,
-    padding: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    backgroundColor: colors.tertiary,
+    borderRadius: 16,
   },
 });

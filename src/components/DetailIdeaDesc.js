@@ -1,57 +1,53 @@
 import React from 'react';
-import {StyleSheet, Text, View, Image} from 'react-native';
-import {ScrollView} from 'react-native-gesture-handler';
+import {Image, StyleSheet, Text, View} from 'react-native';
+import {colors} from '../utils/ColorsConfig/Colors';
+import fonts from '../utils/FontsConfig/Fonts';
+import Divider from './Divider';
+import Gap from './Gap';
 import {windowHeight} from './WindowDimensions';
 
 const DetailIdeaDesc = props => {
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <View style={styles.imageWrap}>
+    <View>
+      {/* <View style={styles.imageWrap}>
         <Image source={{uri: props.image}} style={styles.imageContent} />
       </View>
-      <Text style={styles.h2}>Idea Description</Text>
+      <Gap height={10} /> */}
+      <Text style={styles.h2}>Title Idea</Text>
+      <Divider stroke={1} />
       <Text style={styles.text(false)}>{props.title}</Text>
-      <Text style={styles.h2}>Deskrispsi Ide</Text>
+      <Text style={styles.h2}>Description</Text>
+      <Divider stroke={1} />
       <Text style={styles.text(true)}>{props.desc}</Text>
-    </ScrollView>
+    </View>
   );
 };
 
 export default DetailIdeaDesc;
 const styles = StyleSheet.create({
   text: isLast => ({
-    color: 'black',
+    color: colors.text.secondary,
     fontSize: 12,
-    marginBottom: isLast ? 0 : 10,
+    marginBottom: isLast ? 0 : 16,
     textAlign: 'justify',
+    fontFamily: fonts.primary[400],
+    lineHeight: 22,
   }),
-  textnoedit: {
-    borderWidth: 1,
-    borderRadius: 5,
-    backgroundColor: '#DBDBDB',
-    borderColor: '#085D7A',
-    marginBottom: 10,
-    color: 'black',
-    height: 20,
-    fontSize: 12,
-    paddingLeft: 7,
-    paddingTop: 2,
-  },
   h2: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'Roboto',
-    color: '#085D7A',
+    fontFamily: fonts.secondary[500],
+    fontSize: 16,
+    lineHeight: 25.6,
+    color: colors.text.primary,
   },
-  imageWrap: {
-    borderWidth: 2,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  imageContent: {
-    width: '100%',
-    height: windowHeight / 3,
-    borderRadius: 10,
-    resizeMode: 'cover',
-  },
+  // imageWrap: {
+  //   borderWidth: 2,
+  //   borderRadius: 10,
+  //   marginBottom: 10,
+  // },
+  // imageContent: {
+  //   width: '100%',
+  //   height: windowHeight / 3,
+  //   borderRadius: 10,
+  //   resizeMode: 'cover',
+  // },
 });

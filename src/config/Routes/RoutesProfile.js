@@ -8,7 +8,7 @@ const Stack = createNativeStackNavigator();
 const RoutesProfile = () => {
   return (
     <Stack.Navigator initialRouteName="Profile">
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Profile"
         component={Profile}
         options={{headerShown: false}}
@@ -17,7 +17,7 @@ const RoutesProfile = () => {
         name="InputProfile"
         component={InputProfile}
         options={{headerShown: false}}
-      />
+      /> */}
     </Stack.Navigator>
   );
 };
