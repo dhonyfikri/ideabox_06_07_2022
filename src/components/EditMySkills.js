@@ -43,6 +43,9 @@ const EditMySkills = ({
   return (
     <>
       <View style={styles.container(currentSkills.length > 0)}>
+        {currentSkills.length === 0 && (
+          <Text style={styles.tagText}>No Skills</Text>
+        )}
         {currentSkills.map((item, index) => {
           return (
             <View key={index.toString()} style={styles.tag}>

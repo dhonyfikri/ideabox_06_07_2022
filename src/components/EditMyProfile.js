@@ -387,7 +387,7 @@ const EditMyProfile = ({
       <Text style={styles.noticeText}>* Indicates required</Text>
       <Gap height={24} />
       <EditActionButton
-        disableSaveButton={disableSaveButton}
+        disableSaveButton={disableSaveButton || !edited}
         onDiscardPress={() => discard()}
         onSavePress={() => setMessageSuccessModalVisible(true)}
       />

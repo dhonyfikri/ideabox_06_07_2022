@@ -2,6 +2,8 @@ import {useBackHandler} from '@react-native-community/hooks';
 import {useNavigationState} from '@react-navigation/native';
 import React, {useEffect, useRef, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import AddMyAchievements from '../../../components/AddMyAchievements';
+import AddMySkills from '../../../components/AddMySkills';
 import CardDetailProfileContent from '../../../components/CardDetailProfileContent';
 import CardMyAchivements from '../../../components/CardMyAchivements';
 import CardMyIdeas from '../../../components/CardMyIdeas';
@@ -9,7 +11,7 @@ import CardMySkills from '../../../components/CardMySkills';
 import CardProfileMainContent from '../../../components/CardProfileMainContent';
 import ContactDetail from '../../../components/ContactDetail';
 import EditMyAbout from '../../../components/EditMyAbout';
-import EditMyAchievements from '../../../components/EditMyAchievements';
+import ActionMyAchievements from '../../../components/ActionMyAchievements';
 import EditMyBackgroundPhoto from '../../../components/EditMyBackgroundPhoto';
 import EditMyProfile from '../../../components/EditMyProfile';
 import EditMySkills from '../../../components/EditMySkills';
@@ -18,13 +20,17 @@ import Header from '../../../components/Header';
 import ModalEditProfile from '../../../components/ModalEditProfile';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
+import EditMyAchievements from '../../../components/EditMyAchievements';
 
 const MyProfile = ({navigation, route}) => {
   const openModalDiscardEditBackgroundPhotoReff = useRef(null);
   const openModalDiscardEditProfileReff = useRef(null);
   const openModalDiscardEditAboutReff = useRef(null);
   const openModalDiscardEditSkillReff = useRef(null);
+  const openModalDiscardAddSkillReff = useRef(null);
+  const openModalDiscardAddAchievementReff = useRef(null);
   const openModalDiscardEditAchievementReff = useRef(null);
+
   const [myAbout, setMyAbout] = useState('');
   const [mySkills, setMySkills] = useState([]);
   const [myAchivements, setMyAchivements] = useState([]);
@@ -36,9 +42,16 @@ const MyProfile = ({navigation, route}) => {
   const [modalEditProfileVisible, setModalEditProfileVisible] = useState(false);
   const [modalContactInfoVisible, setModalContactInfoVisible] = useState(false);
   const [modalEditAboutVisible, setModalEditAboutVisible] = useState(false);
+  const [modalAddSkillsVisible, setModalAddSkillsVisible] = useState(false);
   const [modalEditSkillsVisible, setModalEditSkillsVisible] = useState(false);
+  const [modalAddAchievemensVisible, setModalAddAchievemensVisible] =
+    useState(false);
   const [modalActionAchievemensVisible, setModalActionAchievemensVisible] =
     useState(false);
+  const [modalEditAchievemensVisible, setModalEditAchievemensVisible] =
+    useState(false);
+
+  const [achievementIndexToEdit, setAchievementIndexToEdit] = useState(null);
 
   // example to get route index
   const routeIndex = useNavigationState(state => state.index);
@@ -47,7 +60,7 @@ const MyProfile = ({navigation, route}) => {
     if (routeIndex > 0) {
       navigation.goBack();
     } else {
-      navigation.replace('DrawerNavigation');
+      navigation.replace('TabNavigation');
     }
   };
 
@@ -117,9 +130,6 @@ const MyProfile = ({navigation, route}) => {
           }
           onEditProfilePress={() => setModalEditProfileVisible(true)}
           onContactInfoPress={() => setModalContactInfoVisible(true)}
-          // onBackgroundPhotoChange={newBackground => {
-          //   setProfileData({...profileData, backgroundPhoto: newBackground});
-          // }}
         />
         <View style={styles.profileOptions}>
           <CardDetailProfileContent
@@ -133,6 +143,7 @@ const MyProfile = ({navigation, route}) => {
             title="My Skills"
             withAddButton
             withEditButton={mySkills.length > 0}
+            onAddPress={() => setModalAddSkillsVisible(true)}
             onEditPress={() => setModalEditSkillsVisible(true)}>
             <CardMySkills skills={mySkills} />
           </CardDetailProfileContent>
@@ -141,6 +152,7 @@ const MyProfile = ({navigation, route}) => {
             title="Achievement"
             withAddButton
             withEditButton={myAchivements.length > 0}
+            onAddPress={() => setModalAddAchievemensVisible(true)}
             onEditPress={() => setModalActionAchievemensVisible(true)}>
             <CardMyAchivements achievement={myAchivements} />
           </CardDetailProfileContent>
@@ -232,6 +244,30 @@ const MyProfile = ({navigation, route}) => {
         />
       </ModalEditProfile>
 
+      {/* modal add my skills */}
+      <ModalEditProfile
+        title="Add My Skills"
+        visible={modalAddSkillsVisible}
+        onRequestClose={() => openModalDiscardAddSkillReff.current()}
+        onCloseButtonPress={() => openModalDiscardAddSkillReff.current()}>
+        <AddMySkills
+          openModalDiscardReff={openModalDiscardAddSkillReff}
+          recomendationSkills={[
+            'Web Design',
+            'Data Representation',
+            'Prototyping',
+            'Control Systems Design',
+          ]}
+          mySkills={mySkills}
+          onSavePress={newSkills => {
+            const oldSkills = [...mySkills];
+            setMySkills([...new Set([...oldSkills, ...newSkills])]);
+            setModalAddSkillsVisible(false);
+          }}
+          onDiscardPress={() => setModalAddSkillsVisible(false)}
+        />
+      </ModalEditProfile>
+
       {/* modal edit my skills */}
       <ModalEditProfile
         title="Edit My Skills"
@@ -249,21 +285,69 @@ const MyProfile = ({navigation, route}) => {
         />
       </ModalEditProfile>
 
-      {/* modal edit my achievements */}
+      {/* modal add my achievements */}
+      <ModalEditProfile
+        title="Add My Achievements"
+        visible={modalAddAchievemensVisible}
+        onRequestClose={() => openModalDiscardAddAchievementReff.current()}
+        onCloseButtonPress={() => openModalDiscardAddAchievementReff.current()}>
+        <AddMyAchievements
+          openModalDiscardReff={openModalDiscardAddAchievementReff}
+          onDiscardPress={() => setModalAddAchievemensVisible(false)}
+          onSavePress={newAchievements => {
+            setModalAddAchievemensVisible(false);
+            const tempAchievements = [...myAchivements];
+            tempAchievements.push(newAchievements);
+            setMyAchivements(tempAchievements);
+          }}
+        />
+      </ModalEditProfile>
+
+      {/* modal action my achievements */}
       <ModalEditProfile
         title="Edit My Achievements"
         visible={modalActionAchievemensVisible}
+        onRequestClose={() => setModalActionAchievemensVisible(false)}
+        onCloseButtonPress={() => setModalActionAchievemensVisible(false)}>
+        <ActionMyAchievements
+          achievements={myAchivements}
+          onItemEdit={achievementIndexToEdit => {
+            setModalActionAchievemensVisible(false);
+            setAchievementIndexToEdit(achievementIndexToEdit);
+            setModalEditAchievemensVisible(true);
+          }}
+          onItemDelete={achievementIndexToDelete => {
+            if (myAchivements.length <= 1) {
+              setModalActionAchievemensVisible(false);
+            }
+            const tempMyAchievements = [...myAchivements];
+            tempMyAchievements.splice(achievementIndexToDelete, 1);
+            setMyAchivements(tempMyAchievements);
+          }}
+        />
+      </ModalEditProfile>
+
+      {/* modal edit my achievements */}
+      <ModalEditProfile
+        title="Edit My Achievements"
+        visible={modalEditAchievemensVisible}
         onRequestClose={() => openModalDiscardEditAchievementReff.current()}
         onCloseButtonPress={() =>
           openModalDiscardEditAchievementReff.current()
         }>
         <EditMyAchievements
           openModalDiscardReff={openModalDiscardEditAchievementReff}
-          achievements={myAchivements}
-          onDiscardPress={() => setModalActionAchievemensVisible(false)}
-          onSavePress={newAchievements => {
-            setModalActionAchievemensVisible(false);
-            setMyAchivements(newAchievements);
+          achievementsToEdit={myAchivements[achievementIndexToEdit]}
+          onDiscardPress={() => {
+            setModalEditAchievemensVisible(false);
+            setModalActionAchievemensVisible(true);
+          }}
+          onSavePress={editedAchievementItem => {
+            setModalEditAchievemensVisible(false);
+            const tempAchievements = [...myAchivements];
+            tempAchievements[achievementIndexToEdit] = editedAchievementItem;
+            setMyAchivements(tempAchievements);
+            setModalActionAchievemensVisible(true);
           }}
         />
       </ModalEditProfile>

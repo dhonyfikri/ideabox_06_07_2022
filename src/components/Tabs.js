@@ -107,7 +107,7 @@ const TabNavigation = ({navigation, route}) => {
         />
         <Tab.Navigator
           backBehavior="initialRoute"
-          initialRouteName="Home"
+          initialRouteName="Profile"
           screenOptions={{
             tabBarShowLabel: false,
             tabBarStyle: {

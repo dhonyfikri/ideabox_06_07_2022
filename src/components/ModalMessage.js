@@ -41,6 +41,13 @@ const ModalMessage = ({
           source={require('../assets/image/il_confused.png')}
         />
       );
+    } else if (illustrationType === 'restless') {
+      return (
+        <Image
+          style={{width: 83, height: 83, resizeMode: 'contain'}}
+          source={require('../assets/image/il_restless.png')}
+        />
+      );
     }
   };
 
@@ -59,7 +66,7 @@ const ModalMessage = ({
         }}>
         <View
           style={{
-            width: 225,
+            width: withCancelButton && withConfirmButton ? 277 : 226,
             paddingHorizontal: 16,
             paddingTop: 16,
             paddingBottom: 8,

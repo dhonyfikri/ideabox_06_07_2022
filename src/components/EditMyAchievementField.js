@@ -1,12 +1,11 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  Animated,
 } from 'react-native';
 import {IcCalendar} from '../assets/icon';
 import {colors} from '../utils/ColorsConfig/Colors';
@@ -30,8 +29,6 @@ const EditMyAchievementField = ({
       : textToDate(issueDate);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
   const _onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (event.type === 'set') {
@@ -44,15 +41,8 @@ const EditMyAchievementField = ({
     }
   };
 
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 300,
-    }).start();
-  }, [fadeAnim]);
-
   return (
-    <Animated.View style={{opacity: fadeAnim}}>
+    <>
       <Text
         style={{
           fontFamily: fonts.secondary[400],
@@ -60,7 +50,7 @@ const EditMyAchievementField = ({
           lineHeight: 15,
           color: colors.text.primary,
         }}>
-        Title
+        Title <Text style={{color: colors.alert}}>*</Text>
       </Text>
       <Gap height={8} />
       <TextInput
@@ -74,7 +64,7 @@ const EditMyAchievementField = ({
           fontSize: 12,
           color: colors.text.primary,
         }}
-        placeholder="Input Title"
+        placeholder="New Achievement"
         onChangeText={newTitle => onTitleChange(newTitle)}>
         <Text style={{lineHeight: 15}}>{title}</Text>
       </TextInput>
@@ -86,7 +76,7 @@ const EditMyAchievementField = ({
           lineHeight: 15,
           color: colors.text.primary,
         }}>
-        Issue Date
+        Issue Date <Text style={{color: colors.alert}}>*</Text>
       </Text>
       <Gap height={8} />
       <View
@@ -120,35 +110,6 @@ const EditMyAchievementField = ({
           <IcCalendar />
         </TouchableOpacity>
       </View>
-      {/* <Gap height={18} /> */}
-      {/* <View
-        style={{
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderRadius: 32,
-          overflow: 'hidden',
-        }}>
-        <TouchableOpacity
-          style={{
-            flexDirection: 'row',
-            paddingVertical: 6,
-            paddingHorizontal: 12,
-            alignItems: 'center',
-          }}>
-          <Text
-            style={{
-              flex: 1,
-              fontFamily: fonts.secondary[400],
-              fontSize: 12,
-              lineHeight: 15,
-              color: colors.text.primary,
-            }}>
-            2022
-          </Text>
-          <Gap width={4} />
-          <IcCalendar />
-        </TouchableOpacity>
-      </View> */}
       <Gap height={12} />
       <Text
         style={{
@@ -157,10 +118,11 @@ const EditMyAchievementField = ({
           lineHeight: 15,
           color: colors.text.primary,
         }}>
-        description
+        description <Text style={{color: colors.alert}}>*</Text>
       </Text>
       <Gap height={8} />
       <TextInput
+        placeholder="No Descriptions"
         multiline
         textAlignVertical="top"
         style={styles.board}
@@ -182,7 +144,7 @@ const EditMyAchievementField = ({
           onChange={_onDateChange}
         />
       )}
-    </Animated.View>
+    </>
   );
 };
 

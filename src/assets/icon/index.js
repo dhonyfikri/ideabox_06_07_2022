@@ -80,6 +80,7 @@ import IcAdd2 from './ic_add2.svg';
 import IcOutlinedAdd from './ic_outlined_add.svg';
 import IcActiveTrash from './ic_active_trash.svg';
 import IcCalendar from './ic_calendar.svg';
+import IcTickLight from './ic_tick_light.svg';
 
 export {
   IconEvent,
@@ -164,4 +165,5 @@ export {
   IcActiveTrash,
   IcCalendar,
   IcChevronDown,
+  IcTickLight,
 };

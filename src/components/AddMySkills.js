@@ -1,157 +1,158 @@
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
-  View,
-  TouchableOpacity,
   TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
-import {colors} from '../utils/ColorsConfig/Colors';
-import fonts from '../utils/FontsConfig/Fonts';
-import Gap from './Gap';
 import {
-  IcAdd,
+  IcAdd2,
   IcOutlinedAdd,
-  IcRemoveTag,
+  IcTickLight,
   IcVerticalDivider,
 } from '../assets/icon';
+import {colors} from '../utils/ColorsConfig/Colors';
+import fonts from '../utils/FontsConfig/Fonts';
+import EditActionButton from './EditActionButton';
+import Gap from './Gap';
 import ModalMessage from './ModalMessage';
 
-const EditMySkills = ({
+const AddMySkills = ({
   openModalDiscardReff,
-  skills = [],
+  recomendationSkills = [],
+  mySkills = [],
   onSavePress = () => {},
   onDiscardPress,
 }) => {
-  const [currentSkills, setCurrentSkills] = useState([...skills]);
-  const [openInput, setOpenInput] = useState(false);
+  const [currentSkills, setCurrentSkills] = useState([]);
   const [inputText, setInputText] = useState('');
-  const [messageDiscardEditModalVisible, setMessageDiscardEditModalVisible] =
+  const [messageDiscardAddModalVisible, setMessageDiscardAddModalVisible] =
     useState(false);
   const [messageSuccessModalVisible, setMessageSuccessModalVisible] =
     useState(false);
+  const [edited, setEdited] = useState(false);
 
   useEffect(() => {
     if (openModalDiscardReff !== undefined) {
-      openModalDiscardReff.current = () =>
-        setMessageDiscardEditModalVisible(true);
+      openModalDiscardReff.current = () => discard();
     }
+  }, [edited]);
+
+  useEffect(() => {
+    const filteredRecomendationSkills = recomendationSkills
+      .filter(ar => !mySkills.find(rm => rm.toLowerCase() === ar.toLowerCase()))
+      .map(item => ({item: item, signed: false, isRecomendation: true}));
+
+    setCurrentSkills(filteredRecomendationSkills);
   }, []);
+
+  const discard = () => {
+    if (edited) {
+      setMessageDiscardAddModalVisible(true);
+    } else {
+      onDiscardPress();
+    }
+  };
+
+  const stateEdited = () => {
+    if (!edited) {
+      setEdited(true);
+    }
+  };
 
   return (
     <>
       <View style={styles.container(currentSkills.length > 0)}>
         {currentSkills.map((item, index) => {
           return (
-            <View key={index.toString()} style={styles.tag}>
-              <Text style={styles.tagText}>{item}</Text>
+            <TouchableOpacity
+              key={index.toString()}
+              style={styles.tag(item.signed)}
+              onPress={() => {
+                const newSkillsSet = [...currentSkills];
+                if (item.signed) {
+                  if (item.isRecomendation) {
+                    newSkillsSet[index].signed = false;
+                  } else {
+                    newSkillsSet.splice(index, 1);
+                  }
+                } else {
+                  newSkillsSet[index].signed = true;
+                }
+                setCurrentSkills(newSkillsSet);
+                stateEdited();
+              }}>
+              <Text style={styles.tagText(item.signed)}>{item.item}</Text>
               <Gap width={2} />
               <IcVerticalDivider />
               <Gap width={2} />
-              <TouchableOpacity
-                onPress={() => {
-                  const newSkillsSet = [...currentSkills];
-                  newSkillsSet.splice(index, 1);
-                  setCurrentSkills(newSkillsSet);
-                }}>
-                <IcRemoveTag />
-              </TouchableOpacity>
-            </View>
+              <View>{item.signed ? <IcTickLight /> : <IcAdd2 />}</View>
+            </TouchableOpacity>
           );
         })}
       </View>
       <Gap height={24} />
-      {/* {!openInput && ( */}
-      <View>
-        <TouchableOpacity
-          style={{
-            flexDirection: 'row',
-            alignSelf: 'flex-start',
-            alignItems: 'center',
+      <View style={styles.skillInputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Add another skills"
+          value={inputText}
+          onChangeText={text => {
+            setInputText(text);
           }}
+        />
+        <TouchableOpacity
+          style={styles.buttonSkillInput}
           onPress={() => {
-            if (!openInput) {
-              setOpenInput(true);
+            if (inputText.trim() !== '') {
+              // bersihkan teks dari white space dan tanda titik di akhir
+              let cleanInputText = inputText.trim();
+              while (
+                cleanInputText[cleanInputText.length - 1] === '.' ||
+                cleanInputText[cleanInputText.length - 1] === ' '
+              ) {
+                const index = cleanInputText.lastIndexOf('.');
+                cleanInputText = cleanInputText.substring(0, index);
+                cleanInputText = cleanInputText.trim();
+              }
+
+              const newSkills = [...currentSkills];
+              newSkills.push({
+                item: cleanInputText,
+                signed: true,
+                isRecomendation: false,
+              });
+              setInputText('');
+              setCurrentSkills(newSkills);
+              stateEdited();
             }
           }}>
-          <IcAdd />
-          <Gap width={8} />
-          <Text numberOfLines={1} style={styles.addAnotherSkillText}>
-            Add another skills
-          </Text>
+          <IcOutlinedAdd />
         </TouchableOpacity>
       </View>
-      {/* )} */}
-      {openInput && (
-        <>
-          <Gap height={24} />
-          <View style={styles.skillInputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Add another skills"
-              value={inputText}
-              onChangeText={text => {
-                setInputText(text);
-              }}
-            />
-            <TouchableOpacity
-              style={styles.buttonSkillInput}
-              onPress={() => {
-                if (inputText.trim() !== '') {
-                  // bersihkan teks dari white space dan tanda titik di akhir
-                  let cleanInputText = inputText.trim();
-                  while (
-                    cleanInputText[cleanInputText.length - 1] === '.' ||
-                    cleanInputText[cleanInputText.length - 1] === ' '
-                  ) {
-                    const index = cleanInputText.lastIndexOf('.');
-                    cleanInputText = cleanInputText.substring(0, index);
-                    cleanInputText = cleanInputText.trim();
-                  }
-
-                  const newSkills = [...currentSkills];
-                  newSkills.push(cleanInputText);
-                  setInputText('');
-                  setCurrentSkills(newSkills);
-                }
-              }}>
-              <IcOutlinedAdd />
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
       <Gap height={24} />
-      <View style={styles.actionWrapper}>
-        <TouchableOpacity
-          style={styles.discardButton}
-          onPress={() => setMessageDiscardEditModalVisible(true)}>
-          <Text numberOfLines={1} style={styles.discardButtonText}>
-            Discard
-          </Text>
-        </TouchableOpacity>
-        <Gap width={16} />
-        <TouchableOpacity
-          style={styles.saveButton}
-          onPress={() => setMessageSuccessModalVisible(true)}>
-          <Text numberOfLines={1} style={styles.saveButtonText}>
-            Save
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <EditActionButton
+        disableSaveButton={
+          !edited || currentSkills.filter(item => item.signed).length <= 0
+        }
+        onDiscardPress={() => discard()}
+        onSavePress={() => setMessageSuccessModalVisible(true)}
+      />
       {/* modal discard confirmation message */}
       <ModalMessage
-        visible={messageDiscardEditModalVisible}
+        visible={messageDiscardAddModalVisible}
         withIllustration
         illustrationType="confused"
         message="Are you sure want to leave this page? You will lose all unsaved progress."
         withCancelButton
         withConfirmButton
-        onCancel={() => setMessageDiscardEditModalVisible(false)}
+        onCancel={() => setMessageDiscardAddModalVisible(false)}
         onConfirm={() => {
-          setMessageDiscardEditModalVisible(false);
+          setMessageDiscardAddModalVisible(false);
           onDiscardPress();
         }}
-        onRequestClose={() => setMessageDiscardEditModalVisible(false)}
+        onRequestClose={() => setMessageDiscardAddModalVisible(false)}
       />
 
       {/* modal success message */}
@@ -163,25 +164,31 @@ const EditMySkills = ({
         message={
           <Text
             style={{...styles.customMessageStyle, color: colors.text.primary}}>
-            You have <Text style={styles.customMessageStyle}>updated</Text> your
-            skills!
+            You have <Text style={styles.customMessageStyle}>added</Text> your
+            new skills!
           </Text>
         }
         withBackButton
         onBack={() => {
           setMessageSuccessModalVisible(false);
-          onSavePress(currentSkills);
+          const newSkillsToAdd = currentSkills
+            .filter(item => item.signed)
+            .map(item => item.item);
+          onSavePress(newSkillsToAdd);
         }}
         onRequestClose={() => {
           setMessageSuccessModalVisible(false);
-          onSavePress(currentSkills);
+          const newSkillsToAdd = currentSkills
+            .filter(item => item.signed)
+            .map(item => item.item);
+          onSavePress(newSkillsToAdd);
         }}
       />
     </>
   );
 };
 
-export default EditMySkills;
+export default AddMySkills;
 
 const styles = StyleSheet.create({
   container: dataAvailable => ({
@@ -190,9 +197,10 @@ const styles = StyleSheet.create({
     marginRight: dataAvailable ? -8 : 0,
     marginBottom: dataAvailable ? -8 : 0,
   }),
-  tag: {
+  tag: selected => ({
     flex: -1,
-    borderWidth: 1,
+    borderWidth: selected ? 0 : 1,
+    backgroundColor: selected ? colors.selectedTag : colors.white,
     borderColor: colors.border2,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -201,14 +209,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  tagText: {
+  }),
+  tagText: selected => ({
     flex: -1,
-    color: colors.text.tertiary2,
+    color: selected ? colors.white : colors.text.tertiary2,
     fontFamily: fonts.secondary[600],
     fontSize: 12,
     lineHeight: 15,
-  },
+  }),
   addAnotherSkillText: {
     fontFamily: fonts.secondary[600],
     fontSize: 12,
@@ -239,39 +247,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  actionWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  discardButton: {
-    width: 105,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: 100,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  saveButton: {
-    width: 105,
-    backgroundColor: colors.primary,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: 100,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  discardButtonText: {
-    fontFamily: fonts.secondary[600],
-    fontSize: 16,
-    lineHeight: 20,
-    color: colors.primary,
-  },
-  saveButtonText: {
-    fontFamily: fonts.secondary[600],
-    fontSize: 16,
-    lineHeight: 20,
-    color: colors.white,
   },
   customMessageStyle: {
     fontFamily: fonts.primary[400],

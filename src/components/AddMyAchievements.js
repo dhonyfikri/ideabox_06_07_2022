@@ -1,34 +1,37 @@
-import React, {useState, useEffect} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {colors} from '../utils/ColorsConfig/Colors';
+import {dateToText} from '../utils/DateConfig/DateConvert';
 import fonts from '../utils/FontsConfig/Fonts';
 import EditActionButton from './EditActionButton';
 import EditMyAchievementField from './EditMyAchievementField';
 import Gap from './Gap';
 import ModalMessage from './ModalMessage';
 
-const EditMyAchievements = ({
+const AddMyAchievements = ({
   openModalDiscardReff,
-  achievementsToEdit = {},
   onSavePress = () => {},
   onDiscardPress = () => {},
 }) => {
-  const [messageDiscardEditModalVisible, setMessageDiscardEditModalVisible] =
+  const [messageDiscardAddModalVisible, setMessageDiscardAddModalVisible] =
     useState(false);
   const [messageSuccessModalVisible, setMessageSuccessModalVisible] =
     useState(false);
-  const [currentAchievement, setCurrentAchievement] =
-    useState(achievementsToEdit);
+  const [achievement, setAchievement] = useState({
+    title: '',
+    desc: '',
+    date: dateToText(new Date()),
+  });
   const [disableSaveButton, setDisableSaveButton] = useState(true);
   const [edited, setEdited] = useState(false);
 
   useEffect(() => {
     const disable =
-      currentAchievement.title === '' ||
-      currentAchievement.desc === '' ||
-      currentAchievement.date === '';
+      achievement.title === '' ||
+      achievement.desc === '' ||
+      achievement.date === '';
     disableSaveButton !== disable && setDisableSaveButton(disable);
-  }, [currentAchievement]);
+  }, [achievement]);
 
   useEffect(() => {
     if (openModalDiscardReff !== undefined) {
@@ -38,7 +41,7 @@ const EditMyAchievements = ({
 
   const discard = () => {
     if (edited) {
-      setMessageDiscardEditModalVisible(true);
+      setMessageDiscardAddModalVisible(true);
     } else {
       onDiscardPress();
     }
@@ -52,53 +55,26 @@ const EditMyAchievements = ({
 
   return (
     <>
-      <View style={{flexDirection: 'row'}}>
-        <View
-          style={{
-            flex: 1,
-          }}>
-          <Text
-            style={{
-              fontFamily: fonts.secondary[600],
-              fontSize: 12,
-              lineHeight: 15,
-              color: colors.text.tertiary3,
-            }}>
-            {achievementsToEdit.title}
-          </Text>
-          <Gap height={6} />
-          <Text
-            style={{
-              fontFamily: fonts.primary[400],
-              fontSize: 12,
-              lineHeight: 22,
-              color: colors.text.tertiary2,
-            }}>
-            {achievementsToEdit.desc} {achievementsToEdit.date}
-          </Text>
-        </View>
-      </View>
-      <Gap height={16} />
       <EditMyAchievementField
-        title={currentAchievement.title}
-        issueDate={currentAchievement.date}
-        desc={currentAchievement.desc}
+        title={achievement.title}
+        issueDate={achievement.date}
+        desc={achievement.desc}
         onTitleChange={newTitle => {
-          const tempAchievements = {...currentAchievement};
+          const tempAchievements = {...achievement};
           tempAchievements.title = newTitle;
-          setCurrentAchievement(tempAchievements);
+          setAchievement(tempAchievements);
           stateEdited();
         }}
         onDescChange={newDesc => {
-          const tempAchievements = {...currentAchievement};
+          const tempAchievements = {...achievement};
           tempAchievements.desc = newDesc;
-          setCurrentAchievement(tempAchievements);
+          setAchievement(tempAchievements);
           stateEdited();
         }}
         onDateChange={newDate => {
-          const tempAchievements = {...currentAchievement};
+          const tempAchievements = {...achievement};
           tempAchievements.date = newDate;
-          setCurrentAchievement(tempAchievements);
+          setAchievement(tempAchievements);
           stateEdited();
         }}
       />
@@ -111,48 +87,48 @@ const EditMyAchievements = ({
 
       {/* modal discard confirmation message */}
       <ModalMessage
-        visible={messageDiscardEditModalVisible}
+        visible={messageDiscardAddModalVisible}
         withIllustration
         illustrationType="confused"
         message="Are you sure want to leave this page? You will lose all unsaved progress."
         withCancelButton
         withConfirmButton
-        onCancel={() => setMessageDiscardEditModalVisible(false)}
+        onCancel={() => setMessageDiscardAddModalVisible(false)}
         onConfirm={() => {
-          setMessageDiscardEditModalVisible(false);
+          setMessageDiscardAddModalVisible(false);
           onDiscardPress();
         }}
-        onRequestClose={() => setMessageDiscardEditModalVisible(false)}
+        onRequestClose={() => setMessageDiscardAddModalVisible(false)}
       />
 
       {/* modal success message */}
       <ModalMessage
         visible={messageSuccessModalVisible}
         withIllustration
-        illustrationType="confused"
+        illustrationType="smile"
         title="Success"
         message={
           <Text
             style={{...styles.customMessageStyle, color: colors.text.primary}}>
             You have <Text style={styles.customMessageStyle}>updated</Text> your
-            achivement!
+            skills!
           </Text>
         }
         withBackButton
         onBack={() => {
           setMessageSuccessModalVisible(false);
-          onSavePress(currentAchievement);
+          onSavePress(achievement);
         }}
         onRequestClose={() => {
           setMessageSuccessModalVisible(false);
-          onSavePress(currentAchievement);
+          onSavePress(achievement);
         }}
       />
     </>
   );
 };
 
-export default EditMyAchievements;
+export default AddMyAchievements;
 
 const styles = StyleSheet.create({
   customMessageStyle: {

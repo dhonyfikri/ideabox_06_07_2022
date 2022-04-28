@@ -67,8 +67,8 @@ const Login = ({navigation, route}) => {
         provider_id: '930241',
       })
         .then(() => {
-          navigation.replace('TabNavigation');
           setShowLoading(false);
+          navigation.replace('TabNavigation');
         })
         .catch(() => {
           setShowLoading(false);

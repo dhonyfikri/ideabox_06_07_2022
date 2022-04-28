@@ -95,6 +95,7 @@ const EditMyBackgroundPhoto = ({
       </View>
       <Gap height={24} />
       <EditActionButton
+        disableSaveButton={!edited}
         onDiscardPress={() => discard()}
         onSavePress={() => setMessageSuccessModalVisible(true)}
       />

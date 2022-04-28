@@ -14,6 +14,7 @@ const mainColors = {
   grey12: '#1F2937',
   red: '#E74200',
   green: '#22C55E',
+  green2: '#16A34A',
 };
 
 export const colors = {
@@ -36,4 +37,5 @@ export const colors = {
   divider: mainColors.grey6,
   divider2: mainColors.grey11,
   dot: mainColors.grey4,
+  selectedTag: mainColors.green2,
 };

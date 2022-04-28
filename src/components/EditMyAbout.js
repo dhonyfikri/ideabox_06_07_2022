@@ -57,6 +57,7 @@ const EditMyAbout = ({
       </TextInput>
       <Gap height={24} />
       <EditActionButton
+        disableSaveButton={!edited}
         onDiscardPress={() => discard()}
         onSavePress={() => setMessageSuccessModalVisible(true)}
       />
