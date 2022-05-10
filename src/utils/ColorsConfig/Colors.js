@@ -1,5 +1,6 @@
 const mainColors = {
   purple1: '#7C4BFF',
+  purple2: '#4619BE',
   grey1: '#F4F4F4',
   grey2: '#9CA3AF',
   grey3: '#4B5563',
@@ -13,12 +14,14 @@ const mainColors = {
   grey11: '#FAFAFB',
   grey12: '#1F2937',
   red: '#E74200',
+  orange: '#FF5C1B',
   green: '#22C55E',
   green2: '#16A34A',
 };
 
 export const colors = {
   primary: mainColors.purple1,
+  primary2: mainColors.purple2,
   secondary: mainColors.grey1,
   tertiary: mainColors.grey4,
   white: 'white',
@@ -31,6 +34,7 @@ export const colors = {
     tertiary3: mainColors.grey12,
   },
   alert: mainColors.red,
+  danger: mainColors.orange,
   success: mainColors.green,
   border: mainColors.grey2,
   border2: mainColors.grey9,

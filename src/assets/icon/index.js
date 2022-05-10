@@ -78,9 +78,11 @@ import IcVerticalDivider from './ic_vertical_divider.svg';
 import IcAdd from './ic_add.svg';
 import IcAdd2 from './ic_add2.svg';
 import IcOutlinedAdd from './ic_outlined_add.svg';
+import IcOutlinedRemove from './ic_outlined_remove.svg';
 import IcActiveTrash from './ic_active_trash.svg';
 import IcCalendar from './ic_calendar.svg';
 import IcTickLight from './ic_tick_light.svg';
+import IcActiveOpenFile from './ic_active_open_file.svg';
 
 export {
   IconEvent,
@@ -166,4 +168,6 @@ export {
   IcCalendar,
   IcChevronDown,
   IcTickLight,
+  IcActiveOpenFile,
+  IcOutlinedRemove,
 };

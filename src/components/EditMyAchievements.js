@@ -129,7 +129,7 @@ const EditMyAchievements = ({
       <ModalMessage
         visible={messageSuccessModalVisible}
         withIllustration
-        illustrationType="confused"
+        illustrationType="smile"
         title="Success"
         message={
           <Text

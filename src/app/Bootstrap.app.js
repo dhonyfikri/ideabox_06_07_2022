@@ -15,6 +15,7 @@ import {Provider, useSelector} from 'react-redux';
 import store from '../utils/Redux/Store';
 import LoadingFull from '../components/LoadingFull';
 import RefreshFull from '../components/RefreshFull';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 const App = () => {
   const stateGlobal = useSelector(state => state);
@@ -89,7 +90,9 @@ const Bootstrap = () => {
   LogBox.ignoreAllLogs();
   return (
     <Provider store={store}>
-      <App />
+      <GestureHandlerRootView style={{flex: 1}}>
+        <App />
+      </GestureHandlerRootView>
     </Provider>
   );
 };

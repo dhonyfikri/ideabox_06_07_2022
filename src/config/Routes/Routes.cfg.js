@@ -2,6 +2,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import * as React from 'react';
 import DrawerNavigation from '../../components/Drawer';
 import TabNavigation from '../../components/Tabs';
+import CreateIdeaStep from '../../modules/createidea/screen/CreateIdeaStep';
 import DetailExplore from '../../modules/explore/screen/DetailExplore.screen';
 import Faq from '../../modules/faq/screen/Faq.screen';
 import Login from '../../modules/login/screen/Login.screen';
@@ -67,6 +68,11 @@ const Routes = () => {
       <Stack.Screen
         name="MyProfile"
         component={MyProfile}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="CreateIdeaStep"
+        component={CreateIdeaStep}
         options={{headerShown: false}}
       />
       <Stack.Screen

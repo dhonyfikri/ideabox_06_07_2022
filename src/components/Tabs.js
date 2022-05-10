@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Dimensions,
 } from 'react-native';
 import {
   IcDashboardActive,
@@ -18,6 +19,7 @@ import {
   IcUserActive,
   IcUserInactive,
 } from '../assets/icon';
+import MainCreateIdea from '../modules/createidea/screen/MainCreateIdea';
 import Explore from '../modules/explore/screen/Explore.route';
 import Profile from '../modules/profile/screen/Profile.screen';
 import {colors} from '../utils/ColorsConfig/Colors';
@@ -48,9 +50,8 @@ const NormalTabIcon = ({focused, icon, label}) => {
 const CustomTabIcon = ({children, onPress}) => {
   return (
     <View
-      activeOpacity={1}
       style={{
-        width: 90,
+        width: (Dimensions.get('window').width * 20) / 100,
         height: 103,
         top: -28,
         paddingBottom: 10,
@@ -65,7 +66,7 @@ const CustomTabIcon = ({children, onPress}) => {
           borderRadius: 65 / 2,
           justifyContent: 'center',
           alignItems: 'center',
-          elevation: 2,
+          // elevation: 2,
         }}>
         <TouchableOpacity
           onPress={onPress}
@@ -107,7 +108,7 @@ const TabNavigation = ({navigation, route}) => {
         />
         <Tab.Navigator
           backBehavior="initialRoute"
-          initialRouteName="Profile"
+          initialRouteName="Home"
           screenOptions={{
             tabBarShowLabel: false,
             tabBarStyle: {
@@ -163,16 +164,7 @@ const TabNavigation = ({navigation, route}) => {
           />
           <Tab.Screen
             name="Create"
-            component={() => (
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text>Create Idea</Text>
-              </View>
-            )}
+            component={MainCreateIdea}
             options={{
               headerShown: false,
               tabBarIcon: ({focused}) => (

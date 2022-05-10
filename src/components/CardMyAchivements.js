@@ -10,7 +10,7 @@ const CardMyAchivements = ({achievement = []}) => {
     <>
       {achievement.map((item, index) => {
         return (
-          <>
+          <View key={index.toString()}>
             <Text style={styles.title}>{item.title}</Text>
             <Text style={styles.desc}>
               {item.desc} {item.date}
@@ -22,7 +22,7 @@ const CardMyAchivements = ({achievement = []}) => {
                 <Gap height={8} />
               </>
             )}
-          </>
+          </View>
         );
       })}
     </>
