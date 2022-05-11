@@ -10,13 +10,16 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 import {MentionInput} from 'react-native-controlled-mentions';
 import GestureRecognizer from 'react-native-swipe-gestures';
 import {useDispatch, useSelector} from 'react-redux';
+import {alignItems, width} from 'styled-system';
 import {Cross, Join, Promote, TopLine} from '../../../assets/icon';
 import CardComment from '../../../components/CardComment';
 import CardContent from '../../../components/CardContent';
+import CardContentNew from '../../../components/CardContentNew';
 import CardReplyComment from '../../../components/CardReplyComment';
 import FailedModal from '../../../components/FailedModal';
 import getData from '../../../components/GetData';
@@ -31,7 +34,9 @@ import JoinIdea from '../../../config/PostData/JoinIdea';
 import PromoteIdea from '../../../config/PostData/PromoteIdea';
 import style from '../../../config/Style/style.cfg';
 import styles from '../style/Explore.style';
-
+import RBSheet from 'react-native-raw-bottom-sheet';
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import {RadioButton} from 'react-native-paper';
 const ExploreContent = ({navigation, route}) => {
   const dispatch = useDispatch();
   const stateGlobal = useSelector(state => state);
@@ -71,6 +76,25 @@ const ExploreContent = ({navigation, route}) => {
 
   const [fetchLoading, setFetchLoading] = useState(false);
   const [showRefreshButton, setShowRefreshButton] = useState(false);
+  const [search, setSearch] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const [searchClick, setSearchClick] = useState('');
+  //menu search
+  const [searchHistory, setSearchHistory] = useState(true);
+  const [mostLikedIdea, setMostLikedIdea] = useState(false);
+  const [mostCommentedIdea, setMostCommentedIdea] = useState(false);
+  const [mostProductiveInovator, setMostProductiveInovator] = useState(false);
+
+  //filter
+  const refRBSheet = useRef();
+  const [checkedRadio, setCheckedRadio] = useState('1');
+  const [checked, setChecked] = useState(false);
+  const [checked2, setChecked2] = useState(false);
+  const [checked3, setChecked3] = useState(false);
+  const [checked4, setChecked4] = useState(false);
+  const [checked5, setChecked5] = useState(false);
+  const [checked6, setChecked6] = useState(false);
+  const [expand, setExpand] = useState(true);
 
   const fetchIdeas = withIndicator => {
     if (withIndicator) {
@@ -171,7 +195,6 @@ const ExploreContent = ({navigation, route}) => {
   //   );
   // };
   // End Sugesstion
-
   const getDataSuccess = data => {
     setSuccess(data);
   };
@@ -206,9 +229,701 @@ const ExploreContent = ({navigation, route}) => {
   //     alert(error.message);
   //   }
   // };
+  const CheckboxComponent = props => {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          marginBottom: 12,
+        }}>
+        <Text style={{fontFamily: 'Poppins-Regular', fontSize: 14}}>
+          {props.name}
+        </Text>
+        <BouncyCheckbox
+          size={20}
+          fillColor="#7C4BFF"
+          unfillColor="#FFFFFF"
+          disableBuiltInState
+          iconStyle={{
+            borderColor: props.select ? '#7C4BFF' : '#D4DAE2',
+            borderRadius: 6,
+            marginRight: -15,
+          }}
+          onPress={props.onPress}
+          isChecked={props.select}
+          style={{
+            marginRight: 0,
+            alignSelf: 'flex-end',
+          }}
+        />
+      </View>
+    );
+  };
+  const RadioButtonComponent = props => {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          marginRight: -6,
+        }}>
+        <Text>{props.value}</Text>
+        <RadioButton
+          value={props.value}
+          status={props.checked === props.value ? 'checked' : 'unchecked'}
+          onPress={props.onPress}
+          color="#7C4BFF"
+        />
+      </View>
+    );
+  };
+  const ContainerHistory = props => {
+    return (
+      <View style={styles.containerHistory}>
+        <TouchableOpacity style={{flex: 1}}>
+          <Text style={{fontFamily: 'Poppins-Medium', fontSize: 12}}>
+            {props.title}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Image
+            source={require('../../../assets/icon/crossnew.png')}
+            style={{width: 12, height: 12}}
+          />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+  const SearchHistory = () => {
+    return (
+      <View>
+        <TouchableOpacity style={{alignItems: 'flex-end', padding: 16}}>
+          <Text style={styles.textClear}>Clear History</Text>
+        </TouchableOpacity>
+        <ContainerHistory title={'Bisnis'} />
+        <ContainerHistory title={'Administrasi'} />
+        <ContainerHistory title={'Politisi'} />
+      </View>
+    );
+  };
+  const ContainerLikeComment = props => {
+    return (
+      <View style={styles.containerMost}>
+        <Image source={props.leaderboard} style={{width: 56, height: 56}} />
+        <Image
+          source={props.coveridea}
+          style={{
+            width: 80,
+            height: 80,
+            borderRadius: 4,
+            marginHorizontal: 16,
+          }}
+        />
+        <View style={{flex: 1}}>
+          <Text style={{fontFamily: 'Poppins-SemiBold', fontSize: 14}}>
+            {props.titleidea}
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginVertical: 4,
+            }}>
+            <Image
+              source={props.imageavatar}
+              style={{
+                width: 26,
+                height: 26,
+                marginRight: 4,
+                borderRadius: 26,
+              }}
+            />
+            <Text style={{fontFamily: 'Roboto-Bold', fontSize: 12}}>
+              {props.name}
+            </Text>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <Image
+              source={props.iconlikecomment}
+              style={{
+                width: 20.4,
+                height: 18.5,
+                marginRight: 8,
+              }}
+            />
+            <Text style={{fontFamily: 'Roboto-Regular', fontSize: 12, flex: 1}}>
+              {props.total} People {props.likecomment} this idea
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+  const MostLikedIdea = () => {
+    return (
+      <View style={{padding: 16}}>
+        <Text
+          style={{fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16}}>
+          This Week
+        </Text>
+        <ContainerLikeComment
+          leaderboard={require('../../../assets/icon/firstplace.png')}
+          coveridea={require('../../../assets/icon/dummyhistory.png')}
+          titleidea={'Idea 1'}
+          imageavatar={require('../../../assets/icon/dummyavatar.png')}
+          name={'Vanesha Sirsilla'}
+          total={133}
+          iconlikecomment={require('../../../assets/icon/likebynew.png')}
+          likecomment={'Liked'}
+        />
+        <ContainerLikeComment
+          leaderboard={require('../../../assets/icon/secondplace.png')}
+          coveridea={require('../../../assets/icon/dummyhistory.png')}
+          titleidea={'Idea 2'}
+          imageavatar={require('../../../assets/icon/dummyavatar.png')}
+          name={'Vanesha'}
+          total={211}
+          iconlikecomment={require('../../../assets/icon/likebynew.png')}
+          likecomment={'Liked'}
+        />
+        <ContainerLikeComment
+          leaderboard={require('../../../assets/icon/thirdplace.png')}
+          coveridea={require('../../../assets/icon/dummyhistory.png')}
+          titleidea={'Idea 3'}
+          imageavatar={require('../../../assets/icon/dummyavatar.png')}
+          name={'Sirsilla'}
+          total={331}
+          iconlikecomment={require('../../../assets/icon/likebynew.png')}
+          likecomment={'Liked'}
+        />
+        <ContainerLikeComment
+          leaderboard={require('../../../assets/icon/thirdplace.png')}
+          coveridea={require('../../../assets/icon/dummyhistory.png')}
+          titleidea={'Idea 3'}
+          imageavatar={require('../../../assets/icon/dummyavatar.png')}
+          name={'Sirsilla'}
+          total={331}
+          iconlikecomment={require('../../../assets/icon/likebynew.png')}
+          likecomment={'Liked'}
+        />
+        <ContainerLikeComment
+          leaderboard={require('../../../assets/icon/thirdplace.png')}
+          coveridea={require('../../../assets/icon/dummyhistory.png')}
+          titleidea={'Idea 3'}
+          imageavatar={require('../../../assets/icon/dummyavatar.png')}
+          name={'Sirsilla'}
+          total={331}
+          iconlikecomment={require('../../../assets/icon/likebynew.png')}
+          likecomment={'Liked'}
+        />
+      </View>
+    );
+  };
+  const MostCommentedIdea = () => {
+    return (
+      <View style={{padding: 16}}>
+        <Text
+          style={{fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16}}>
+          This Week
+        </Text>
+        <ContainerLikeComment
+          leaderboard={require('../../../assets/icon/firstplace.png')}
+          coveridea={require('../../../assets/icon/dummyhistory.png')}
+          titleidea={'Idea 1'}
+          imageavatar={require('../../../assets/icon/dummyavatar.png')}
+          name={'Vanesha Sirsilla'}
+          total={133}
+          iconlikecomment={require('../../../assets/icon/commentbynew.png')}
+          likecomment={'Commented'}
+        />
+        <ContainerLikeComment
+          leaderboard={require('../../../assets/icon/secondplace.png')}
+          coveridea={require('../../../assets/icon/dummyhistory.png')}
+          titleidea={'Idea 2'}
+          imageavatar={require('../../../assets/icon/dummyavatar.png')}
+          name={'Vanesha'}
+          total={211}
+          iconlikecomment={require('../../../assets/icon/commentbynew.png')}
+          likecomment={'Commented'}
+        />
+        <ContainerLikeComment
+          leaderboard={require('../../../assets/icon/thirdplace.png')}
+          coveridea={require('../../../assets/icon/dummyhistory.png')}
+          titleidea={'Idea 3'}
+          imageavatar={require('../../../assets/icon/dummyavatar.png')}
+          name={'Sirsilla'}
+          total={331}
+          iconlikecomment={require('../../../assets/icon/commentbynew.png')}
+          likecomment={'Commented'}
+        />
+      </View>
+    );
+  };
+  const ContainerProductive = props => {
+    return (
+      <View style={styles.containerMost}>
+        <Image source={props.leaderboard} style={{width: 56, height: 56}} />
+        <Image
+          source={props.imageavatar}
+          style={{
+            width: 56,
+            height: 56,
+            marginHorizontal: 16,
+            borderRadius: 56,
+          }}
+        />
+        <View>
+          <Text style={{fontFamily: 'Poppins-SemiBold', fontSize: 14}}>
+            {props.name}
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginVertical: 4,
+            }}>
+            <Text style={{fontFamily: 'Poppins-Regular', fontSize: 12}}>
+              {props.division}
+            </Text>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontFamily: 'Poppins-Bold', fontSize: 12}}>
+              Submitted {props.total} Ideas
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+  const MostProductive = () => {
+    return (
+      <View style={{padding: 16}}>
+        <Text
+          style={{fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16}}>
+          This Week
+        </Text>
+        <ContainerProductive
+          leaderboard={require('../../../assets/icon/firstplace.png')}
+          imageavatar={require('../../../assets/icon/dummyavatar.png')}
+          name={'Rifdah Syihab'}
+          division={'PT Telkom A'}
+          total={30}
+        />
+        <ContainerProductive
+          leaderboard={require('../../../assets/icon/secondplace.png')}
+          imageavatar={require('../../../assets/icon/dummyavatar.png')}
+          name={'Rifdah'}
+          division={'PT Telkom b'}
+          total={22}
+        />
+        <ContainerProductive
+          leaderboard={require('../../../assets/icon/thirdplace.png')}
+          imageavatar={require('../../../assets/icon/dummyavatar.png')}
+          name={'Syihab'}
+          division={'PT Telkom c'}
+          total={10}
+        />
+      </View>
+    );
+  };
+  const MenuSearch = () => {
+    return (
+      <View>
+        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+          <View style={{flexDirection: 'row'}}>
+            <TouchableOpacity
+              onPress={() => {
+                setSearchHistory(true);
+                setMostLikedIdea(false);
+                setMostCommentedIdea(false);
+                setMostProductiveInovator(false);
+              }}
+              style={[
+                styles.rowSearch,
+                {borderBottomColor: searchHistory ? '#7C4BFF' : '#9CA3AF'},
+              ]}>
+              <Text
+                style={[
+                  styles.textRowSearch,
+                  {color: searchHistory ? 'black' : '#9CA3AF'},
+                ]}>
+                Search History
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setSearchHistory(false);
+                setMostLikedIdea(true);
+                setMostCommentedIdea(false);
+                setMostProductiveInovator(false);
+              }}
+              style={[
+                styles.rowSearch,
+                {borderBottomColor: mostLikedIdea ? '#7C4BFF' : '#9CA3AF'},
+              ]}>
+              <Text
+                style={[
+                  styles.textRowSearch,
+                  {color: mostLikedIdea ? 'black' : '#9CA3AF'},
+                ]}>
+                Most Liked Idea
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setSearchHistory(false);
+                setMostLikedIdea(false);
+                setMostCommentedIdea(true);
+                setMostProductiveInovator(false);
+              }}
+              style={[
+                styles.rowSearch,
+                {
+                  borderBottomColor: mostCommentedIdea ? '#7C4BFF' : '#9CA3AF',
+                },
+              ]}>
+              <Text
+                style={[
+                  styles.textRowSearch,
+                  {color: mostCommentedIdea ? 'black' : '#9CA3AF'},
+                ]}>
+                Most Commented Idea
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setSearchHistory(false);
+                setMostLikedIdea(false);
+                setMostCommentedIdea(false);
+                setMostProductiveInovator(true);
+              }}
+              style={[
+                styles.rowSearch,
+                {
+                  borderBottomColor: mostProductiveInovator
+                    ? '#7C4BFF'
+                    : '#9CA3AF',
+                },
+              ]}>
+              <Text
+                style={[
+                  styles.textRowSearch,
+                  {color: mostProductiveInovator ? 'black' : '#9CA3AF'},
+                ]}>
+                Most Productive Inovator
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+        {searchHistory ? (
+          <SearchHistory />
+        ) : mostLikedIdea ? (
+          <MostLikedIdea />
+        ) : mostCommentedIdea ? (
+          <MostCommentedIdea />
+        ) : mostProductiveInovator ? (
+          <MostProductive />
+        ) : null}
+      </View>
+    );
+  };
+  const OutputSearch = () => {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          marginLeft: 14,
+          marginBottom: 16,
+          alignItems: 'center',
+        }}>
+        <Image
+          source={require('../../../assets/icon/dummyhistory.png')}
+          style={{width: 80, height: 80, borderRadius: 4, marginRight: 16}}
+        />
+        <View>
+          <Text
+            style={{
+              fontFamily: 'Poppins-SemiBold',
+              fontSize: 14,
+              marginBottom: 8,
+            }}>
+            Idea 1
+          </Text>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Image
+              source={require('../../../assets/icon/dummyavatar.png')}
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: 26,
+                marginRight: 4,
+              }}
+            />
+            <Text style={{fontFamily: 'Roboto-Bold', fontSize: 14}}>
+              Vanesha Sirsilla
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+  if (search === true) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ScrollView>
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', padding: 16}}>
+            <TouchableOpacity onPress={() => setSearch(false)}>
+              <Image
+                source={require('../../../assets/icon/backnew.png')}
+                style={{
+                  width: 32,
+                  height: 32,
+                }}
+              />
+            </TouchableOpacity>
+            <View style={[styles.searchBar, {marginHorizontal: 5, flex: 1}]}>
+              <TextInput
+                style={{fontSize: 12, color: 'black', padding: 0}}
+                placeholder="Search..."
+                onChangeText={val => setSearchInput(val)}
+              />
+              <TouchableOpacity
+                style={styles.iconSearchContainer}
+                onPress={() => setSearchClick(searchInput)}>
+                <Image
+                  source={require('../../../assets/icon/searchnew.png')}
+                  style={styles.iconSearch}
+                />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity onPress={() => refRBSheet.current.open()}>
+              {/* Bottom Sheet */}
+              <RBSheet
+                ref={refRBSheet}
+                closeOnDragDown={true}
+                closeOnPressMask={true}
+                height={650}
+                customStyles={{
+                  container: {
+                    padding: 16,
+                    borderTopLeftRadius: 16,
+                    borderTopRightRadius: 16,
+                  },
+                  wrapper: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                  },
+                  draggableIcon: {
+                    backgroundColor: '#9CA3AF',
+                  },
+                }}>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  <View
+                    style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <Text
+                      style={{fontFamily: 'Poppins-SemiBold', fontSize: 14}}>
+                      Filter
+                    </Text>
+                  </View>
+                  <Text style={{fontFamily: 'Poppins-Bold', fontSize: 16}}>
+                    Idea Category
+                  </Text>
+                  <Text style={{fontFamily: 'Poppins-Light', fontSize: 12}}>
+                    You can select multiple options
+                  </Text>
+                  <View
+                    style={{
+                      height: 1,
+                      backgroundColor: '#D4DAE2',
+                      marginVertical: 12,
+                    }}
+                  />
+                  <CheckboxComponent
+                    onPress={() => {
+                      setChecked(!checked);
+                      setChecked2(!checked);
+                      setChecked3(!checked);
+                      setChecked4(!checked);
+                      setChecked5(!checked);
+                      setChecked6(!checked);
+                    }}
+                    select={checked}
+                    name={'All'}
+                  />
+                  <CheckboxComponent
+                    onPress={() => {
+                      setChecked2(!checked2);
+                    }}
+                    select={checked2}
+                    name={'Data Analytic'}
+                  />
+                  <CheckboxComponent
+                    onPress={() => {
+                      setChecked3(!checked3);
+                    }}
+                    select={checked3}
+                    name={'Iot'}
+                  />
+                  <CheckboxComponent
+                    onPress={() => {
+                      setChecked4(!checked4);
+                    }}
+                    select={checked4}
+                    name={'AI/ML'}
+                  />
+                  <CheckboxComponent
+                    onPress={() => {
+                      setChecked5(!checked5);
+                    }}
+                    select={checked5}
+                    name={'Digital Connectivity'}
+                  />
+                  <CheckboxComponent
+                    onPress={() => {
+                      setChecked6(!checked6);
+                    }}
+                    select={checked6}
+                    name={'Digital Services'}
+                  />
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: 12,
+                    }}>
+                    <Text
+                      style={{fontFamily: 'Poppin-Regular', color: '#6B7280'}}>
+                      Other Category
+                    </Text>
+                    <Image
+                      source={require('../../../assets/icon/arrowdown.png')}
+                      style={{width: 10, height: 6, marginRight: 6}}
+                    />
+                  </TouchableOpacity>
+                  <Text style={{fontFamily: 'Poppins-Bold', fontSize: 16}}>
+                    Team Member
+                  </Text>
+                  <Text style={{fontFamily: 'Poppins-Light', fontSize: 12}}>
+                    Number of members in each team
+                  </Text>
+                  <View
+                    style={{
+                      height: 1,
+                      backgroundColor: '#D4DAE2',
+                      marginVertical: 12,
+                    }}
+                  />
+                  <RadioButtonComponent
+                    checked={checkedRadio}
+                    onPress={() => setCheckedRadio('1')}
+                    value="1"
+                  />
+                  <RadioButtonComponent
+                    checked={checkedRadio}
+                    onPress={() => setCheckedRadio('2')}
+                    value="2"
+                  />
+                  <RadioButtonComponent
+                    checked={checkedRadio}
+                    onPress={() => setCheckedRadio('3')}
+                    value="3"
+                  />
+                  <RadioButtonComponent
+                    checked={checkedRadio}
+                    onPress={() => setCheckedRadio('1-2')}
+                    value="1-2"
+                  />
+                  <RadioButtonComponent
+                    checked={checkedRadio}
+                    onPress={() => setCheckedRadio('1-3')}
+                    value="1-3"
+                  />
+                  <RadioButtonComponent
+                    checked={checkedRadio}
+                    onPress={() => setCheckedRadio('2-3')}
+                    value="2-3"
+                  />
+                  <View
+                    style={{
+                      height: 1,
+                      backgroundColor: '#D4DAE2',
+                      marginVertical: 16,
+                    }}
+                  />
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setChecked(false);
+                        setChecked2(false);
+                        setChecked3(false);
+                        setChecked4(false);
+                        setChecked5(false);
+                        setChecked6(false);
+                        setCheckedRadio('1');
+                      }}>
+                      <Text
+                        style={{
+                          fontFamily: 'Roboto-Regular',
+                          fontSize: 11,
+                          color: '#FF5C1B',
+                        }}>
+                        Clear all filters
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{
+                        width: 84,
+                        height: 31,
+                        backgroundColor: '#7C4BFF',
+                        borderRadius: 16,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text
+                        style={{
+                          fontFamily: 'Poppin-Regular',
+                          fontSize: 12,
+                          color: '#FAFAFB',
+                        }}>
+                        Apply
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </ScrollView>
+              </RBSheet>
+              {/* End Bottom Sheet */}
+              <Image
+                source={require('../../../assets/icon/filternew.png')}
+                style={{
+                  width: 32,
+                  height: 32,
+                }}
+              />
+            </TouchableOpacity>
+          </View>
+          {searchClick === '' ? <MenuSearch /> : <OutputSearch />}
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
   return (
     <SafeAreaView style={styles.container}>
-      {success === 200 ? (
+      {/* {success === 200 ? (
         <SuccesModal
           desc={'Your comment have been added!'}
           getData={getDataSuccess}
@@ -236,15 +951,25 @@ const ExploreContent = ({navigation, route}) => {
           desc={'You already requested for this idea'}
           getData={getDataPromote}
         />
-      ) : null}
-      <SearchHeader
-        onPress={() => navigation.openDrawer()}
-        notification={() => navigation.navigate('Notification')}
-        searchText={hasil}
-        getData={getDataIdea}
-        placeholder={'Search an Idea ...'}
-      />
+      ) : null} */}
       <>
+        <View style={{padding: 16}}>
+          <TouchableOpacity
+            style={styles.searchBar}
+            onPress={() => {
+              setSearch(true);
+              setSearchClick('');
+            }}>
+            <Text style={styles.inputSearch}>Search...</Text>
+            <View style={styles.iconSearchContainer}>
+              <Image
+                source={require('../../../assets/icon/searchnew.png')}
+                style={styles.iconSearch}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+        <CardContentNew />
         {data.isSet && data.data.length === 0 ? (
           <ScrollView
             showsVerticalScrollIndicator={false}
@@ -303,23 +1028,6 @@ const ExploreContent = ({navigation, route}) => {
                         }
                         liked={imageLike}
                         name={val.user.name}
-                        // title={
-                        //   Object.keys(val.desc).length > 0
-                        //     ? val.desc[0].value
-                        //     : 'null'
-                        // }
-                        // desc={
-                        //   Object.keys(val.desc).length > 0
-                        //     ? val.desc[2].value
-                        //     : 'null'
-                        // }
-                        // like={val.like}
-                        // likedBy={val.totalLike}
-                        // cover={
-                        //   Object.keys(val.desc).length > 0
-                        //     ? {uri: val.desc[1].value}
-                        //     : 'null'
-                        // }
                         title={val.desc[0].value}
                         desc={val.desc[2].value}
                         like={val.like}
@@ -358,355 +1066,11 @@ const ExploreContent = ({navigation, route}) => {
                 })}
 
               <View style={styles.bottomWrap} />
-
-              {/* Modal comment */}
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalComment}
-                onRequestClose={() => {
-                  setModalComment(false);
-                }}>
-                <View style={styles.modalContainer}>
-                  <View style={styles.modalContent}>
-                    <Text style={styles.totalComment}>
-                      Total Comment (
-                      {data.data.length > 0
-                        ? data.data[idIdea].totalComment
-                        : 0}
-                      )
-                    </Text>
-                    <TouchableOpacity onPress={() => setModalComment(false)}>
-                      <Cross />
-                    </TouchableOpacity>
-                  </View>
-                  <ScrollView style={styles.contentModal}>
-                    {data.data.length > 0 &&
-                      data.data[idIdea].comment.map(val => {
-                        return (
-                          <View>
-                            <CardComment
-                              image={
-                                val.createdBy.pictures === ''
-                                  ? require('../../../assets/icon/profilepicture.png')
-                                  : {uri: val.createdBy.pictures}
-                              }
-                              desc={val.comment}
-                              name={val.createdBy.name}
-                              reply={() => {
-                                setIdCommentReply(val.id);
-                                setNameReply(val.createdBy.name);
-                              }}
-                            />
-                            {val.replyComment.map(val => {
-                              return (
-                                <View style={{marginVertical: 10}}>
-                                  <CardReplyComment
-                                    desc={val.comment}
-                                    name={val.createdBy.name}
-                                    image={
-                                      val.createdBy.pictures === ''
-                                        ? require('../../../assets/icon/profilepicture.png')
-                                        : {uri: val.createdBy.pictures}
-                                    }
-                                  />
-                                </View>
-                              );
-                            })}
-                            <View
-                              style={{
-                                height: 1,
-                                width: '100%',
-                                backgroundColor: '#E5E5E5',
-                                marginVertical: 10,
-                              }}
-                            />
-                          </View>
-                        );
-                      })}
-                  </ScrollView>
-                  <View style={{height: 100}} />
-                </View>
-
-                <View style={styles.textInputContainer}>
-                  {idCommentReply !== null ? (
-                    <View
-                      style={{
-                        padding: 15,
-                        backgroundColor: '#e5e5e5',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                      }}>
-                      <Text style={style.h5}>Replying to {nameReply}</Text>
-                      <TouchableOpacity onPress={() => setIdCommentReply(null)}>
-                        <Cross />
-                      </TouchableOpacity>
-                    </View>
-                  ) : null}
-                  <View style={styles.textInputWrap}>
-                    {idCommentReply === null ? (
-                      <View style={styles.textInputRow}>
-                        <View style={{flex: 7}}>
-                          <MentionInput
-                            value={comment}
-                            onChange={setComment}
-                            // partTypes={[
-                            //   {
-                            //     trigger: '@', // Should be a single character like '@' or '#'
-                            //     renderSuggestions: renderSuggestions,
-                            //     textStyle: {fontWeight: 'bold', color: 'blue'}, // The mention style in the input
-                            //   },
-                            // ]}
-                            style={styles.textInput}
-                            multiline={true}
-                            placeholder="Masukkan Komentar..."
-                          />
-                        </View>
-
-                        <TouchableOpacity
-                          onPress={() => handleComment(comment)}
-                          style={styles.buttonSend}>
-                          <Text style={styles.textSend}>Send</Text>
-                        </TouchableOpacity>
-                      </View>
-                    ) : (
-                      <View style={styles.textInputRow}>
-                        <View style={{flex: 7}}>
-                          <MentionInput
-                            value={replyComment}
-                            onChange={setReplyComment}
-                            // partTypes={[
-                            //   {
-                            //     trigger: '@', // Should be a single character like '@' or '#'
-                            //     renderSuggestions: renderSuggestions,
-                            //     textStyle: {fontWeight: 'bold', color: 'blue'}, // The mention style in the input
-                            //   },
-                            // ]}
-                            style={styles.textInput}
-                            multiline={true}
-                            placeholder="Masukkan Komentar..."
-                          />
-                        </View>
-
-                        <TouchableOpacity
-                          onPress={() => handleReplyComment(replyComment)}
-                          style={styles.buttonSend}>
-                          <Text style={styles.textSend}>Send</Text>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                  </View>
-                </View>
-              </Modal>
-              {/* end Modal */}
-
-              {/* Popup join  */}
-              <GestureRecognizer
-                style={styles.gesture}
-                onSwipeDown={() => {
-                  setModalJoinVisible(false);
-                }}>
-                <Modal
-                  animationType="none"
-                  transparent={true}
-                  visible={modalJoinVisible}
-                  onRequestClose={() => {
-                    Alert.alert('Modal has been closed.');
-                    setModalJoinVisible(!modalPromoteVisible);
-                  }}>
-                  <ScrollView>
-                    <View style={styles.modalPromoteContainer}>
-                      <View style={styles.titleWrap}>
-                        <View style={styles.topLine}>
-                          <TouchableOpacity
-                            onPress={() => setModalJoinVisible(false)}>
-                            <TopLine />
-                            <View style={styles.lineSpace} />
-                            <TopLine />
-                          </TouchableOpacity>
-                        </View>
-                        <Text style={styles.textTitle}>Join Idea</Text>
-                      </View>
-                      <Text style={style.h5}>
-                        Apakah Kamu yakin untuk join idea ini?
-                      </Text>
-                      <Text style={[style.h4, {marginVertical: 10}]}>
-                        Alasan:
-                      </Text>
-                      <View style={styles.inputAbout}>
-                        <TextInput
-                          multiline={true}
-                          value={textJoin}
-                          onChangeText={val => {
-                            setTextJoin(val);
-                          }}
-                          style={{color: 'black'}}
-                        />
-                      </View>
-                    </View>
-                    <View style={styles.buttonWrap}>
-                      <TouchableOpacity
-                        style={styles.buttonYakin}
-                        onPress={() => {
-                          setModalJoinVisible(false);
-                          handleJoin();
-                        }}>
-                        <View>
-                          <Text style={styles.textYakin}>Yakin</Text>
-                        </View>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.buttonBatal}
-                        onPress={() => setModalJoinVisible(false)}>
-                        <View>
-                          <Text style={styles.textBatal}>Batal</Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                  </ScrollView>
-                </Modal>
-              </GestureRecognizer>
-              {/* EndPopup */}
-
-              {/* Popup Promote Idea*/}
-              <GestureRecognizer
-                style={styles.gesture}
-                onSwipeDown={() => {
-                  setModalPromoteVisible(false);
-                }}>
-                <Modal
-                  animationType="none"
-                  transparent={true}
-                  visible={modalPromoteVisible}
-                  onRequestClose={() => {
-                    Alert.alert('Modal has been closed.');
-                    setModalPromoteVisible(!modalPromoteVisible);
-                  }}>
-                  <ScrollView>
-                    <View style={{flex: 1}}>
-                      <View style={styles.modalPromoteContainer}>
-                        <View style={styles.titleWrap}>
-                          <View style={styles.topLine}>
-                            <TouchableOpacity
-                              onPress={() => setModalPromoteVisible(false)}>
-                              <TopLine />
-                              <View style={styles.lineSpace} />
-                              <TopLine />
-                            </TouchableOpacity>
-                          </View>
-                          <Text style={styles.textTitle}>Promote Idea</Text>
-                        </View>
-                        <Text style={style.h5}>
-                          Sebelum kamu memutuskan untuk mempromosikan inovasi
-                          kamu harus melengkapi beberapa informasi dibawah agar
-                          komunikasi diluar website ideabox berjalan dengan
-                          lancar, good luck !
-                        </Text>
-                        {/* <Text style={[style.h4, {marginVertical: 10}]}>
-                    Nomor Telepon :
-                  </Text>
-                  <TextInput
-                    style={styles.input}
-                    // value={''}
-                    // onChangeText={() => { }}
-                  /> */}
-                        <Text style={[style.h4, {marginVertical: 10}]}>
-                          Alasan :
-                        </Text>
-                        <View style={styles.inputAbout}>
-                          <TextInput
-                            multiline={true}
-                            value={textPromote}
-                            onChangeText={val => {
-                              setTextPromote(val);
-                            }}
-                            style={{color: 'black'}}
-                          />
-                        </View>
-                      </View>
-
-                      <View style={styles.buttonWrap}>
-                        <TouchableOpacity
-                          style={styles.buttonYakin}
-                          onPress={() => {
-                            setModalPromoteVisible(false);
-                            handlePromote();
-                          }}>
-                          <View>
-                            <Text style={styles.textYakin}>Yakin</Text>
-                          </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={styles.buttonBatal}
-                          onPress={() => setModalPromoteVisible(false)}>
-                          <View>
-                            <Text style={styles.textBatal}>Batal</Text>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </ScrollView>
-                </Modal>
-              </GestureRecognizer>
             </ScrollView>
-            {/* Modal promet&join idea */}
-            <GestureRecognizer
-              style={styles.gesture}
-              onSwipeDown={() => {
-                setModalBottom(false);
-              }}>
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalBottom}
-                onRequestClose={() => {
-                  setModalBottom(false);
-                }}>
-                <ScrollView>
-                  <View style={styles.modalPromoteContainer}>
-                    <View style={styles.topLine}>
-                      <TouchableOpacity onPress={() => setModalBottom(false)}>
-                        <TopLine />
-                        <View style={styles.lineSpace} />
-                        <TopLine />
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.contentModal}>
-                      <View style={styles.rowPromote}>
-                        {dataAsync.role === 'Senior Leader' ? (
-                          <TouchableOpacity
-                            onPress={() => {
-                              setModalBottom(false);
-                              setModalPromoteVisible(true);
-                            }}>
-                            <View style={styles.wrapPromote}>
-                              <Promote />
-                              <Text style={styles.textPromote}>Promote</Text>
-                            </View>
-                          </TouchableOpacity>
-                        ) : null}
-
-                        <TouchableOpacity
-                          onPress={() => {
-                            setModalBottom(false);
-                            setModalJoinVisible(true);
-                          }}>
-                          <View style={styles.wrapPromote}>
-                            <Join />
-                            <Text style={styles.textPromote}>Join</Text>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </View>
-                </ScrollView>
-              </Modal>
-            </GestureRecognizer>
-            {/* end Modal */}
           </>
         )}
       </>
-      <RefreshFull
+      {/* <RefreshFull
         visible={showRefreshButton}
         backgroundOpacity={0}
         message="Failed fetching data"
@@ -715,7 +1079,7 @@ const ExploreContent = ({navigation, route}) => {
           setShowRefreshButton(false);
           fetchIdeas(true);
         }}
-      />
+      /> */}
     </SafeAreaView>
   );
 };

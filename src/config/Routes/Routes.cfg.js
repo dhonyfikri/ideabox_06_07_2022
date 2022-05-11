@@ -34,7 +34,7 @@ const config = {
 const Routes = () => {
   return (
     <Stack.Navigator
-      initialRouteName="SplashScreen"
+      initialRouteName="TabNavigation"
       screenOptions={{
         animation: 'fade_from_bottom',
         animationTypeForReplace: 'push',
