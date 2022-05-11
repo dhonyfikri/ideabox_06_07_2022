@@ -57,6 +57,7 @@ import IcScrollArrowDown from './ic_scroll_arrow_down.svg';
 import IcNotificationBell from './ic_notivication_bell.svg';
 import IcChevronLeft from './ic_chevron_left.svg';
 import IcChevronRight from './ic_chevron_right.svg';
+import IcChevronRightPrimary from './ic_chevron_right_primary.svg';
 import IcChevronDown from './ic_chevron_down.svg';
 import IcHomeActive from './ic_home_active.svg';
 import IcHomeInactive from './ic_home_inactive.svg';
@@ -83,6 +84,11 @@ import IcActiveTrash from './ic_active_trash.svg';
 import IcCalendar from './ic_calendar.svg';
 import IcTickLight from './ic_tick_light.svg';
 import IcActiveOpenFile from './ic_active_open_file.svg';
+import IcTime from './ic_time.svg';
+import IcFilter from './ic_filter.svg';
+import IcFilterCalendar from './ic_filter_calendar.svg';
+import IcSearch from './ic_search.svg';
+import IcDotThree from './ic_dot_three.svg';
 
 export {
   IconEvent,
@@ -144,6 +150,7 @@ export {
   IcNotificationBell,
   IcChevronLeft,
   IcChevronRight,
+  IcChevronRightPrimary,
   IcHomeActive,
   IcHomeInactive,
   IcEventActive,
@@ -170,4 +177,9 @@ export {
   IcTickLight,
   IcActiveOpenFile,
   IcOutlinedRemove,
+  IcTime,
+  IcFilter,
+  IcFilterCalendar,
+  IcSearch,
+  IcDotThree,
 };

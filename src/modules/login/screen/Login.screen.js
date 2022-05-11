@@ -1,6 +1,6 @@
 import CheckBox from '@react-native-community/checkbox';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Platform,
   TextInput,
@@ -10,8 +10,8 @@ import {
   Image,
   Text,
 } from 'react-native';
-import { prefetchConfiguration } from 'react-native-app-auth';
-import { useSelector } from 'react-redux';
+import {prefetchConfiguration} from 'react-native-app-auth';
+import {useSelector} from 'react-redux';
 import getData from '../../../components/GetData';
 import LoadingFull from '../../../components/LoadingFull';
 import {
@@ -19,10 +19,11 @@ import {
   defaultAuthState,
   defaultAuthStateLogin,
 } from '../../../config/Auth.cfg';
-import { storeAsyncStorageObject } from '../../../utils/AsyncStorage/StoreAsyncStorage';
+import {storeAsyncStorageObject} from '../../../utils/AsyncStorage/StoreAsyncStorage';
+import {colors} from '../../../utils/ColorsConfig/Colors';
 // import styles from '../style/Login.style';
 
-const Login = ({ navigation, route }) => {
+const Login = ({navigation, route}) => {
   const stateGlobal = useSelector(state => state);
 
   let _toggleCheckBox = false;
@@ -103,14 +104,14 @@ const Login = ({ navigation, route }) => {
   };
   return (
     <View style={styles.container}>
-      <View style={{ alignItems: 'center' }}>
+      <View style={{alignItems: 'center'}}>
         <Image
           source={require('../../../assets/image/logo-ideabox.png')}
           style={styles.logo}
         />
         <Text style={styles.header}>
           Welcome back to {`\n`}
-          <Text style={{ color: '#5F49D2' }}>Ideabox</Text> Family
+          <Text style={{color: '#5F49D2'}}>Ideabox</Text> Family
         </Text>
         <Text style={styles.subHeader}>Please login to your account</Text>
       </View>
@@ -120,25 +121,29 @@ const Login = ({ navigation, route }) => {
           style={styles.input}
           placeholder="type your email"
           keyboardType="email-address"
-          onChangeText={(text) => {
+          onChangeText={text => {
             setEmail(text);
-            setLdap({ ...ldap, username: text });
+            setLdap({...ldap, username: text});
           }}
         />
-        <Text style={[styles.invalid, { opacity: invalidEmail ? 0 : 1, }]}>Incorrect email</Text>
+        <Text style={[styles.invalid, {opacity: invalidEmail ? 0 : 1}]}>
+          Incorrect email
+        </Text>
         <Text style={styles.titleInput}>Password</Text>
         <TextInput
           style={styles.input}
           placeholder="type your password"
           secureTextEntry={true}
-          onChangeText={(text) => {
+          onChangeText={text => {
             setPassword(text);
-            setLdap({ ...ldap, password: text });
+            setLdap({...ldap, password: text});
           }}
         />
-        <Text style={[styles.invalid, { opacity: invalidPassword ? 0 : 1, }]}>Incorrect Password </Text>
+        <Text style={[styles.invalid, {opacity: invalidPassword ? 0 : 1}]}>
+          Incorrect Password{' '}
+        </Text>
         <View style={styles.buttonContainer}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <CheckBox
               disabled={false}
               value={toggleCheckBox}
@@ -146,40 +151,48 @@ const Login = ({ navigation, route }) => {
               onCheckColor="red"
             />
             <Text
-              style={[styles.sideButtonContainer,
-              {
-                color: '#1A1A1A',
-                fontFamily: 'Poppins-Regular',
-              }]}
-
-            >
-              Remember Me</Text>
+              style={[
+                styles.sideButtonContainer,
+                {
+                  color: '#1A1A1A',
+                  fontFamily: 'Poppins-Regular',
+                },
+              ]}>
+              Remember Me
+            </Text>
           </View>
-          <TouchableOpacity
-            onPress={handleForgotPassword}
-          >
-            <Text style={[styles.sideButtonContainer, { color: '#7C4BFF', fontFamily: 'Poppins-SemiBold', }]}>Forgot Password?</Text>
+          <TouchableOpacity onPress={handleForgotPassword}>
+            <Text
+              style={[
+                styles.sideButtonContainer,
+                {color: '#7C4BFF', fontFamily: 'Poppins-SemiBold'},
+              ]}>
+              Forgot Password?
+            </Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleSignIn}
-        >
+        <TouchableOpacity style={styles.button} onPress={handleSignIn}>
           <Text style={styles.getstarted}>Login</Text>
         </TouchableOpacity>
-        <Text style={styles.bottomText}>Dont't have an account?
-          <Text style={{ fontFamily: 'LeagueSpartan-SemiBold', color: '#7C4BFF' }} onPress={handleSignUp}> Register</Text>
+        <Text style={styles.bottomText}>
+          Dont't have an account?
+          <Text
+            style={{fontFamily: 'LeagueSpartan-SemiBold', color: '#7C4BFF'}}
+            onPress={handleSignUp}>
+            {' '}
+            Register
+          </Text>
         </Text>
       </View>
-    </View >
+    </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    backgroundColor: colors.white,
   },
   header: {
     alignItems: 'center',
@@ -229,7 +242,6 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     color: '#EE4443',
     marginTop: 4,
-
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -237,7 +249,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 9,
     marginBottom: 0,
-
   },
   sideButtonContainer: {
     fontSize: 14,

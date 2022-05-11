@@ -73,11 +73,11 @@ const Profile = ({navigation, route}) => {
             multiData={[
               {
                 itemTitle: 'Submitted Idea',
-                onPress: () => console.log('Submitted Idea Clicked'),
+                onPress: () => navigation.navigate('SubmittedIdea'),
               },
               {
                 itemTitle: 'Joined Idea',
-                onPress: () => console.log('Joined Idea Clicked'),
+                onPress: () => navigation.navigate('JoinedIdea'),
               },
             ]}
           />
@@ -85,8 +85,8 @@ const Profile = ({navigation, route}) => {
           <ProfileOptionItem
             title="Tallent Approval"
             singleData={{
-              itemTitle: 'Tallent aApproval',
-              onPress: () => console.log('Tallent Approval Clicked'),
+              itemTitle: 'Talent aApproval',
+              onPress: () => navigation.navigate('TalentApproval'),
             }}
           />
           <Gap height={16} />

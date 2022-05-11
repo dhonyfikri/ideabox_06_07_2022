@@ -12,9 +12,25 @@ const Header = ({
   backText,
   title,
   withLogo,
+  withNotification = true,
 }) => {
   return (
     <View style={styles.container}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          paddingHorizontal: backButton ? 0 : 16,
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        {title && <Text style={styles.titleText}>{title}</Text>}
+      </View>
       {backButton && (
         <TouchableOpacity
           onPress={onBackPress}
@@ -40,22 +56,19 @@ const Header = ({
           source={require('../assets/image/img_header_logo.png')}
         />
       )}
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          paddingHorizontal: backButton ? 0 : 16,
-        }}>
-        {title && <Text style={styles.titleText}>{title}</Text>}
-      </View>
-      <TouchableOpacity
-        onPress={onNotificationPress}
-        style={{
-          justifyContent: 'center',
-          paddingHorizontal: 16,
-        }}>
-        <IcNotificationBell />
-      </TouchableOpacity>
+
+      {withNotification ? (
+        <TouchableOpacity
+          onPress={onNotificationPress}
+          style={{
+            justifyContent: 'center',
+            paddingHorizontal: 16,
+          }}>
+          <IcNotificationBell />
+        </TouchableOpacity>
+      ) : (
+        <View style={{height: 25}} />
+      )}
     </View>
   );
 };
@@ -77,9 +90,9 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   titleText: {
-    color: colors.text.secondary,
-    fontFamily: fonts.secondary[400],
-    fontSize: 16,
-    lineHeight: 20,
+    color: colors.text.primary,
+    fontFamily: fonts.secondary[600],
+    fontSize: 14,
+    lineHeight: 21,
   },
 });

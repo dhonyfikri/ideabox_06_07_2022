@@ -1,69 +1,69 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import {TouchableNativeFeedback} from 'react-native-gesture-handler';
-import {ArrowDown, ArrowUp, Trash} from '../assets/icon';
-import style from '../config/Style/style.cfg';
+import React from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {IcChevronRightPrimary} from '../assets/icon';
+import {colors} from '../utils/ColorsConfig/Colors';
+import fonts from '../utils/FontsConfig/Fonts';
+import Gap from './Gap';
 
-const CardTalentApproval = props => {
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => {
-    if (open === false) {
-      setOpen(true);
-    } else {
-      setOpen(false);
-    }
-  };
+const CardTalentApproval = ({
+  personName,
+  ideaName,
+  activity,
+  status,
+  requestDate,
+  onViewPress,
+}) => {
   return (
-    <View style={styles.cardContent}>
-      <View style={{flexDirection: 'row', height: 80}}>
-        <View style={styles.email}>
-          <Text
-            numberOfLines={2}
-            style={[style.h5, {textTransform: 'capitalize'}]}>
-            {props.name}
-          </Text>
-        </View>
-        <View style={styles.title}>
-          <Text style={style.h5}>{props.title}</Text>
-        </View>
-        {open === true ? (
-          <TouchableOpacity style={styles.status} onPress={() => handleOpen()}>
-            <ArrowUp />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={styles.status} onPress={() => handleOpen()}>
-            <ArrowDown />
-          </TouchableOpacity>
-        )}
+    <View style={styles.container}>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <Text style={styles.personName}>{personName}</Text>
+        <Gap width={8} />
+        <TouchableOpacity
+          style={{flexDirection: 'row', alignItems: 'center'}}
+          onPress={onViewPress}>
+          <Text style={styles.viewButtonText}>View</Text>
+          <Gap width={4} />
+          <IcChevronRightPrimary />
+        </TouchableOpacity>
       </View>
-      {open === true ? (
-        <View style={{width: '100%', paddingBottom: 15}}>
-          <View style={{flexDirection: 'row'}}>
-            <View style={styles.title}>
-              <Text style={[{color: '#085D7A'}]}>Notes</Text>
-            </View>
-            <View style={styles.email}>
-              <Text style={[{color: '#085D7A'}]}>Request</Text>
-            </View>
-            <View style={styles.title} onPress={() => handleOpen()}>
-              <Text style={[{color: '#085D7A'}]}>Request Date</Text>
-            </View>
-          </View>
-          <View style={{flexDirection: 'row'}}>
-            <View style={styles.title}>
-              <Text style={style.h5}>{props.notes}</Text>
-            </View>
-            <View style={styles.email}>
-              <Text style={[style.h5, {textTransform: 'capitalize'}]}>
-                {props.request}
-              </Text>
-            </View>
-            <View style={styles.title} onPress={() => handleOpen()}>
-              <Text style={style.h5}>{props.date}</Text>
-            </View>
+      <Gap height={12} />
+      <View style={styles.fieldDataContent}>
+        <Text style={styles.fieldDataContentMainText}>Idea</Text>
+        <Gap width={16} />
+        <View
+          style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
+          <Text style={styles.fieldDataContentMainText}>{ideaName}</Text>
+        </View>
+      </View>
+      <Gap height={10} />
+      <View style={styles.fieldDataContent}>
+        <Text style={styles.fieldDataContentMainText}>Activity</Text>
+        <Gap width={16} />
+        <View
+          style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
+          <Text style={styles.fieldDataContentMainText}>{activity}</Text>
+        </View>
+      </View>
+      <Gap height={10} />
+      <View style={styles.fieldDataContent}>
+        <Text style={styles.fieldDataContentMainText}>Activity</Text>
+        <Gap width={16} />
+        <View
+          style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
+          <View style={styles.statusContainer(status.toLowerCase())}>
+            <Text style={styles.statusText}>{status}</Text>
           </View>
         </View>
-      ) : null}
+      </View>
+      <Gap height={10} />
+      <View style={styles.fieldDataContent}>
+        <Text style={styles.fieldDataContentMainText}>Request Date</Text>
+        <Gap width={16} />
+        <View
+          style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
+          <Text style={styles.fieldDataContentMainText}>{requestDate}</Text>
+        </View>
+      </View>
     </View>
   );
 };
@@ -71,57 +71,55 @@ const CardTalentApproval = props => {
 export default CardTalentApproval;
 
 const styles = StyleSheet.create({
-  title: {
-    flex: 2,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    paddingHorizontal: 5,
+  container: {
+    padding: 12,
+    backgroundColor: colors.dot,
+    borderRadius: 16,
   },
-  email: {
+  personName: {
     flex: 1,
-    paddingHorizontal: 5,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
+    fontFamily: fonts.secondary[700],
+    fontSize: 16,
+    lineHeight: 25.6,
+    color: colors.text.primary,
   },
-  title2: {
-    flex: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 5,
+  viewButtonText: {
+    fontFamily: fonts.secondary[600],
+    fontSize: 12,
+    lineHeight: 15,
+    color: colors.primary,
   },
-  email2: {
-    flex: 1,
-    paddingHorizontal: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
+  fieldDataContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    backgroundColor: colors.white,
+    borderRadius: 16,
   },
-  cardContent: {
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 5,
-    borderRadius: 5,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.27,
-    shadowRadius: 4.65,
-
-    elevation: 6,
+  fieldDataContentMainText: {
+    fontFamily: fonts.secondary[400],
+    fontSize: 12,
+    lineHeight: 15,
+    color: colors.text.primary,
   },
-  rightSwipeItem: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingLeft: 20,
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  status: {
-    flex: 1,
-    padding: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
+  statusContainer: type => ({
+    backgroundColor:
+      type === 'approved'
+        ? colors.success
+        : type === 'pending'
+        ? colors.pending
+        : type === 'rejected'
+        ? colors.reject
+        : colors.success,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+  }),
+  statusText: {
+    fontFamily: fonts.secondary[400],
+    fontSize: 12,
+    lineHeight: 15,
+    color: colors.white,
   },
 });

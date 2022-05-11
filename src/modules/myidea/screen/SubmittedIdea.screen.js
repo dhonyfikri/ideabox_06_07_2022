@@ -1,250 +1,335 @@
-import React, {useEffect, useState} from 'react';
+import BottomSheet from '@gorhom/bottom-sheet';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  Text,
-  View,
-  TouchableOpacity,
-  Modal,
-  Alert,
   FlatList,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import {SwipeListView} from 'react-native-swipe-list-view';
-import {Cross, Eye, Trash} from '../../../assets/icon';
+import {IcFilterCalendar, IcSearch} from '../../../assets/icon';
 import CardSubmittedIdea from '../../../components/CardSubmittedIdea';
-import getData from '../../../components/GetData';
-import LoadingScreen from '../../../components/LoadingScreen';
-import SearchHeader from '../../../components/SearchHeader';
-import SuccesModal from '../../../components/SuccesModal';
-import {defaultAuthState} from '../../../config/Auth.cfg';
-import DeleteIdeaManagement from '../../../config/DeleteData/DeleteIdeaManagement';
-import {GetDataSubmittedIdea} from '../../../config/GetData/GetDataMyIdea';
-import style from '../../../config/Style/style.cfg';
-import styles from '../style/MyIdea.style';
-const SubmittedIdea = ({navigation}) => {
-  const [modalDeleteVisible, setModalDeleteVisible] = useState(false);
-  const [data, setData] = useState(defaultAuthState);
-  const [submittedIdea, setSubmittedIdea] = useState(null);
-  const [deleteData, setDeleteData] = useState(null);
-  const [success, setSuccess] = useState(null);
+import Gap from '../../../components/Gap';
+import Header from '../../../components/Header';
+import {colors} from '../../../utils/ColorsConfig/Colors';
+import fonts from '../../../utils/FontsConfig/Fonts';
+import Divider from '../../../components/Divider';
 
-  // search
-  const [filterData, setFilterData] = useState([]);
-  const getDataIdea = dataSearch => {
-    searchFilter(dataSearch);
-  };
-  useEffect(() => {
-    if (submittedIdea === null) {
-      getData().then(jsonValue => setData(jsonValue));
-      if (data === defaultAuthState) {
-        return <LoadingScreen />;
-      }
-      GetDataSubmittedIdea(data.id).then(response => {
-        setSubmittedIdea(response !== undefined ? response : null);
-        setFilterData(response.ideas !== undefined ? response.ideas : []);
-      });
-    }
-  });
-  useEffect(() => {
-    GetDataSubmittedIdea(data.id).then(response => {
-      setSubmittedIdea(response);
-      setFilterData(response.ideas);
-    });
-  }, [success]);
-  if (submittedIdea === null) {
-    return <LoadingScreen />;
-  }
-  console.log(filterData);
-  const getDataSuccess = data => {
-    setSuccess(data);
-  };
-  const handleDelete = () => {
-    DeleteIdeaManagement(deleteData).then(val => setSuccess(val));
-  };
-  const searchFilter = text => {
-    if (text) {
-      const newData = submittedIdea.ideas.filter(item => {
-        const itemData = item.desc[0].value
-          ? item.desc[0].value.toUpperCase()
-          : ''.toUpperCase();
+const SubmittedIdea = ({navigation, route}) => {
+  const dataFromServer = [
+    {
+      id: 1,
+      ideaId: 1,
+      ideaName: 'Pembuatan Robot',
+      ownerId: 4,
+      ownerName: 'Siti Bojong G.',
+      createdDate: '20/12/2022, 12:00:01',
+    },
+    {
+      id: 2,
+      ideaId: 5,
+      ideaName: 'Pembuatan Televisi',
+      ownerId: 4,
+      ownerName: 'Siti Bojong G.',
+      createdDate: '20/12/2022, 14:00:01',
+    },
+    {
+      id: 3,
+      ideaId: 20,
+      ideaName: 'Pembuatan Remote',
+      ownerId: 4,
+      ownerName: 'Siti Bojong G.',
+      createdDate: '20/12/2022, 16:00:01',
+    },
+    {
+      id: 4,
+      ideaId: 32,
+      ideaName: 'Pembuatan Microwife',
+      ownerId: 4,
+      ownerName: 'Siti Bojong G.',
+      createdDate: '20/12/2022, 18:00:01',
+    },
+  ];
 
-        const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
-      });
-      setFilterData(newData);
+  const [submittedIdea, setSubmittedIdea] = useState(dataFromServer);
+  const [submittedIdeaToShow, setSubmittedIdeaToShow] =
+    useState(dataFromServer);
+  const [searchText, setSearchText] = useState('');
+  const [calendarModalVisible, setCalendarModalVisible] = useState(false);
+  const [actionModalVisible, setActionModalVisible] = useState(false);
+
+  // ref
+  const bottomSheetRef = useRef(null);
+  const bottomSheetActionRef = useRef(null);
+
+  // variables
+  const snapPoints = useMemo(() => ['25%', '50%'], []);
+  const snapPointsAction = useMemo(() => ['25%', 345], []);
+
+  // callbacks
+  const handleSheetChanges = useCallback(index => {
+    console.log('handleSheetChanges', index);
+  }, []);
+  const handleSheetActionChanges = useCallback(index => {
+    console.log('handleSheetActionChanges', index);
+  }, []);
+
+  const matchToSearch = () => {
+    let tempSubmittedIdea = [];
+    if (searchText === '') {
+      tempSubmittedIdea = submittedIdea;
     } else {
-      setFilterData(submittedIdea.ideas);
+      submittedIdea.map(item => {
+        if (item.ideaName.toLowerCase().includes(searchText.toLowerCase())) {
+          tempSubmittedIdea.push(item);
+        }
+      });
     }
+    setSubmittedIdeaToShow(tempSubmittedIdea);
   };
+
   return (
-    <SafeAreaView style={styles.container}>
-      {success === 200 ? (
-        <SuccesModal
-          desc={'Your data idea management have been deleted!'}
-          getData={getDataSuccess}
-        />
-      ) : null}
-      <SearchHeader
-        onPress={() => navigation.openDrawer()}
-        notification={() => navigation.navigate('Notification')}
-        getData={getDataIdea}
-        placeholder={'Search an Idea ...'}
+    <View style={styles.page}>
+      <Header
+        backButton
+        onBackPress={() => navigation.goBack()}
+        backText="Back"
+        title="Submitted Idea"
+        onNotificationPress={() => navigation.navigate('Notification')}
       />
-      <ScrollView>
-        {/* Header navigation */}
-        <View style={styles.headerContainer}>
-          <View style={styles.headerWrap}>
-            <TouchableOpacity style={styles.wrap} onPress={() => {}}>
-              <View style={styles.tabBarActive}>
-                <Text style={styles.textActive}>Submitted Idea</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.wrap}
-              onPress={() => navigation.navigate('MyAction')}>
-              <View style={styles.tabBar}>
-                <Text style={styles.textNonActive}>Join Idea</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* content */}
-        <View style={styles.contentContainer}>
-          {/* <View style={styles.iconContainer}>
-          <View style={styles.icon}>
-            <Text>1</Text>
-          </View>
-        </View> */}
-
-          {/* Content */}
-          <View style={styles.content}>
-            <View style={styles.titleContent}>
-              <View style={styles.title}>
-                <Text
-                  style={[style.h5, {textAlign: 'center', fontWeight: 'bold'}]}>
-                  Idea Name
-                </Text>
-              </View>
-              <View style={styles.title}>
-                <Text
-                  style={[style.h5, {textAlign: 'center', fontWeight: 'bold'}]}>
-                  Created By
-                </Text>
-              </View>
-              <View style={styles.email}>
-                <Text
-                  style={[style.h5, {textAlign: 'center', fontWeight: 'bold'}]}>
-                  Created Date
-                </Text>
-              </View>
+      <View style={styles.contentContainer}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                height: '100%',
+                borderWidth: 1,
+                borderColor: colors.border,
+                borderRadius: 32,
+              }}>
+              <TextInput
+                style={{
+                  flex: 1,
+                  marginHorizontal: 24,
+                  padding: 0,
+                  fontFamily: fonts.secondary[400],
+                  fontSize: 14,
+                  lineHeight: 17,
+                  color: colors.text.primary,
+                }}
+                placeholder="Search..."
+                value={searchText}
+                onChangeText={text => setSearchText(text)}
+              />
+              <TouchableOpacity
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 32 / 2,
+                  backgroundColor: colors.primary,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+                onPress={() => {
+                  matchToSearch();
+                }}>
+                <IcSearch />
+              </TouchableOpacity>
             </View>
-            <SwipeListView
-              data={filterData}
-              renderItem={({item, index}) => {
-                // console.log(item)
-                return (
-                  <View>
-                    <CardSubmittedIdea
-                      title={item.desc[0].value}
-                      name={item.createdBy.name}
-                      createdDate={item.createdDate}
-                    />
-                  </View>
-                );
-              }}
-              renderHiddenItem={({item}) => (
-                <View style={styles.rowBack}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setModalDeleteVisible(true);
-                      setDeleteData(item.id);
-                    }}
-                    style={[styles.backRightBtn, styles.backRightBtnRight]}>
-                    <Trash />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.backRightBtn, styles.backRightBtnRight2]}
-                    onPress={() =>
-                      navigation.navigate('DetailIdeaUser', {
-                        data: item,
-                        item: item,
-                      })
-                    }>
-                    <Eye />
-                  </TouchableOpacity>
-                </View>
-              )}
-              rightOpenValue={-150}
-              leftOpenValue={0}
-            />
-            {/* <FlatList
-            keyExtractor={(item, index) => index.toString()}
-            data={submittedIdea.ideas}
+            <Gap width={4} />
+            <TouchableOpacity onPress={() => setCalendarModalVisible(true)}>
+              <IcFilterCalendar />
+            </TouchableOpacity>
+          </View>
+          <Gap height={16} />
+          <FlatList
+            data={submittedIdeaToShow}
+            keyExtractor={(_, index) => index.toString()}
+            scrollEnabled={false}
+            showsVerticalScrollIndicator={false}
+            inverted={false}
             renderItem={({item, index}) => {
               return (
-                <ScrollView>
+                <>
+                  {index !== 0 && <Gap height={16} />}
                   <CardSubmittedIdea
-                    onDetail={() =>
-                      navigation.navigate('DetailIdeaUser', {data: item})
-                    }
-                    delete={() => setModalDeleteVisible(true)}
-                    title={item.desc[0].value}
-                    name={item.createdBy}
+                    ideaName={item.ideaName}
+                    ownerName={item.ownerName}
                     createdDate={item.createdDate}
+                    onDotThreePress={() => {
+                      console.log(item.ideaName);
+                      setActionModalVisible(true);
+                    }}
                   />
-                </ScrollView>
+                </>
               );
             }}
-          /> */}
-          </View>
-        </View>
-
-        {/* Popup delete  */}
-        <Modal
-          animationType="none"
-          transparent={true}
-          visible={modalDeleteVisible}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-            setModalDeleteVisible(!modalDeleteVisible);
+          />
+        </ScrollView>
+      </View>
+      {/* calendar modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={calendarModalVisible}
+        onRequestClose={() => setCalendarModalVisible(false)}>
+        <View
+          style={{
+            height: '100%',
+            width: '100%',
+            backgroundColor: '#00000088',
           }}>
-          <View style={styles.centeredView}>
-            <View style={styles.centeredcontainer}>
-              <View style={styles.modalView}>
-                <View style={styles.titleContainer}>
-                  <Text style={styles.textEdit}>Delete Idea</Text>
+          {calendarModalVisible && (
+            <BottomSheet
+              ref={bottomSheetRef}
+              index={1}
+              snapPoints={snapPoints}
+              onChange={handleSheetChanges}>
+              <View style={styles.contentContainer2}>
+                <Text>Calendar</Text>
+              </View>
+            </BottomSheet>
+          )}
+        </View>
+      </Modal>
+      {/* action modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={actionModalVisible}
+        onRequestClose={() => setActionModalVisible(false)}>
+        <View
+          style={{
+            height: '100%',
+            width: '100%',
+            backgroundColor: '#00000088',
+          }}>
+          {actionModalVisible && (
+            <BottomSheet
+              ref={bottomSheetActionRef}
+              index={1}
+              snapPoints={snapPointsAction}
+              onChange={handleSheetActionChanges}>
+              <View style={styles.bottomSheetContentContainer}>
+                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                  <Text style={styles.bottomSheetTitle}>Action</Text>
                   <TouchableOpacity
-                    onPress={() => setModalDeleteVisible(false)}>
-                    <Cross />
+                    style={styles.titleContainer}
+                    onPress={() => setActionModalVisible(false)}>
+                    <Text style={styles.bottomSheetCancelButtonText}>
+                      Cancel
+                    </Text>
                   </TouchableOpacity>
                 </View>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.h2}>Anda ingin menghapus idea ini?</Text>
-                  <View style={styles.rowDelete}>
-                    <TouchableOpacity
-                      style={styles.buttondelete}
-                      onPress={() => {
-                        handleDelete();
-                        setModalDeleteVisible(false);
-                      }}>
-                      <Text style={styles.save}>Hapus</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.buttoncancel}
-                      onPress={() => setModalDeleteVisible(false)}>
-                      <Text style={styles.save}>Batal</Text>
-                    </TouchableOpacity>
-                  </View>
+                <Gap height={16} />
+                <Divider />
+                <Gap height={16} />
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity style={{padding: 16}}>
+                    <Text style={styles.buttonText('normal')}>My Event</Text>
+                  </TouchableOpacity>
+                  <Divider />
+                  <TouchableOpacity style={{padding: 16}}>
+                    <Text style={styles.buttonText('normal')}>Edit Idea</Text>
+                  </TouchableOpacity>
+                  <Divider />
+                  <TouchableOpacity style={{padding: 16}}>
+                    <Text style={styles.buttonText('normal')}>
+                      Remove Member
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <Gap height={8} />
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity style={{padding: 16}}>
+                    <Text style={styles.buttonText('danger')}>Delete Idea</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
-            </View>
-          </View>
-        </Modal>
-        {/* EndPopup */}
-      </ScrollView>
-    </SafeAreaView>
+            </BottomSheet>
+          )}
+        </View>
+      </Modal>
+    </View>
   );
 };
 
 export default SubmittedIdea;
+
+const styles = StyleSheet.create({
+  page: {flex: 1, backgroundColor: '#FFFFFF'},
+  contentContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  pendingNoticeButton: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: colors.primary,
+    borderRadius: 32,
+    alignSelf: 'flex-start',
+    alignItems: 'center',
+  },
+  pendingNoticeButtonText: {
+    color: colors.white,
+    fontFamily: fonts.secondary[600],
+    fontSize: 14,
+    lineHeight: 17,
+  },
+  contentContainer2: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  bottomSheetContentContainer: {
+    height: '100%',
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    paddingTop: 8,
+  },
+  bottomSheetTitle: {
+    fontFamily: fonts.secondary[600],
+    fontSize: 14,
+    lineHeight: 17,
+    color: colors.text.primary,
+  },
+  bottomSheetCancelButtonText: {
+    fontFamily: fonts.secondary[400],
+    fontSize: 12,
+    lineHeight: 15,
+    color: colors.text.tertiary,
+  },
+  titleContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+  },
+  buttonContainer: {
+    backgroundColor: colors.dot,
+    borderRadius: 32,
+    overflow: 'hidden',
+  },
+  buttonText: type => ({
+    textAlign: 'center',
+    fontFamily: fonts.secondary[600],
+    fontSize: 16,
+    lineHeight: 20,
+    color:
+      type === 'normal'
+        ? colors.text.primary
+        : type === 'danger'
+        ? colors.reject
+        : colors.text.secondary,
+  }),
+});

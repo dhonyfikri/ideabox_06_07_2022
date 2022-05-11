@@ -1,115 +1,93 @@
+import BottomSheet from '@gorhom/bottom-sheet';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
   FlatList,
   Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import React, {useState, useCallback, useMemo, useRef} from 'react';
-import BottomSheet from '@gorhom/bottom-sheet';
+import {IcFilterCalendar, IcSearch} from '../../../assets/icon';
+import CardSubmittedIdea from '../../../components/CardSubmittedIdea';
+import Divider from '../../../components/Divider';
+import Gap from '../../../components/Gap';
 import Header from '../../../components/Header';
 import {colors} from '../../../utils/ColorsConfig/Colors';
-import {IcFilter, IcSearch, IcTime} from '../../../assets/icon';
-import Gap from '../../../components/Gap';
 import fonts from '../../../utils/FontsConfig/Fonts';
-import CardTalentApproval from '../../../components/CardTalentApproval';
-import Divider from '../../../components/Divider';
 
-const TalentApproval = ({navigation, route}) => {
+const JoinedIdea = ({navigation, route}) => {
   const dataFromServer = [
     {
       id: 1,
-      status: 'Approved',
       ideaId: 1,
-      ideaName: 'Smart Bike',
-      personId: 4,
-      personName: 'Siti Bojong G.',
-      activity: 'Request to Join Idea',
-      requestDate: '20/12/2022, 12:00:01',
+      ideaName: 'Pembuatan Robot',
+      ownerId: 4,
+      ownerName: 'Siti Bojong G.',
+      createdDate: '20/12/2022, 12:00:01',
     },
     {
       id: 2,
-      status: 'Rejected',
-      ideaId: 1,
-      ideaName: 'Smart Bike',
-      personId: 6,
-      personName: 'Tony Stark',
-      activity: 'Request to Join Idea',
-      requestDate: '20/12/2022, 13:00:01',
+      ideaId: 5,
+      ideaName: 'Pembuatan Televisi',
+      ownerId: 4,
+      ownerName: 'Siti Bojong G.',
+      createdDate: '20/12/2022, 14:00:01',
     },
     {
       id: 3,
-      status: 'Pending',
-      ideaId: 1,
-      ideaName: 'Smart Bike',
-      personId: 12,
-      personName: 'Gusion.',
-      activity: 'Request to Join Idea',
-      requestDate: '20/12/2022, 14:00:01',
+      ideaId: 20,
+      ideaName: 'Pembuatan Remote',
+      ownerId: 4,
+      ownerName: 'Siti Bojong G.',
+      createdDate: '20/12/2022, 16:00:01',
     },
     {
       id: 4,
-      status: 'Pending',
-      ideaId: 1,
-      ideaName: 'Smart Bike',
-      personId: 22,
-      personName: 'Abinara',
-      activity: 'Request to Join Idea',
-      requestDate: '20/12/2022, 15:00:01',
+      ideaId: 32,
+      ideaName: 'Pembuatan Microwife',
+      ownerId: 4,
+      ownerName: 'Siti Bojong G.',
+      createdDate: '20/12/2022, 18:00:01',
     },
   ];
 
-  const [talentApprovalRequest, setTalentApprovalRequest] =
-    useState(dataFromServer);
-  const [talentApprovalToShow, setTalentApprovalToShow] =
-    useState(dataFromServer);
+  const [joinedIdea, setJoinedIdea] = useState(dataFromServer);
+  const [joinedIdeaToShow, setJoinedIdeaToShow] = useState(dataFromServer);
   const [searchText, setSearchText] = useState('');
-  const [pendingClicked, setPendingClicked] = useState(false);
-  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [calendarModalVisible, setCalendarModalVisible] = useState(false);
+  const [actionModalVisible, setActionModalVisible] = useState(false);
 
   // ref
   const bottomSheetRef = useRef(null);
+  const bottomSheetActionRef = useRef(null);
 
   // variables
   const snapPoints = useMemo(() => ['25%', '50%'], []);
+  const snapPointsAction = useMemo(() => ['25%', 285], []);
 
   // callbacks
   const handleSheetChanges = useCallback(index => {
     console.log('handleSheetChanges', index);
   }, []);
-
-  let pendingRequestCount = 0;
-  talentApprovalRequest.map(item => {
-    if (item.status.toLowerCase() === 'pending') {
-      pendingRequestCount += 1;
-    }
-  });
-
-  const showOnlyPendingStatus = () => {
-    const tempTalentApproval = [];
-    talentApprovalRequest.map(item => {
-      if (item.status.toLowerCase() === 'pending') {
-        tempTalentApproval.push(item);
-      }
-    });
-    setTalentApprovalToShow(tempTalentApproval);
-  };
+  const handleSheetActionChanges = useCallback(index => {
+    console.log('handleSheetActionChanges', index);
+  }, []);
 
   const matchToSearch = () => {
-    let tempTalentApproval = [];
+    let tempJoinedIdea = [];
     if (searchText === '') {
-      tempTalentApproval = talentApprovalRequest;
+      tempJoinedIdea = joinedIdea;
     } else {
-      talentApprovalRequest.map(item => {
-        if (item.personName.toLowerCase().includes(searchText.toLowerCase())) {
-          tempTalentApproval.push(item);
+      joinedIdea.map(item => {
+        if (item.ideaName.toLowerCase().includes(searchText.toLowerCase())) {
+          tempJoinedIdea.push(item);
         }
       });
     }
-    setTalentApprovalToShow(tempTalentApproval);
+    setJoinedIdeaToShow(tempJoinedIdea);
   };
 
   return (
@@ -118,30 +96,11 @@ const TalentApproval = ({navigation, route}) => {
         backButton
         onBackPress={() => navigation.goBack()}
         backText="Back"
-        title="Talent Approval"
+        title="Joined Idea"
         onNotificationPress={() => navigation.navigate('Notification')}
       />
       <View style={styles.contentContainer}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          {pendingRequestCount > 0 && !pendingClicked ? (
-            <>
-              <TouchableOpacity
-                style={styles.pendingNoticeButton}
-                onPress={() => {
-                  setPendingClicked(true);
-                  showOnlyPendingStatus();
-                }}>
-                <IcTime />
-                <Gap width={12} />
-                <Text style={styles.pendingNoticeButtonText}>
-                  {pendingRequestCount} Pending
-                </Text>
-              </TouchableOpacity>
-              <Gap height={16} />
-            </>
-          ) : (
-            <></>
-          )}
           <View
             style={{
               flexDirection: 'row',
@@ -180,20 +139,19 @@ const TalentApproval = ({navigation, route}) => {
                   alignItems: 'center',
                 }}
                 onPress={() => {
-                  setPendingClicked(false);
                   matchToSearch();
                 }}>
                 <IcSearch />
               </TouchableOpacity>
             </View>
             <Gap width={4} />
-            <TouchableOpacity onPress={() => setFilterModalVisible(true)}>
-              <IcFilter />
+            <TouchableOpacity onPress={() => setCalendarModalVisible(true)}>
+              <IcFilterCalendar />
             </TouchableOpacity>
           </View>
           <Gap height={16} />
           <FlatList
-            data={talentApprovalToShow}
+            data={joinedIdeaToShow}
             keyExtractor={(_, index) => index.toString()}
             scrollEnabled={false}
             showsVerticalScrollIndicator={false}
@@ -202,13 +160,14 @@ const TalentApproval = ({navigation, route}) => {
               return (
                 <>
                   {index !== 0 && <Gap height={16} />}
-                  <CardTalentApproval
-                    personName={item.personName}
+                  <CardSubmittedIdea
                     ideaName={item.ideaName}
-                    activity={item.activity}
-                    status={item.status}
-                    requestDate={item.requestDate}
-                    onViewPress={() => console.log(item.personName)}
+                    ownerName={item.ownerName}
+                    createdDate={item.createdDate}
+                    onDotThreePress={() => {
+                      console.log(item.ideaName);
+                      setActionModalVisible(true);
+                    }}
                   />
                 </>
               );
@@ -216,30 +175,55 @@ const TalentApproval = ({navigation, route}) => {
           />
         </ScrollView>
       </View>
-      {/* filter modal */}
+      {/* calendar modal */}
       <Modal
         animationType="fade"
         transparent={true}
-        visible={filterModalVisible}
-        onRequestClose={() => setFilterModalVisible(false)}>
+        visible={calendarModalVisible}
+        onRequestClose={() => setCalendarModalVisible(false)}>
         <View
           style={{
             height: '100%',
             width: '100%',
             backgroundColor: '#00000088',
           }}>
-          {filterModalVisible && (
+          {calendarModalVisible && (
             <BottomSheet
               ref={bottomSheetRef}
               index={1}
               snapPoints={snapPoints}
               onChange={handleSheetChanges}>
+              <View style={styles.contentContainer2}>
+                <Text>Calendar</Text>
+              </View>
+            </BottomSheet>
+          )}
+        </View>
+      </Modal>
+      {/* action modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={actionModalVisible}
+        onRequestClose={() => setActionModalVisible(false)}>
+        <View
+          style={{
+            height: '100%',
+            width: '100%',
+            backgroundColor: '#00000088',
+          }}>
+          {actionModalVisible && (
+            <BottomSheet
+              ref={bottomSheetActionRef}
+              index={1}
+              snapPoints={snapPointsAction}
+              onChange={handleSheetActionChanges}>
               <View style={styles.bottomSheetContentContainer}>
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                  <Text style={styles.bottomSheetTitle}>Filters</Text>
+                  <Text style={styles.bottomSheetTitle}>Action</Text>
                   <TouchableOpacity
                     style={styles.titleContainer}
-                    onPress={() => setFilterModalVisible(false)}>
+                    onPress={() => setActionModalVisible(false)}>
                     <Text style={styles.bottomSheetCancelButtonText}>
                       Cancel
                     </Text>
@@ -248,6 +232,21 @@ const TalentApproval = ({navigation, route}) => {
                 <Gap height={16} />
                 <Divider />
                 <Gap height={16} />
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity style={{padding: 16}}>
+                    <Text style={styles.buttonText('normal')}>My Event</Text>
+                  </TouchableOpacity>
+                  <Divider />
+                  <TouchableOpacity style={{padding: 16}}>
+                    <Text style={styles.buttonText('normal')}>Edit Idea</Text>
+                  </TouchableOpacity>
+                </View>
+                <Gap height={8} />
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity style={{padding: 16}}>
+                    <Text style={styles.buttonText('danger')}>Leave Idea</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </BottomSheet>
           )}
@@ -257,7 +256,7 @@ const TalentApproval = ({navigation, route}) => {
   );
 };
 
-export default TalentApproval;
+export default JoinedIdea;
 
 const styles = StyleSheet.create({
   page: {flex: 1, backgroundColor: '#FFFFFF'},
@@ -279,6 +278,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.secondary[600],
     fontSize: 14,
     lineHeight: 17,
+  },
+  contentContainer2: {
+    flex: 1,
+    alignItems: 'center',
   },
   bottomSheetContentContainer: {
     height: '100%',
@@ -305,4 +308,21 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
   },
+  buttonContainer: {
+    backgroundColor: colors.dot,
+    borderRadius: 32,
+    overflow: 'hidden',
+  },
+  buttonText: type => ({
+    textAlign: 'center',
+    fontFamily: fonts.secondary[600],
+    fontSize: 16,
+    lineHeight: 20,
+    color:
+      type === 'normal'
+        ? colors.text.primary
+        : type === 'danger'
+        ? colors.reject
+        : colors.text.secondary,
+  }),
 });

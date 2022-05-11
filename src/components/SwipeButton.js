@@ -12,7 +12,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import {colors} from '../../utils/ColorsConfig/Colors';
+import {colors} from '../utils/ColorsConfig/Colors';
 
 const BUTTON_WIDTH = 60;
 const BUTTON_HEIGHT = 29;

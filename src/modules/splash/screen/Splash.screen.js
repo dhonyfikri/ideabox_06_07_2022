@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
-import {View, ActivityIndicator, Image} from 'react-native';
+import {ActivityIndicator, Image, View, StatusBar} from 'react-native';
 import {Logo} from '../../../assets/image';
-import {windowWidth} from '../../../components/WindowDimensions';
+import {colors} from '../../../utils/ColorsConfig/Colors';
 import styles from '../style/Splash.style';
 
 const Splash = ({navigation}) => {
@@ -13,6 +13,7 @@ const Splash = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor={colors.secondary} barStyle="dark-content" />
       <View style={styles.logo}>
         <Logo />
         <ActivityIndicator size="large" color="#FF0000" style={{margin: 25}} />

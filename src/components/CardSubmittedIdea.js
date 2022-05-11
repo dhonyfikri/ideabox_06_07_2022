@@ -1,22 +1,55 @@
 import React from 'react';
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import {TouchableNativeFeedback} from 'react-native-gesture-handler';
-import {Trash} from '../assets/icon';
-import style from '../config/Style/style.cfg';
-const CardSubmittedIdea = props => {
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {IcDotThree} from '../assets/icon';
+import {colors} from '../utils/ColorsConfig/Colors';
+import fonts from '../utils/FontsConfig/Fonts';
+import Gap from './Gap';
+
+const CardSubmittedIdea = ({
+  ideaName,
+  ownerName,
+  createdDate,
+  onDotThreePress,
+}) => {
   return (
-    <View>
-      <View style={styles.cardContent}>
-        <View style={styles.title}>
-          <Text style={style.h5}>{props.title}</Text>
+    <View style={styles.container}>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <Text style={styles.ideaName}>{ideaName}</Text>
+        <Gap width={8} />
+        <TouchableOpacity
+          style={{flexDirection: 'row', alignItems: 'center'}}
+          onPress={onDotThreePress}>
+          <IcDotThree />
+        </TouchableOpacity>
+      </View>
+      <Gap height={12} />
+      <View style={styles.detailContainer}>
+        <View style={styles.detailTextWrapper}>
+          <Text style={styles.titleDetail}>Created by</Text>
+          <Gap width={16} />
+          <View
+            style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
+            <Text
+              numberOfLines={2}
+              ellipsizeMode="tail"
+              style={styles.valueDetail}>
+              {ownerName}
+            </Text>
+          </View>
         </View>
-        <View style={styles.title}>
-          <Text style={[style.h5, {textTransform: 'capitalize'}]}>
-            {props.name}
-          </Text>
-        </View>
-        <View style={styles.email}>
-          <Text style={style.h5}>{props.createdDate}</Text>
+        <Gap height={16} />
+        <View style={styles.detailTextWrapper}>
+          <Text style={styles.titleDetail}>Created date</Text>
+          <Gap width={16} />
+          <View
+            style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
+            <Text
+              numberOfLines={2}
+              ellipsizeMode="tail"
+              style={styles.valueDetail}>
+              {createdDate}
+            </Text>
+          </View>
         </View>
       </View>
     </View>
@@ -26,34 +59,39 @@ const CardSubmittedIdea = props => {
 export default CardSubmittedIdea;
 
 const styles = StyleSheet.create({
-  title: {
-    flex: 2,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    padding: 5,
+  container: {
+    padding: 12,
+    backgroundColor: colors.dot,
+    borderRadius: 16,
   },
-  email: {
+  ideaName: {
     flex: 1,
-    padding: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
+    fontFamily: fonts.secondary[700],
+    fontSize: 16,
+    lineHeight: 25.6,
+    color: colors.text.primary,
   },
-  cardContent: {
-    borderRadius: 5,
-    height: 80,
-    backgroundColor: '#FFFFFF',
+  detailContainer: {
+    padding: 16,
+    backgroundColor: colors.white,
+    borderRadius: 8,
+  },
+  detailTextWrapper: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 5,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.27,
-    shadowRadius: 4.65,
-
-    elevation: 6,
+    padding: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.divider,
+  },
+  titleDetail: {
+    fontFamily: fonts.secondary[400],
+    fontSize: 12,
+    lineHeight: 15,
+    color: colors.text.primary,
+  },
+  valueDetail: {
+    fontFamily: fonts.secondary[600],
+    fontSize: 12,
+    lineHeight: 15,
+    color: colors.text.primary,
   },
 });

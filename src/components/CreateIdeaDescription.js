@@ -14,7 +14,7 @@ import {
   IcChevronDown,
   IcOutlinedClose,
 } from '../assets/icon';
-import SwipeButton from '../modules/riset/SwipeButton';
+import SwipeButton from '../components/SwipeButton';
 import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import CardCreateIdeaSession from './CardCreateIdeaSession';
