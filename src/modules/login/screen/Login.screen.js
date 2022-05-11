@@ -1,26 +1,17 @@
 import CheckBox from '@react-native-community/checkbox';
 import moment from 'moment';
-import {
-  Button,
-  FormControl,
-  Heading,
-  NativeBaseProvider,
-  Text,
-  VStack,
-} from 'native-base';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Platform,
-  ScrollView,
   TextInput,
   TouchableOpacity,
+  StyleSheet,
   View,
+  Image,
+  Text,
 } from 'react-native';
-import {prefetchConfiguration} from 'react-native-app-auth';
-import {useSelector} from 'react-redux';
-import {FontTampilan} from '../../../assets/font/Font';
-import {IconGit} from '../../../assets/icon';
-import {IconEmail, IconPassword} from '../../../assets/icon/Icon';
+import { prefetchConfiguration } from 'react-native-app-auth';
+import { useSelector } from 'react-redux';
 import getData from '../../../components/GetData';
 import LoadingFull from '../../../components/LoadingFull';
 import {
@@ -28,10 +19,10 @@ import {
   defaultAuthState,
   defaultAuthStateLogin,
 } from '../../../config/Auth.cfg';
-import {storeAsyncStorageObject} from '../../../utils/AsyncStorage/StoreAsyncStorage';
-import styles from '../style/Login.style';
+import { storeAsyncStorageObject } from '../../../utils/AsyncStorage/StoreAsyncStorage';
+// import styles from '../style/Login.style';
 
-const Login = ({navigation, route}) => {
+const Login = ({ navigation, route }) => {
   const stateGlobal = useSelector(state => state);
 
   let _toggleCheckBox = false;
@@ -92,122 +83,190 @@ const Login = ({navigation, route}) => {
     }
   }, [data]);
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [invalidEmail, setInvalidEmail] = useState(true);
+  const [invalidPassword, setInvalidPassword] = useState(true);
+
+  const handleSignIn = () => {
+    email === '' ? setInvalidEmail(false) : setInvalidEmail(true);
+    password === '' ? setInvalidPassword(false) : setInvalidPassword(true);
+    if (email !== '' && password !== '') {
+      handleAuthorizeLdap();
+    }
+  };
+  const handleSignUp = () => {
+    navigation.push('Register');
+  };
+  const handleForgotPassword = () => {
+    navigation.push('ForgotPassword');
+  };
   return (
-    <NativeBaseProvider theme={FontTampilan}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
-        <View style={styles.container}>
-          <Heading style={styles.headLogin}>Login</Heading>
-          <Heading style={styles.headWelcome} mt="3">
-            Welcome, please login to your account
-          </Heading>
-          <VStack mt="30" width="80%">
-            <FormControl>
-              <IconEmail />
-              <TextInput
-                style={styles.inputText}
-                placeholder="Username"
-                placeholderTextColor="#FFFFFF"
-                onChangeText={value => setLdap({...ldap, username: value})}
-                value={ldap.username}
-              />
-            </FormControl>
-            <FormControl>
-              <IconPassword />
-              <TextInput
-                style={styles.inputText}
-                placeholder="Password"
-                secureTextEntry={true}
-                placeholderTextColor="#FFFFFF"
-                onChangeText={value => setLdap({...ldap, password: value})}
-                value={ldap.password}
-              />
-              {login === false ? (
-                <View>
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      color: '#FF2E2E',
-                      marginTop: 10,
-                      fontWeight: 'bold',
-                    }}>
-                    *) Please check your username & password correctly!
-                  </Text>
-                </View>
-              ) : (
-                <View style={{height: 52}} />
-              )}
-            </FormControl>
-            {/* <Button
-              mt="20"
-              mb="2"
-              style={toggleCheckBox ? styles.button : styles.buttonNonActive}
-              _text={{color: '#085D7A', fontWeight: '700'}}
-              onPress={toggleCheckBox ? handleAuthorizeLdap : () => {}}>
-              Login
-            </Button> */}
-            <TouchableOpacity
-              disabled={!toggleCheckBox || showLoading}
-              style={
-                toggleCheckBox
-                  ? styles.touchableButton
-                  : styles.touchableButtonNonActive
-              }
-              onPress={handleAuthorizeLdap}>
-              <Text
-                style={{
-                  width: '100%',
-                  textAlign: 'center',
-                  color: '#085D7A',
-                  fontWeight: '700',
-                }}>
-                Login
-              </Text>
-            </TouchableOpacity>
-            <View style={styles.center}>
-              <Text style={styles.or}>-OR-</Text>
-            </View>
-            <Button
-              style={toggleCheckBox ? styles.button : styles.buttonNonActive}
-              _text={{color: '#085D7A', fontWeight: '700'}}
-              onPress={toggleCheckBox ? () => {} : () => {}}
-              leftIcon={<IconGit />}>
-              Login with GIT
-            </Button>
+    <View style={styles.container}>
+      <View style={{ alignItems: 'center' }}>
+        <Image
+          source={require('../../../assets/image/logo-ideabox.png')}
+          style={styles.logo}
+        />
+        <Text style={styles.header}>
+          Welcome back to {`\n`}
+          <Text style={{ color: '#5F49D2' }}>Ideabox</Text> Family
+        </Text>
+        <Text style={styles.subHeader}>Please login to your account</Text>
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.titleInput}>Email</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="type your email"
+          keyboardType="email-address"
+          onChangeText={(text) => {
+            setEmail(text);
+            setLdap({ ...ldap, username: text });
+          }}
+        />
+        <Text style={[styles.invalid, { opacity: invalidEmail ? 0 : 1, }]}>Incorrect email</Text>
+        <Text style={styles.titleInput}>Password</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="type your password"
+          secureTextEntry={true}
+          onChangeText={(text) => {
+            setPassword(text);
+            setLdap({ ...ldap, password: text });
+          }}
+        />
+        <Text style={[styles.invalid, { opacity: invalidPassword ? 0 : 1, }]}>Incorrect Password </Text>
+        <View style={styles.buttonContainer}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <CheckBox
+              disabled={false}
+              value={toggleCheckBox}
+              onValueChange={newValue => setToggleCheckBox(newValue)}
+              onCheckColor="red"
+            />
+            <Text
+              style={[styles.sideButtonContainer,
+              {
+                color: '#1A1A1A',
+                fontFamily: 'Poppins-Regular',
+              }]}
 
-            <View style={styles.rowterm}>
-              <CheckBox
-                disabled={false}
-                value={toggleCheckBox}
-                onValueChange={newValue => setToggleCheckBox(newValue)}
-                onCheckColor="red"
-              />
-
-              <Text style={styles.term}>
-                Please read the{' '}
-                <Text
-                  style={{color: '#F9CC2C', textDecorationLine: 'underline'}}
-                  onPress={() => {
-                    navigation.navigate('TermCondi');
-                  }}>
-                  Terms of Conditions
-                </Text>{' '}
-                and{' '}
-                <Text
-                  onPress={() => {
-                    navigation.navigate('TermCondi');
-                  }}
-                  style={{color: '#F9CC2C', textDecorationLine: 'underline'}}>
-                  Privacy Policy.
-                </Text>
-              </Text>
-            </View>
-          </VStack>
+            >
+              Remember Me</Text>
+          </View>
+          <TouchableOpacity
+            onPress={handleForgotPassword}
+          >
+            <Text style={[styles.sideButtonContainer, { color: '#7C4BFF', fontFamily: 'Poppins-SemiBold', }]}>Forgot Password?</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-      <LoadingFull visible={showLoading} message="Please Wait..." />
-    </NativeBaseProvider>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleSignIn}
+        >
+          <Text style={styles.getstarted}>Login</Text>
+        </TouchableOpacity>
+        <Text style={styles.bottomText}>Dont't have an account?
+          <Text style={{ fontFamily: 'LeagueSpartan-SemiBold', color: '#7C4BFF' }} onPress={handleSignUp}> Register</Text>
+        </Text>
+      </View>
+    </View >
   );
 };
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  header: {
+    alignItems: 'center',
+    textAlign: 'center',
+    fontFamily: 'Poppins-Medium',
+    fontSize: 24,
+    lineHeight: 33.6,
+    color: 'black',
+    marginTop: 24.03,
+  },
+  subHeader: {
+    alignItems: 'center',
+    textAlign: 'center',
+    fontWeight: '400',
+    fontFamily: 'Roboto-Regular',
+    fontSize: 14,
+    lineHeight: 22,
+    color: '#1A1A1A',
+    opacity: 0.71,
+    marginTop: 4,
+  },
+  inputContainer: {
+    marginTop: 12,
+    marginHorizontal: 16,
+  },
+  titleInput: {
+    fontSize: 16,
+    fontFamily: 'Poppins-SemiBold',
+    lineHeight: 20,
+    color: 'black',
+    marginTop: 12,
+  },
+  input: {
+    height: 47,
+    marginTop: 4,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderColor: '#BDBDBD',
+    marginHorizontal: 0,
+    borderRadius: 8,
+    fontFamily: 'Poppins-Regular',
+  },
+  invalid: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 12,
+    lineHeight: 15,
+    color: '#EE4443',
+    marginTop: 4,
+
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 9,
+    marginBottom: 0,
+
+  },
+  sideButtonContainer: {
+    fontSize: 14,
+    lineHeight: 17,
+  },
+  button: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    height: 52,
+    width: 358,
+    borderRadius: 5,
+    backgroundColor: '#5F49D2',
+    marginTop: 39,
+    marginHorizontal: 0,
+  },
+  getstarted: {
+    color: 'white',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  bottomText: {
+    fontFamily: 'LeagueSpartan-Regular',
+    fontSize: 16,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginTop: 32,
+    color: '#1A1A1A',
+  },
+});
+
 export default Login;

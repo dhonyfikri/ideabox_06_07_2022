@@ -1,43 +1,81 @@
-import React from 'react';
-import {Image, ScrollView, Text, TouchableOpacity, View} from 'react-native';
-import {Line} from '../../../assets/icon';
-import style from '../../../config/Style/style.cfg';
+import {
+  Text,
+  View,
+  FlatList,
+  Animated,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+
+import slides from '../components/slides';
+import OnboardingItem from '../components/OnboardingItem';
+import Paginator from '../components/Paginator';
+
 import styles from '../style/Main.style';
-const Main = ({navigation}) => {
+
+const Main = ({ navigation }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
+  const slidesRef = useRef(null);
+  const viewableItemsChanged = useRef(({ viewableItems }) => {
+    setCurrentIndex(viewableItems[0].index);
+  }).current;
+
+  const { width } = Dimensions.get('window');
+
+  useEffect(() => {
+    let scrollValue = 0,
+      scrolled = 0;
+
+    const intervalId = setInterval(() => {
+      scrolled++;
+      if (scrolled < slides.length) { scrollValue = scrollValue + width; }
+      else {
+        scrollValue = 0;
+        scrolled = 0;
+      }
+
+      slidesRef.current.scrollToOffset({ animated: true, offset: scrollValue });
+    }, 3000);
+    return () => clearInterval(intervalId);
+  }, [width]);
+
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.line}>
-          <Line />
-        </View>
-        <View style={styles.wrap}>
-          <View style={styles.title}>
-            <Text style={styles.textwhitetitle}>Apa Itu</Text>
-            <Text style={styles.textredtitle}> IDEA</Text>
-            <Text style={styles.textwhitetitle}>BOX?</Text>
-          </View>
-          <View style={styles.content}>
-            <Text style={[style.h4medium, styles.textcontent]}>
-              <Text style={styles.redtitlecontent}>IDEA</Text>
-              <Text style={styles.whitetitlecontent}>BOX</Text> Merupakan single
-              platform yang digunakan sebagai media sosial inovasi bagi karyawan
-              Telkom untuk dapat menyampaikan idea dan berkolaborasi
-              mengembangkannya.
-            </Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => navigation.replace('Login')}
-            style={styles.button}>
-            <Text style={styles.getstarted}>GET STARTED</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.mainimage}>
-          <Image
-            source={require('../../../assets/image/ImageMain.png')}
-            style={{flex: 1, resizeMode: 'contain'}}
-          />
-        </View>
-      </ScrollView>
+      <View style={styles.flatlist}>
+        <FlatList
+          data={slides}
+          renderItem={({ item }) => <OnboardingItem item={item} />}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          pagingEnabled
+          bounces={false}
+          keyExtractor={item => item.id}
+          onScroll={Animated.event(
+            [
+              {
+                nativeEvent: {
+                  contentOffset: { x: scrollX },
+                },
+              },
+            ],
+            { useNativeDriver: false },
+          )}
+          scrollEventThrottle={32}
+          onViewableItemsChanged={viewableItemsChanged}
+          viewabilityConfig={viewConfig}
+          ref={slidesRef}
+          style={{
+            flexGrow: 0,
+          }}
+        />
+      </View>
+      <Paginator data={slides} scrollX={scrollX} />
+      <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Login', { checked: false })}>
+        <Text style={styles.getstarted}>Get Started</Text>
+      </TouchableOpacity>
     </View>
   );
 };

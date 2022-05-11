@@ -1,4 +1,4 @@
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import DrawerNavigation from '../../components/Drawer';
 import TabNavigation from '../../components/Tabs';
@@ -17,6 +17,8 @@ import SplashScreen from '../../modules/splash/screen/Splash.screen';
 import TermCondi from '../../modules/termcondi/screen/TermCondi.screen';
 import TopIdea from '../../modules/trending/screen/TopIdea.screen';
 import RoutesProfile from './RoutesProfile';
+import RegisterScreen from '../../modules/register/screen/Register.screen';
+import ForgorPassword from '../../modules/forgotPassword/screen/ForgotPassword.screen';
 
 const Stack = createNativeStackNavigator();
 
@@ -43,57 +45,67 @@ const Routes = () => {
       <Stack.Screen
         name="SplashScreen"
         component={SplashScreen}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Main"
         component={Main}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Login"
         component={Login}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Register"
+        component={RegisterScreen}
+        options={{ headerShown: true, title: 'Back' }}
+      />
+      <Stack.Screen
+        name="ForgotPassword"
+        component={ForgorPassword}
+        options={{ headerShown: true, title: 'Back' }}
       />
       <Stack.Screen
         name="TabNavigation"
         component={TabNavigation}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="DetailIdeaUser"
         component={DetailExplore}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="MyProfile"
         component={MyProfile}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="CreateIdeaStep"
         component={CreateIdeaStep}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Notification"
         component={Notification}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="PrivacyPolicy"
         component={privacyPolicy}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="TermCondi"
         component={TermCondi}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Page404"
         component={Page404}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
