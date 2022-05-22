@@ -8,11 +8,12 @@ import {
 } from 'react-native';
 import React from 'react';
 
-const CardContentNew = () => {
+const CardContentNew = ({onIdeaPress}) => {
   return (
     <View
       style={{
-        margin: 16,
+        marginHorizontal: 16,
+        marginBottom: 16,
         padding: 16,
         borderWidth: 1,
         borderColor: '#D4DAE2',
@@ -63,7 +64,9 @@ const CardContentNew = () => {
           </Text>
         </TouchableOpacity>
       </View>
-      <View style={{marginVertical: 17, flexDirection: 'row'}}>
+      <TouchableOpacity
+        style={{marginVertical: 17, flexDirection: 'row'}}
+        onPress={onIdeaPress}>
         <Image
           source={require('../assets/icon/dummyhistory.png')}
           style={{
@@ -86,7 +89,7 @@ const CardContentNew = () => {
             eiusmod tempor
           </Text>
         </View>
-      </View>
+      </TouchableOpacity>
       <View style={{height: 1, backgroundColor: '#D3D2D2'}} />
       <View
         style={{

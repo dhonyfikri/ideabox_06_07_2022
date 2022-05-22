@@ -136,7 +136,6 @@ export default CardDetailTeamDesc;
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FAFAFB',
-    marginBottom: 12,
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingTop: 12,

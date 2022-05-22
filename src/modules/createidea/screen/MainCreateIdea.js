@@ -1,10 +1,19 @@
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {useIsFocused} from '@react-navigation/native';
 import React from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Gap from '../../../components/Gap';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
 
 const MainCreateIdea = ({navigation, route}) => {
+  const isFocused = useIsFocused();
+  if (isFocused) {
+    navigation.reset({
+      index: 1,
+      routes: [{name: 'TabNavigation'}, {name: 'CreateIdeaStep'}],
+    });
+  }
+
   return (
     <View
       style={{

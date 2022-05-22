@@ -53,7 +53,7 @@ export default function RegisterScreen({navigation, route}) {
   };
 
   const handleSignIn = () => {
-    navigation.replace('Login');
+    navigation.goBack();
   };
 
   let _toggleCheckBox = false;

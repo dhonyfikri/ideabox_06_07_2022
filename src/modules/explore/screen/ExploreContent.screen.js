@@ -1,8 +1,7 @@
 import {useScrollToTop} from '@react-navigation/native';
 import React, {useEffect, useRef, useState} from 'react';
 import {
-  Alert,
-  Modal,
+  Image,
   RefreshControl,
   SafeAreaView,
   ScrollView,
@@ -10,33 +9,22 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Image,
 } from 'react-native';
-import {MentionInput} from 'react-native-controlled-mentions';
-import GestureRecognizer from 'react-native-swipe-gestures';
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import {RadioButton} from 'react-native-paper';
+import RBSheet from 'react-native-raw-bottom-sheet';
 import {useDispatch, useSelector} from 'react-redux';
-import {alignItems, width} from 'styled-system';
-import {Cross, Join, Promote, TopLine} from '../../../assets/icon';
-import CardComment from '../../../components/CardComment';
-import CardContent from '../../../components/CardContent';
 import CardContentNew from '../../../components/CardContentNew';
-import CardReplyComment from '../../../components/CardReplyComment';
-import FailedModal from '../../../components/FailedModal';
 import getData from '../../../components/GetData';
-import RefreshFull from '../../../components/RefreshFull';
-import SearchHeader from '../../../components/SearchHeader';
-import SuccesModal from '../../../components/SuccesModal';
-import WarningModal from '../../../components/WarningModal';
 import {defaultAuthState} from '../../../config/Auth.cfg';
 import {GetDataIdea} from '../../../config/GetData/GetDataIdea';
 import CommentIdea from '../../../config/PostData/Comment';
 import JoinIdea from '../../../config/PostData/JoinIdea';
 import PromoteIdea from '../../../config/PostData/PromoteIdea';
-import style from '../../../config/Style/style.cfg';
 import styles from '../style/Explore.style';
-import RBSheet from 'react-native-raw-bottom-sheet';
-import BouncyCheckbox from 'react-native-bouncy-checkbox';
-import {RadioButton} from 'react-native-paper';
+import {colors} from '../../../utils/ColorsConfig/Colors';
+import fonts from '../../../utils/FontsConfig/Fonts';
+
 const ExploreContent = ({navigation, route}) => {
   const dispatch = useDispatch();
   const stateGlobal = useSelector(state => state);
@@ -923,38 +911,10 @@ const ExploreContent = ({navigation, route}) => {
   }
   return (
     <SafeAreaView style={styles.container}>
-      {/* {success === 200 ? (
-        <SuccesModal
-          desc={'Your comment have been added!'}
-          getData={getDataSuccess}
-        />
-      ) : success !== null ? (
-        <FailedModal
-          desc={'Your comment not added!'}
-          getData={getDataSuccess}
-        />
-      ) : null}
-      {join === 200 ? (
-        <SuccesModal desc={'Your have join the idea'} getData={getDataJoin} />
-      ) : join === 406 ? (
-        <WarningModal
-          desc={'You already join for this idea'}
-          getData={getDataJoin}
-        />
-      ) : promote === 201 ? (
-        <SuccesModal
-          desc={'Your have Promote the idea'}
-          getData={getDataPromote}
-        />
-      ) : promote === 400 ? (
-        <WarningModal
-          desc={'You already requested for this idea'}
-          getData={getDataPromote}
-        />
-      ) : null} */}
       <>
         <View style={{padding: 16}}>
           <TouchableOpacity
+            activeOpacity={1}
             style={styles.searchBar}
             onPress={() => {
               setSearch(true);
@@ -969,7 +929,7 @@ const ExploreContent = ({navigation, route}) => {
             </View>
           </TouchableOpacity>
         </View>
-        <CardContentNew />
+
         {data.isSet && data.data.length === 0 ? (
           <ScrollView
             showsVerticalScrollIndicator={false}
@@ -986,7 +946,12 @@ const ExploreContent = ({navigation, route}) => {
               />
             }>
             <Text
-              style={{textAlign: 'center', fontSize: 18, fontWeight: 'bold'}}>
+              style={{
+                textAlign: 'center',
+                fontSize: 18,
+                color: colors.text.secondary,
+                fontFamily: fonts.secondary[400],
+              }}>
               List of ideas not yet available
             </Text>
           </ScrollView>
@@ -1001,85 +966,30 @@ const ExploreContent = ({navigation, route}) => {
                   colors={['#085D7A']} // add more array value to switching colors while progressing
                 />
               }>
-              {data.data
-                .filter((val, key) => {
-                  if (hasil === '') {
-                    return val;
-                  } else if (
-                    val.desc[0].value
-                      .toLowerCase()
-                      .includes(hasil.toLowerCase())
-                  ) {
-                    return val;
-                  }
-                })
-                .map((val, index) => {
-                  return (
-                    <View key={index}>
-                      <CardContent
-                        changeData={getDataChange}
-                        createdId={val.user.userId}
-                        id={val.id}
-                        dataAsync={dataAsync}
-                        profileUser={
-                          val.user.pictures === ''
-                            ? require('../../../assets/icon/profilepicture.png')
-                            : {uri: val.user.pictures}
-                        }
-                        liked={imageLike}
-                        name={val.user.name}
-                        title={val.desc[0].value}
-                        desc={val.desc[2].value}
-                        like={val.like}
-                        likedBy={val.totalLike}
-                        cover={{uri: val.desc[1].value}}
-                        more={() => {
-                          if (stateGlobal.detailIdea !== null) {
-                            dispatch({
-                              type: 'SET_DETAIL_IDEA',
-                              value: null,
-                            });
-                          }
-                          navigation.navigate('DetailIdeaUser', {
-                            ideaId: val.id,
-                          });
-                        }}
-                        comment={() => {
-                          setModalComment(true);
-                          setIdIdea(index);
-                          setIdComment(val.id);
-                          setIdUser(dataAsync.id);
-                        }}
-                        join={() => setModalJoinVisible(true)}
-                        promote={() => setModalPromoteVisible(true)}
-                        morePromote={() => {
-                          setIdUser(dataAsync.id);
-                          setIdIdeaJoin(val.id);
-                          setModalBottom(true);
-                        }}
-                        onProfile={() =>
-                          navigation.navigate('ProfileUser', {data: val})
-                        }
-                      />
-                    </View>
-                  );
-                })}
-
-              <View style={styles.bottomWrap} />
+              <CardContentNew
+                onIdeaPress={() =>
+                  navigation.navigate('DetailIdeaUser', {ideaId: 4})
+                }
+              />
+              <CardContentNew
+                onIdeaPress={() =>
+                  navigation.navigate('DetailIdeaUser', {ideaId: 4})
+                }
+              />
+              <CardContentNew
+                onIdeaPress={() =>
+                  navigation.navigate('DetailIdeaUser', {ideaId: 4})
+                }
+              />
+              <CardContentNew
+                onIdeaPress={() =>
+                  navigation.navigate('DetailIdeaUser', {ideaId: 4})
+                }
+              />
             </ScrollView>
           </>
         )}
       </>
-      {/* <RefreshFull
-        visible={showRefreshButton}
-        backgroundOpacity={0}
-        message="Failed fetching data"
-        onOffsetTouch={() => setShowRefreshButton(false)}
-        onPress={() => {
-          setShowRefreshButton(false);
-          fetchIdeas(true);
-        }}
-      /> */}
     </SafeAreaView>
   );
 };

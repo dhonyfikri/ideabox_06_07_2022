@@ -171,11 +171,11 @@ const CreateIdeaStep = ({navigation, route}) => {
             keyExtractor={item => item.key}
             initialScrollIndex={indexActive * 2}
             scrollEnabled={false}
-            onConten={() => {
-              if (!contentMounted) {
-                setContentMounted(true);
-              }
-            }}
+            // onContentSizeChange={() => {
+            //   if (!contentMounted) {
+            //     setContentMounted(true);
+            //   }
+            // }}
             contentContainerStyle={{
               paddingHorizontal: Dimensions.get('screen').width,
               height: 32,

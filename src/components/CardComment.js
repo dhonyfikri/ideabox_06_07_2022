@@ -1,30 +1,52 @@
 import React from 'react';
-import {Image, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {FlatList, StyleSheet, View} from 'react-native';
+import CardCommentItem from './CardCommentItem';
+import Gap from './Gap';
 
-const CardComment = props => {
+const CardComment = ({commentsData, onMainRepplyPress = () => {}}) => {
   return (
     <View>
-      <View style={{flexDirection: 'row', alignItems: 'center'}}>
-        <Image source={props.image} style={styles.imageContent} />
-        <View style={{marginTop: 5, marginLeft: 10}}>
-          <Text style={{fontWeight: '700'}}>{props.name}</Text>
-          <TouchableOpacity onPress={props.reply}>
-            <Text style={{color: 'grey'}}>Reply</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      <Text style={{marginLeft: 10, marginTop: 10}}>{props.desc}</Text>
+      <CardCommentItem
+        imageThumb={commentsData.createdBy.pictures}
+        name={commentsData.createdBy.name}
+        comment={commentsData.comment}
+        onReplyPress={name => onMainRepplyPress(name)}
+      />
+      {commentsData.replyComment.length > 0 && (
+        <>
+          <Gap height={12} />
+          {
+            <View style={{paddingLeft: 40}}>
+              <FlatList
+                data={commentsData.replyComment}
+                keyExtractor={(_, index) => index.toString()}
+                scrollEnabled={false}
+                showsVerticalScrollIndicator={false}
+                inverted={false}
+                renderItem={({item, index}) => {
+                  return (
+                    <>
+                      <CardCommentItem
+                        imageThumb={item.createdBy.pictures}
+                        name={item.createdBy.name}
+                        comment={item.comment}
+                        withReplyButton={false}
+                      />
+                      {index !== commentsData.replyComment.length - 1 && (
+                        <Gap height={12} />
+                      )}
+                    </>
+                  );
+                }}
+              />
+            </View>
+          }
+        </>
+      )}
     </View>
   );
 };
 
 export default CardComment;
 
-const styles = StyleSheet.create({
-  imageContent: {
-    width: 40,
-    height: 40,
-    borderRadius: 50 / 2,
-    resizeMode: 'cover',
-  },
-});
+const styles = StyleSheet.create({});

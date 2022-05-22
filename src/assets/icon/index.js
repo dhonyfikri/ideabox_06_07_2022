@@ -83,12 +83,19 @@ import IcOutlinedRemove from './ic_outlined_remove.svg';
 import IcActiveTrash from './ic_active_trash.svg';
 import IcCalendar from './ic_calendar.svg';
 import IcTickLight from './ic_tick_light.svg';
+import IcCloseLight from './ic_close_light.svg';
 import IcActiveOpenFile from './ic_active_open_file.svg';
 import IcTime from './ic_time.svg';
 import IcFilter from './ic_filter.svg';
 import IcFilterCalendar from './ic_filter_calendar.svg';
 import IcSearch from './ic_search.svg';
 import IcDotThree from './ic_dot_three.svg';
+import IcSmileEmote from './ic_smile_emote.svg';
+import IcReply from './ic_reply.svg';
+import IcCalendarOrange from './ic_calendar_orange.svg';
+import IcChevronDownOrange from './ic_chevron_down_orange.svg';
+import IcAddOrangeRounded from './ic_add_orange_rounded.svg';
+import IcCopyClipboard from './ic_copy_clipboard.svg';
 
 export {
   IconEvent,
@@ -175,6 +182,7 @@ export {
   IcCalendar,
   IcChevronDown,
   IcTickLight,
+  IcCloseLight,
   IcActiveOpenFile,
   IcOutlinedRemove,
   IcTime,
@@ -182,4 +190,10 @@ export {
   IcFilterCalendar,
   IcSearch,
   IcDotThree,
+  IcSmileEmote,
+  IcReply,
+  IcCalendarOrange,
+  IcChevronDownOrange,
+  IcAddOrangeRounded,
+  IcCopyClipboard,
 };

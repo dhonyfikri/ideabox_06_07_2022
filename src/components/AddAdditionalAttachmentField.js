@@ -12,25 +12,28 @@ import {IcActiveOpenFile, IcChevronDown, IcOutlinedClose} from '../assets/icon';
 import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import Gap from './Gap';
+import {dateToText} from '../utils/DateConfig/DateConvert';
+import EditActionButton from './EditActionButton';
 
-const CreateAdditionalAttachmentField = ({
-  withSelfDelete,
-  onSelfDelete = () => {},
-  onClear = () => {},
-  selectedType = null,
-  onTypeChange = () => {},
-  sourceValue,
-  onSourceChange = () => {},
-  descValue,
-  onDescChange = () => {},
-  attachmentDocumentName,
+const AddAdditionalAttachmentField = ({
+  onSave = () => {},
+  onDiscard = () => {},
 }) => {
   const [openDropdownType, setOpenDropdownType] = useState(false);
-  const [valueDropdownType, setValueDropdownType] = useState(selectedType);
+  const [valueDropdownType, setValueDropdownType] = useState(null);
   const [itemsDropdownType, setItemsDropdownType] = useState([
     {label: 'Link', value: 'Link'},
     {label: 'File', value: 'File'},
   ]);
+
+  const [attachment, setAttachment] = useState({
+    desc: '',
+    documentName: '',
+    source: '',
+    type: null,
+    uploadedDate: '',
+    uploadedBy: 'Thom Yorke',
+  });
 
   const handleDocumentSelection = async () => {
     try {
@@ -38,15 +41,23 @@ const CreateAdditionalAttachmentField = ({
         presentationStyle: 'fullScreen',
         allowMultiSelection: false,
       });
-      // console.log(response);
-      onSourceChange(response[0].uri, response[0].name);
+      setAttachment({
+        ...attachment,
+        source: response[0].uri,
+        documentName: response[0].name,
+      });
     } catch (err) {
       console.warn(err);
     }
   };
 
   useEffect(() => {
-    onTypeChange(valueDropdownType);
+    setAttachment({
+      ...attachment,
+      documentName: '',
+      source: '',
+      type: valueDropdownType,
+    });
   }, [valueDropdownType]);
 
   return (
@@ -95,7 +106,7 @@ const CreateAdditionalAttachmentField = ({
             <IcActiveOpenFile />
             <Gap width={8} />
             <Text style={styles.filePickerButtonText}>
-              {attachmentDocumentName === '' ? 'Choose File' : 'Change File'}
+              {attachment.documentName === '' ? 'Choose File' : 'Change File'}
             </Text>
           </TouchableOpacity>
           <Gap width={12} />
@@ -103,9 +114,9 @@ const CreateAdditionalAttachmentField = ({
             style={styles.fileNameText}
             numberOfLines={1}
             ellipsizeMode="middle">
-            {attachmentDocumentName === ''
+            {attachment.documentName === ''
               ? 'No File Choosen'
-              : attachmentDocumentName}
+              : attachment.documentName}
           </Text>
         </View>
       ) : (
@@ -115,10 +126,10 @@ const CreateAdditionalAttachmentField = ({
             editable={valueDropdownType === null ? false : true}
             placeholder="Use http:// or https://"
             onChangeText={text => {
-              onSourceChange(text);
+              setAttachment({...attachment, source: text});
             }}>
             <Text style={{...styles.titleInput, lineHeight: 20}}>
-              {sourceValue}
+              {attachment.source}
             </Text>
           </TextInput>
         </View>
@@ -137,41 +148,29 @@ const CreateAdditionalAttachmentField = ({
         autoCorrect={false}
         style={styles.board(valueDropdownType === null ? true : false)}
         onChangeText={text => {
-          onDescChange(text);
+          setAttachment({...attachment, desc: text});
         }}>
-        <Text style={{lineHeight: 20}}>{descValue}</Text>
+        <Text style={{lineHeight: 20}}>{attachment.desc}</Text>
       </TextInput>
-      {valueDropdownType !== null || withSelfDelete ? (
-        <>
-          <Gap height={16} />
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-            }}>
-            <TouchableOpacity
-              style={styles.removeButton}
-              onPress={() => {
-                if (withSelfDelete) {
-                  onSelfDelete();
-                } else {
-                  setValueDropdownType(null);
-                  onClear();
-                }
-              }}>
-              <Text style={styles.removeButtonText}>Remove</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      ) : (
-        <></>
-      )}
+      <Gap height={16} />
+      <EditActionButton
+        disableSaveButton={
+          attachment.type === null ||
+          attachment.source.length === 0 ||
+          attachment.desc.length === 0
+        }
+        onDiscardPress={onDiscard}
+        onSavePress={() => {
+          let newAttachment = {...attachment};
+          newAttachment.uploadedDate = dateToText(new Date());
+          onSave(newAttachment);
+        }}
+      />
     </>
   );
 };
 
-export default CreateAdditionalAttachmentField;
+export default AddAdditionalAttachmentField;
 
 const styles = StyleSheet.create({
   fieldTitle: {

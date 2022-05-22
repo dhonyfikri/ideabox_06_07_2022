@@ -5,7 +5,7 @@ import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import Gap from './Gap';
 
-const CardSubmittedIdea = ({
+const CardJoinedIdea = ({
   ideaName,
   ownerName,
   createdDate,
@@ -103,7 +103,7 @@ const CardSubmittedIdea = ({
   );
 };
 
-export default CardSubmittedIdea;
+export default CardJoinedIdea;
 
 const styles = StyleSheet.create({
   container: {

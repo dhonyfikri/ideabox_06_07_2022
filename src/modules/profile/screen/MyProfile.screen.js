@@ -23,6 +23,8 @@ import fonts from '../../../utils/FontsConfig/Fonts';
 import EditMyAchievements from '../../../components/EditMyAchievements';
 
 const MyProfile = ({navigation, route}) => {
+  const editableProfile =
+    route.params.editable !== undefined ? route.params.editable : true;
   const openModalDiscardEditBackgroundPhotoReff = useRef(null);
   const openModalDiscardEditProfileReff = useRef(null);
   const openModalDiscardEditAboutReff = useRef(null);
@@ -115,7 +117,7 @@ const MyProfile = ({navigation, route}) => {
       />
       <ScrollView>
         <CardProfileMainContent
-          editable
+          editable={editableProfile}
           profilePhoto={profileData.profilePhoto}
           backgroundPhoto={profileData.backgroundPhoto}
           name={profileData.name}
@@ -133,6 +135,7 @@ const MyProfile = ({navigation, route}) => {
         />
         <View style={styles.profileOptions}>
           <CardDetailProfileContent
+            editable={editableProfile}
             title="About"
             withEditButton
             onEditPress={() => setModalEditAboutVisible(true)}>
@@ -140,6 +143,7 @@ const MyProfile = ({navigation, route}) => {
           </CardDetailProfileContent>
           <Gap height={16} />
           <CardDetailProfileContent
+            editable={editableProfile}
             title="My Skills"
             withAddButton
             withEditButton={mySkills.length > 0}
@@ -149,6 +153,7 @@ const MyProfile = ({navigation, route}) => {
           </CardDetailProfileContent>
           <Gap height={16} />
           <CardDetailProfileContent
+            editable={editableProfile}
             title="Achievement"
             withAddButton
             withEditButton={myAchivements.length > 0}

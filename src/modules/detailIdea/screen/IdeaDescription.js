@@ -2,9 +2,8 @@ import {useIsFocused} from '@react-navigation/native';
 import React from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {colors} from '../../../utils/ColorsConfig/Colors';
 import DetailIdeaDesc from '../../../components/DetailIdeaDesc';
-import Gap from '../../../components/Gap';
+import {colors} from '../../../utils/ColorsConfig/Colors';
 
 const IdeaDescription = () => {
   const dispatch = useDispatch();

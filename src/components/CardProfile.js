@@ -5,7 +5,7 @@ import {IcButtonJoin} from '../assets/icon';
 import Gap from '../components/Gap';
 import fonts from '../utils/FontsConfig/Fonts';
 
-const CardProfile = () => {
+const CardProfile = ({withJoinButton = true, onJoinButtonPress}) => {
   return (
     <View style={styles.container}>
       <Image
@@ -21,14 +21,16 @@ const CardProfile = () => {
           15475
         </Text>
       </View>
-      <Gap width={10} />
-      <TouchableOpacity>
-        <View style={styles.button}>
-          <IcButtonJoin />
-          <Gap width={8} />
-          <Text style={styles.textButton}>Join Idea</Text>
-        </View>
-      </TouchableOpacity>
+      {withJoinButton && (
+        <>
+          <Gap width={10} />
+          <TouchableOpacity style={styles.button} onPress={onJoinButtonPress}>
+            <IcButtonJoin />
+            <Gap width={8} />
+            <Text style={styles.textButton}>Join Idea</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 };

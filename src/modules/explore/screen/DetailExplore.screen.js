@@ -20,6 +20,7 @@ import styles from '../style/Explore.style';
 import {IcComment, IcEnvelope, IcUnactiveLike} from '../../../assets/icon';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
+import DummyResponseDetailIdea from '../../../modules/riset/DummyResponseDetailIdea';
 
 const DetailExplore = ({route, navigation}) => {
   const dispatch = useDispatch();
@@ -32,12 +33,14 @@ const DetailExplore = ({route, navigation}) => {
 
   const fetchDetailIdea = () => {
     setIsLoading(true);
-    GetDetailIdea(ideaId).then(response => {
+    // GetDetailIdea(ideaId).then(response => {
+    GetDetailIdea(4).then(response => {
       setIsLoading(false);
       if (response !== undefined) {
         dispatch({
           type: 'SET_DETAIL_IDEA',
-          value: response,
+          // value: response,
+          value: DummyResponseDetailIdea,
         });
       } else {
         setShowRefreshButton(true);

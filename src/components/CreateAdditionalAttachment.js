@@ -12,7 +12,6 @@ const CreateAdditionalAttachment = ({
   onNextReff,
   onUpdate = () => {},
   onNextRequest = () => {},
-  onRemoveAll,
 }) => {
   const [attachment, setAttachment] = useState([
     {type: null, source: '', desc: '', documentName: ''},

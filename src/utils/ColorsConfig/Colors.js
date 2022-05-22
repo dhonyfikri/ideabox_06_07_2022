@@ -19,6 +19,7 @@ const mainColors = {
   orange: '#FF5C1B',
   green: '#22C55E',
   green2: '#16A34A',
+  brown: '#F7F4FF',
 };
 
 export const colors = {
@@ -46,4 +47,5 @@ export const colors = {
   divider2: mainColors.grey11,
   dot: mainColors.grey4,
   selectedTag: mainColors.green2,
+  comment: mainColors.brown,
 };

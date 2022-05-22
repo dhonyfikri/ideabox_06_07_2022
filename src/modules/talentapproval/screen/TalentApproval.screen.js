@@ -1,22 +1,22 @@
+import React, {useEffect, useRef, useState} from 'react';
 import {
+  FlatList,
+  ScrollView,
   StyleSheet,
   Text,
-  View,
-  ScrollView,
-  TouchableOpacity,
   TextInput,
-  FlatList,
-  Modal,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import React, {useState, useCallback, useMemo, useRef} from 'react';
-import BottomSheet from '@gorhom/bottom-sheet';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import {IcFilter, IcSearch, IcTime} from '../../../assets/icon';
+import CardTalentApproval from '../../../components/CardTalentApproval';
+import FilterTalentApproval from '../../../components/FilterTalentApproval';
+import Gap from '../../../components/Gap';
 import Header from '../../../components/Header';
 import {colors} from '../../../utils/ColorsConfig/Colors';
-import {IcFilter, IcSearch, IcTime} from '../../../assets/icon';
-import Gap from '../../../components/Gap';
 import fonts from '../../../utils/FontsConfig/Fonts';
-import CardTalentApproval from '../../../components/CardTalentApproval';
-import Divider from '../../../components/Divider';
+import {textToDate} from '../../../utils/DateConfig/DateConvert';
 
 const TalentApproval = ({navigation, route}) => {
   const dataFromServer = [
@@ -28,7 +28,7 @@ const TalentApproval = ({navigation, route}) => {
       personId: 4,
       personName: 'Siti Bojong G.',
       activity: 'Request to Join Idea',
-      requestDate: '20/12/2022, 12:00:01',
+      requestDate: '22/12/2022, 12:00:01',
     },
     {
       id: 2,
@@ -38,7 +38,7 @@ const TalentApproval = ({navigation, route}) => {
       personId: 6,
       personName: 'Tony Stark',
       activity: 'Request to Join Idea',
-      requestDate: '20/12/2022, 13:00:01',
+      requestDate: '23/12/2022, 13:00:01',
     },
     {
       id: 3,
@@ -48,7 +48,7 @@ const TalentApproval = ({navigation, route}) => {
       personId: 12,
       personName: 'Gusion.',
       activity: 'Request to Join Idea',
-      requestDate: '20/12/2022, 14:00:01',
+      requestDate: '21/12/2022, 14:00:01',
     },
     {
       id: 4,
@@ -62,24 +62,21 @@ const TalentApproval = ({navigation, route}) => {
     },
   ];
 
+  const refRBSheetFilter = useRef();
+
   const [talentApprovalRequest, setTalentApprovalRequest] =
     useState(dataFromServer);
   const [talentApprovalToShow, setTalentApprovalToShow] =
     useState(dataFromServer);
   const [searchText, setSearchText] = useState('');
   const [pendingClicked, setPendingClicked] = useState(false);
-  const [filterModalVisible, setFilterModalVisible] = useState(false);
-
-  // ref
-  const bottomSheetRef = useRef(null);
-
-  // variables
-  const snapPoints = useMemo(() => ['25%', '50%'], []);
-
-  // callbacks
-  const handleSheetChanges = useCallback(index => {
-    console.log('handleSheetChanges', index);
-  }, []);
+  const [filterByStatusValue, setFilterByStatusValue] = useState([
+    'approved',
+    'rejected',
+    'pending',
+  ]);
+  const [filterByDateValue, setFilterByDateValue] = useState('latest');
+  const [onResume, setOnResume] = useState({status: true});
 
   let pendingRequestCount = 0;
   talentApprovalRequest.map(item => {
@@ -109,8 +106,41 @@ const TalentApproval = ({navigation, route}) => {
         }
       });
     }
-    setTalentApprovalToShow(tempTalentApproval);
+    setTalentApprovalToShow(matchToFilter(tempTalentApproval));
   };
+
+  const matchToFilter = value => {
+    let tempTalentApproval = value.filter(item => {
+      return filterByStatusValue.includes(item.status.toLowerCase());
+    });
+    if (filterByDateValue === 'latest') {
+      tempTalentApproval.sort(function (a, b) {
+        return (
+          textToDate(b.requestDate.split(',')[0]) -
+          textToDate(a.requestDate.split(',')[0])
+        );
+      });
+    } else if (filterByDateValue === 'earliest') {
+      tempTalentApproval.sort(function (a, b) {
+        return (
+          textToDate(a.requestDate.split(',')[0]) -
+          textToDate(b.requestDate.split(',')[0])
+        );
+      });
+    } else if (filterByDateValue === 'last modified') {
+      tempTalentApproval.sort(function (a, b) {
+        return (
+          textToDate(b.requestDate.split(',')[0]) -
+          textToDate(a.requestDate.split(',')[0])
+        );
+      });
+    }
+    return tempTalentApproval;
+  };
+
+  useEffect(() => {
+    setTalentApprovalToShow(matchToFilter(talentApprovalRequest));
+  }, [filterByStatusValue, filterByDateValue, talentApprovalRequest, onResume]);
 
   return (
     <View style={styles.page}>
@@ -121,138 +151,125 @@ const TalentApproval = ({navigation, route}) => {
         title="Talent Approval"
         onNotificationPress={() => navigation.navigate('Notification')}
       />
-      <View style={styles.contentContainer}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {pendingRequestCount > 0 && !pendingClicked ? (
-            <>
-              <TouchableOpacity
-                style={styles.pendingNoticeButton}
-                onPress={() => {
-                  setPendingClicked(true);
-                  showOnlyPendingStatus();
-                }}>
-                <IcTime />
-                <Gap width={12} />
-                <Text style={styles.pendingNoticeButtonText}>
-                  {pendingRequestCount} Pending
-                </Text>
-              </TouchableOpacity>
-              <Gap height={16} />
-            </>
-          ) : (
-            <></>
-          )}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            <View
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                height: '100%',
-                borderWidth: 1,
-                borderColor: colors.border,
-                borderRadius: 32,
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}>
+        {pendingRequestCount > 0 && !pendingClicked ? (
+          <>
+            <TouchableOpacity
+              style={styles.pendingNoticeButton}
+              onPress={() => {
+                setPendingClicked(true);
+                showOnlyPendingStatus();
               }}>
-              <TextInput
-                style={{
-                  flex: 1,
-                  marginHorizontal: 24,
-                  padding: 0,
-                  fontFamily: fonts.secondary[400],
-                  fontSize: 14,
-                  lineHeight: 17,
-                  color: colors.text.primary,
-                }}
-                placeholder="Search..."
-                value={searchText}
-                onChangeText={text => setSearchText(text)}
-              />
-              <TouchableOpacity
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 32 / 2,
-                  backgroundColor: colors.primary,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-                onPress={() => {
-                  setPendingClicked(false);
-                  matchToSearch();
-                }}>
-                <IcSearch />
-              </TouchableOpacity>
-            </View>
-            <Gap width={4} />
-            <TouchableOpacity onPress={() => setFilterModalVisible(true)}>
-              <IcFilter />
+              <IcTime />
+              <Gap width={12} />
+              <Text style={styles.pendingNoticeButtonText}>
+                {pendingRequestCount} Pending
+              </Text>
+            </TouchableOpacity>
+            <Gap height={16} />
+          </>
+        ) : (
+          <></>
+        )}
+        <View style={styles.searchFilterWrapper}>
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search..."
+              value={searchText}
+              onChangeText={text => setSearchText(text)}
+            />
+            <TouchableOpacity
+              style={styles.searchButton}
+              onPress={() => {
+                setPendingClicked(false);
+                matchToSearch();
+              }}>
+              <IcSearch />
+            </TouchableOpacity>
+          </View>
+          <Gap width={4} />
+          <TouchableOpacity onPress={() => refRBSheetFilter.current.open()}>
+            <IcFilter />
+          </TouchableOpacity>
+        </View>
+        <Gap height={16} />
+        <FlatList
+          data={talentApprovalToShow}
+          keyExtractor={(_, index) => index.toString()}
+          scrollEnabled={false}
+          showsVerticalScrollIndicator={false}
+          inverted={false}
+          renderItem={({item, index}) => {
+            return (
+              <>
+                {index !== 0 && <Gap height={16} />}
+                <CardTalentApproval
+                  stateListLength={talentApprovalToShow.length}
+                  raiseDelay={index}
+                  personName={item.personName}
+                  ideaName={item.ideaName}
+                  activity={item.activity}
+                  status={item.status}
+                  requestDate={item.requestDate}
+                  onViewPress={() =>
+                    navigation.navigate('TalentApprovalAction', {
+                      approvalData: item,
+                    })
+                  }
+                />
+              </>
+            );
+          }}
+        />
+      </ScrollView>
+      {/* Bottom sheet filter */}
+      <RBSheet
+        ref={refRBSheetFilter}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        animationType="fade"
+        height={550}
+        dragFromTopOnly={false}
+        customStyles={{
+          container: {
+            paddingTop: 16,
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+          },
+          wrapper: {
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          },
+          draggableIcon: {
+            backgroundColor: '#9CA3AF',
+            margin: 0,
+          },
+        }}>
+        <View style={styles.bottomSheetContentContainer}>
+          <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+            <Text style={styles.bottomSheetTitle}>Filters</Text>
+            <TouchableOpacity
+              style={styles.cancelContainer}
+              onPress={() => refRBSheetFilter.current.close()}>
+              <Text style={styles.bottomSheetCancelButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
           <Gap height={16} />
-          <FlatList
-            data={talentApprovalToShow}
-            keyExtractor={(_, index) => index.toString()}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-            inverted={false}
-            renderItem={({item, index}) => {
-              return (
-                <>
-                  {index !== 0 && <Gap height={16} />}
-                  <CardTalentApproval
-                    personName={item.personName}
-                    ideaName={item.ideaName}
-                    activity={item.activity}
-                    status={item.status}
-                    requestDate={item.requestDate}
-                    onViewPress={() => console.log(item.personName)}
-                  />
-                </>
-              );
+          <FilterTalentApproval
+            statusFilter={filterByStatusValue}
+            dateFilter={filterByDateValue}
+            onApply={(newStatusFilter, newDateFilter) => {
+              setFilterByStatusValue(newStatusFilter);
+              setFilterByDateValue(newDateFilter);
+              setPendingClicked(false);
+              setOnResume({status: true});
+              refRBSheetFilter.current.close();
             }}
           />
-        </ScrollView>
-      </View>
-      {/* filter modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={filterModalVisible}
-        onRequestClose={() => setFilterModalVisible(false)}>
-        <View
-          style={{
-            height: '100%',
-            width: '100%',
-            backgroundColor: '#00000088',
-          }}>
-          {filterModalVisible && (
-            <BottomSheet
-              ref={bottomSheetRef}
-              index={1}
-              snapPoints={snapPoints}
-              onChange={handleSheetChanges}>
-              <View style={styles.bottomSheetContentContainer}>
-                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                  <Text style={styles.bottomSheetTitle}>Filters</Text>
-                  <TouchableOpacity
-                    style={styles.titleContainer}
-                    onPress={() => setFilterModalVisible(false)}>
-                    <Text style={styles.bottomSheetCancelButtonText}>
-                      Cancel
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                <Gap height={16} />
-                <Divider />
-                <Gap height={16} />
-              </View>
-            </BottomSheet>
-          )}
         </View>
-      </Modal>
+      </RBSheet>
     </View>
   );
 };
@@ -261,8 +278,36 @@ export default TalentApproval;
 
 const styles = StyleSheet.create({
   page: {flex: 1, backgroundColor: '#FFFFFF'},
-  contentContainer: {
+  searchFilterWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchContainer: {
     flex: 1,
+    flexDirection: 'row',
+    height: '100%',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 32,
+  },
+  searchInput: {
+    flex: 1,
+    marginHorizontal: 24,
+    padding: 0,
+    fontFamily: fonts.secondary[400],
+    fontSize: 14,
+    lineHeight: 17,
+    color: colors.text.primary,
+  },
+  searchButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 32 / 2,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contentContainer: {
     padding: 16,
   },
   pendingNoticeButton: {
@@ -282,9 +327,7 @@ const styles = StyleSheet.create({
   },
   bottomSheetContentContainer: {
     height: '100%',
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    paddingTop: 8,
+    padding: 16,
   },
   bottomSheetTitle: {
     fontFamily: fonts.secondary[600],
@@ -298,7 +341,7 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     color: colors.text.tertiary,
   },
-  titleContainer: {
+  cancelContainer: {
     position: 'absolute',
     top: 0,
     right: 0,

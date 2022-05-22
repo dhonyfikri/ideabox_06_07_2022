@@ -14,7 +14,9 @@ const LeanCanvasItem = ({title, content = [], mandatory}) => {
       <View style={styles.contentCantainer}>
         {content.length > 0 ? (
           content.map((item, index) => (
-            <View style={{flexDirection: 'row', marginBottom: 2}}>
+            <View
+              key={index.toString()}
+              style={{flexDirection: 'row', marginBottom: 2}}>
               <View style={{minWidth: 10}}>
                 <Text style={styles.contentNumberText}>{index + 1 + '.'}</Text>
               </View>

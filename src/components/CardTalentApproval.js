@@ -1,20 +1,75 @@
-import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useRef, useEffect} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View, Animated} from 'react-native';
 import {IcChevronRightPrimary} from '../assets/icon';
 import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import Gap from './Gap';
 
 const CardTalentApproval = ({
+  stateListLength,
   personName,
   ideaName,
   activity,
   status,
   requestDate,
   onViewPress,
+  raiseDelay,
 }) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const translateAnim = useRef(new Animated.Value(30)).current;
+  const handleFadeIn = () => {
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 0,
+        useNativeDriver: true,
+        delay: raiseDelay * 150,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+        delay: raiseDelay * 150,
+      }),
+    ]).start();
+  };
+  const handleTranslate = () => {
+    Animated.sequence([
+      Animated.timing(translateAnim, {
+        toValue: 30,
+        duration: 0,
+        useNativeDriver: true,
+        delay: raiseDelay * 150,
+      }),
+      Animated.timing(translateAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+        delay: raiseDelay * 150,
+      }),
+    ]).start();
+  };
+
+  useEffect(() => {
+    handleFadeIn();
+    handleTranslate();
+  }, [
+    stateListLength,
+    raiseDelay,
+    personName,
+    ideaName,
+    activity,
+    status,
+    requestDate,
+  ]);
+
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={{
+        ...styles.container,
+        opacity: fadeAnim,
+        transform: [{translateY: translateAnim}, {translateX: translateAnim}],
+      }}>
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <Text style={styles.personName}>{personName}</Text>
         <Gap width={8} />
@@ -46,7 +101,7 @@ const CardTalentApproval = ({
       </View>
       <Gap height={10} />
       <View style={styles.fieldDataContent}>
-        <Text style={styles.fieldDataContentMainText}>Activity</Text>
+        <Text style={styles.fieldDataContentMainText}>Status</Text>
         <Gap width={16} />
         <View
           style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end'}}>
@@ -64,7 +119,7 @@ const CardTalentApproval = ({
           <Text style={styles.fieldDataContentMainText}>{requestDate}</Text>
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -92,6 +147,7 @@ const styles = StyleSheet.create({
   fieldDataContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 4,
     paddingHorizontal: 8,
     backgroundColor: colors.white,

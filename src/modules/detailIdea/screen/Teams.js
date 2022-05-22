@@ -1,9 +1,10 @@
-import {StyleSheet, Text, View, ScrollView} from 'react-native';
+import {useIsFocused} from '@react-navigation/native';
+import React from 'react';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import CardDetailTeamDesc from '../../../components/CardDetailTeamsDesc';
-import React from 'react';
+import Gap from '../../../components/Gap';
 import {colors} from '../../../utils/ColorsConfig/Colors';
-import {useIsFocused} from '@react-navigation/native';
 import fonts from '../../../utils/FontsConfig/Fonts';
 
 const Teams = () => {
@@ -15,11 +16,11 @@ const Teams = () => {
 
   if (
     isFocus &&
-    stateGlobal.detailIdeaPageHeight !== stateGlobal.teamsHeight + 246
+    stateGlobal.detailIdeaPageHeight !== stateGlobal.teamsHeight + 262
   ) {
     dispatch({
       type: 'SET_DETAIL_IDEA_PAGE_HEIGHT',
-      value: stateGlobal.teamsHeight + 246,
+      value: stateGlobal.teamsHeight + 262,
     });
   }
 
@@ -38,12 +39,17 @@ const Teams = () => {
           (stateGlobal.detailIdea?.approval.length > 0 ? (
             stateGlobal.detailIdea?.approval.map((item, index) => {
               return (
-                <CardDetailTeamDesc
-                  no={index + 1}
-                  nama={item.approvalTo.name}
-                  nip={item.approvalTo.nik}
-                  unit={item.approvalTo.unitName}
-                />
+                <>
+                  <CardDetailTeamDesc
+                    no={index + 1}
+                    nama={item.approvalTo.name}
+                    nip={item.approvalTo.nik}
+                    unit={item.approvalTo.unitName}
+                  />
+                  {index !== stateGlobal.detailIdea?.approval.length - 1 && (
+                    <Gap height={12} />
+                  )}
+                </>
               );
             })
           ) : (
@@ -73,8 +79,7 @@ export default Teams;
 
 const styles = StyleSheet.create({
   page: {
-    paddingHorizontal: 12,
-    paddingTop: 12,
+    padding: 12,
     backgroundColor: colors.tertiary,
     borderRadius: 16,
   },

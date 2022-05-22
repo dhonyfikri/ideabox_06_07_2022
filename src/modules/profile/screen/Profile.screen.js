@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  Animated,
 } from 'react-native';
 import CardProfileMainContent from '../../../components/CardProfileMainContent';
 import ContactDetail from '../../../components/ContactDetail';
@@ -14,10 +14,27 @@ import ModalEditProfile from '../../../components/ModalEditProfile';
 import ProfileOptionItem from '../../../components/ProfileOptionItem';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
+import {useIsFocused} from '@react-navigation/native';
 
 const Profile = ({navigation, route}) => {
   const [profileData, setProfiledata] = useState({});
   const [modalContactInfoVisible, setModalContactInfoVisible] = useState(false);
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const handleFadeIn = () => {
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 0,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   useEffect(() => {
     setProfiledata({
@@ -41,10 +58,15 @@ const Profile = ({navigation, route}) => {
       numberOfLikes: '402',
       numberOfComments: '381',
     });
+    handleFadeIn();
   }, []);
 
+  if (useIsFocused()) {
+    handleFadeIn();
+  }
+
   return (
-    <SafeAreaView style={styles.container}>
+    <Animated.View style={{...styles.container, opacity: fadeAnim}}>
       <ScrollView>
         <CardProfileMainContent
           profilePhoto={profileData.profilePhoto}
@@ -85,7 +107,7 @@ const Profile = ({navigation, route}) => {
           <ProfileOptionItem
             title="Tallent Approval"
             singleData={{
-              itemTitle: 'Talent aApproval',
+              itemTitle: 'Talent Approval',
               onPress: () => navigation.navigate('TalentApproval'),
             }}
           />
@@ -115,7 +137,7 @@ const Profile = ({navigation, route}) => {
         onCloseButtonPress={() => setModalContactInfoVisible(false)}>
         <ContactDetail email="elonmuzk@gmail.com" phone="082189046790" />
       </ModalEditProfile>
-    </SafeAreaView>
+    </Animated.View>
   );
 };
 

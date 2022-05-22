@@ -8,6 +8,7 @@ import Divider from './Divider';
 import fonts from '../utils/FontsConfig/Fonts';
 
 const CardDetailProfileContent = ({
+  editable = true,
   title,
   withAddButton,
   withEditButton,
@@ -25,15 +26,23 @@ const CardDetailProfileContent = ({
           <Text numberOfLines={1} style={styles.title}>
             {title}
           </Text>
-          {withAddButton && (
-            <TouchableOpacity style={styles.actionButton} onPress={onAddPress}>
-              <IcAdd2 />
-            </TouchableOpacity>
-          )}
-          {withEditButton && (
-            <TouchableOpacity style={styles.actionButton} onPress={onEditPress}>
-              <IcPencilEdit />
-            </TouchableOpacity>
+          {editable && (
+            <>
+              {withAddButton && (
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={onAddPress}>
+                  <IcAdd2 />
+                </TouchableOpacity>
+              )}
+              {withEditButton && (
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={onEditPress}>
+                  <IcPencilEdit />
+                </TouchableOpacity>
+              )}
+            </>
           )}
           {withTextAction && (
             <TouchableOpacity

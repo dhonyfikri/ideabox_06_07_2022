@@ -14,8 +14,10 @@ import RegisterScreen from '../../modules/register/screen/Register.screen';
 import SplashScreen from '../../modules/splash/screen/Splash.screen';
 import TermCondi from '../../modules/termcondi/screen/TermCondi.screen';
 import TalentApproval from '../../modules/talentapproval/screen/TalentApproval.screen';
+import TalentApprovalAction from '../../modules/talentapproval/screen/TalentApprovalAction.screen';
 import SubmittedIdea from '../../modules/myidea/screen/SubmittedIdea.screen';
 import JoinedIdea from '../../modules/myidea/screen/JoinedIdea.screen';
+import EditIdea from '../../modules/createidea/screen/EditIdea.screen';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,7 +36,7 @@ const config = {
 const Routes = () => {
   return (
     <Stack.Navigator
-      initialRouteName="TabNavigation"
+      initialRouteName="SplashScreen"
       screenOptions={{
         animation: 'fade_from_bottom',
         animationTypeForReplace: 'push',
@@ -85,6 +87,11 @@ const Routes = () => {
         options={{headerShown: false}}
       />
       <Stack.Screen
+        name="EditIdea"
+        component={EditIdea}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
         name="SubmittedIdea"
         component={SubmittedIdea}
         options={{headerShown: false}}
@@ -97,6 +104,11 @@ const Routes = () => {
       <Stack.Screen
         name="TalentApproval"
         component={TalentApproval}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="TalentApprovalAction"
+        component={TalentApprovalAction}
         options={{headerShown: false}}
       />
       <Stack.Screen

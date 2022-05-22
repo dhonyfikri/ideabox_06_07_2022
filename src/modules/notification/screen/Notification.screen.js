@@ -1,20 +1,18 @@
 import React from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {Back} from '../../../assets/icon';
-import CardNotification from '../../../components/CardNotification';
+import {Image, StyleSheet, Text, View} from 'react-native';
+import Header from '../../../components/Header';
 import style from '../../../config/Style/style.cfg';
 
 const Notification = ({navigation}) => {
   return (
     <View style={styles.container}>
-      <View style={styles.title}>
-        <View style={styles.back}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Back />
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.notif}>Notification</Text>
-      </View>
+      <Header
+        backButton
+        onBackPress={() => navigation.goBack()}
+        backText="Back"
+        title="Notification"
+        withNotification={false}
+      />
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <Image
           source={require('../../../assets/image/notification.png')}
