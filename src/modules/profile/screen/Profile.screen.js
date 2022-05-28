@@ -15,6 +15,7 @@ import ProfileOptionItem from '../../../components/ProfileOptionItem';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
 import {useIsFocused} from '@react-navigation/native';
+import {removeAsyncStorageItem} from '../../../utils/AsyncStorage/StoreAsyncStorage';
 
 const Profile = ({navigation, route}) => {
   const [profileData, setProfiledata] = useState({});
@@ -122,7 +123,11 @@ const Profile = ({navigation, route}) => {
           <Gap height={32} />
           <TouchableOpacity
             style={styles.logoutButton}
-            onPress={() => navigation.replace('Login')}>
+            onPress={() => {
+              removeAsyncStorageItem('@USER_TOKEN').then(res => {
+                navigation.replace('Login');
+              });
+            }}>
             <Text style={styles.logoutButtonText}>Logout</Text>
           </TouchableOpacity>
           <Gap height={30.5} />

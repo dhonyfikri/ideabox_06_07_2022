@@ -1,18 +1,20 @@
+import CheckBox from '@react-native-community/checkbox';
+import React, {useState} from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
   Image,
-  TextInput,
-  TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import React, {useState, useRef} from 'react';
-import InputText from '../components/InputText';
-import CheckBox from '@react-native-community/checkbox';
-import {colors} from '../../../utils/ColorsConfig/Colors';
 import Header from '../../../components/Header';
+import LoadingProcessFull from '../../../components/LoadingProcessFull';
+import ModalMessage from '../../../components/ModalMessage';
+import {RegisterAPI} from '../../../config/RequestAPI/RegisterAPI';
+import {colors} from '../../../utils/ColorsConfig/Colors';
+import InputText from '../components/InputText';
 
 export default function RegisterScreen({navigation, route}) {
   const [name, setName] = useState('');
@@ -29,7 +31,16 @@ export default function RegisterScreen({navigation, route}) {
   const [invalidPassword, setInvalidPassword] = useState(true);
   const [invalidConfirmPassword, setInvalidConfirmPassword] = useState(true);
 
-  const handleSignUp = () => {
+  const [loading, setLoading] = useState({visible: false, message: undefined});
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
+
+  const handleSignUp = async () => {
     name == '' ? setInvalidsetName(false) : setInvalidsetName(true);
     email == '' ? setInvalidEmail(false) : setInvalidEmail(true);
     phone == '' ? setInvalidPhone(false) : setInvalidPhone(true);
@@ -48,7 +59,40 @@ export default function RegisterScreen({navigation, route}) {
       confirmPassword != '' &&
       password == confirmPassword
     ) {
-      alert('Successfully registered');
+      setLoading({...loading, visible: true});
+      RegisterAPI(
+        name,
+        phone,
+        email,
+        password,
+        confirmPassword,
+        profession,
+      ).then(res => {
+        setLoading({...loading, visible: false});
+        if (
+          res.status === 'INVALID_DOMAIN' ||
+          res.status === 'SOMETHING_WRONG' ||
+          res.status === 'FIELD_ERROR' ||
+          res.status === 'SERVER_ERROR'
+        ) {
+          setMessageModal({
+            ...messageModal,
+            visible: true,
+            title: 'Failed',
+            message: res.message,
+            type: 'confused',
+          });
+        } else if (res.status === 'SUCCESS') {
+          setMessageModal({
+            ...messageModal,
+            visible: true,
+            title: 'Success',
+            message: res.message,
+            type: 'smile',
+            onClose: () => navigation.navigate('Login'),
+          });
+        }
+      });
     }
   };
 
@@ -93,6 +137,7 @@ export default function RegisterScreen({navigation, route}) {
             placeholder="type your name"
             keyboardType="default"
             value={invalidName}
+            thisText={name}
             secureTextEntry={false}
             onChanges={text => setName(text)}
           />
@@ -101,6 +146,7 @@ export default function RegisterScreen({navigation, route}) {
             placeholder="type your email"
             keyboardType="email-address"
             value={invalidEmail}
+            thisText={email}
             secureTextEntry={false}
             onChanges={text => setEmail(text)}
           />
@@ -109,6 +155,7 @@ export default function RegisterScreen({navigation, route}) {
             placeholder="type your phone number"
             keyboardType="phone-pad"
             value={invalidPhone}
+            thisText={phone}
             secureTextEntry={false}
             onChanges={text => setPhone(text)}
           />
@@ -117,6 +164,7 @@ export default function RegisterScreen({navigation, route}) {
             placeholder="type your profession"
             keyboardType="default"
             value={invalidProfession}
+            thisText={profession}
             secureTextEntry={false}
             onChanges={text => setProfession(text)}
           />
@@ -125,6 +173,7 @@ export default function RegisterScreen({navigation, route}) {
             placeholder="type your password"
             keyboardType="default"
             value={invalidPassword}
+            thisText={password}
             secureTextEntry={true}
             onChanges={text => setPassword(text)}
           />
@@ -133,6 +182,7 @@ export default function RegisterScreen({navigation, route}) {
             placeholder="re-type your password"
             keyboardType="default"
             value={invalidConfirmPassword}
+            thisText={confirmPassword}
             secureTextEntry={true}
             onChanges={text => setConfirmPassword(text)}
           />
@@ -167,6 +217,24 @@ export default function RegisterScreen({navigation, route}) {
           </Text>
         </View>
       </ScrollView>
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
+      {/* modal message */}
+      <ModalMessage
+        visible={messageModal.visible}
+        withIllustration
+        illustrationType={messageModal.type}
+        title={messageModal.title}
+        message={messageModal.message}
+        withBackButton
+        onBack={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+        onRequestClose={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+      />
     </SafeAreaView>
   );
 }

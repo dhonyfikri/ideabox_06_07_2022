@@ -15,33 +15,34 @@ const MainCreateIdea = ({navigation, route}) => {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-      <Text>Create Idea</Text>
-      <Gap height={24} />
-      <TouchableOpacity
-        style={{
-          backgroundColor: colors.primary,
-          paddingVertical: 16,
-          paddingHorizontal: 24,
-          borderRadius: 12,
-        }}
-        onPress={() => navigation.navigate('CreateIdeaStep')}>
-        <Text
-          style={{
-            fontFamily: fonts.secondary[600],
-            fontSize: 14,
-            lineHeight: 16,
-            color: colors.white,
-          }}>
-          Lets Create Idea
-        </Text>
-      </TouchableOpacity>
-    </View>
+    <View></View>
+    // <View
+    //   style={{
+    //     flex: 1,
+    //     justifyContent: 'center',
+    //     alignItems: 'center',
+    //   }}>
+    //   <Text>Create Idea</Text>
+    //   <Gap height={24} />
+    //   <TouchableOpacity
+    //     style={{
+    //       backgroundColor: colors.primary,
+    //       paddingVertical: 16,
+    //       paddingHorizontal: 24,
+    //       borderRadius: 12,
+    //     }}
+    //     onPress={() => navigation.navigate('CreateIdeaStep')}>
+    //     <Text
+    //       style={{
+    //         fontFamily: fonts.secondary[600],
+    //         fontSize: 14,
+    //         lineHeight: 16,
+    //         color: colors.white,
+    //       }}>
+    //       Lets Create Idea
+    //     </Text>
+    //   </TouchableOpacity>
+    // </View>
   );
 };
 

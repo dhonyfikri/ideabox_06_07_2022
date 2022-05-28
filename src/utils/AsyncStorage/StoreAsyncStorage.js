@@ -35,9 +35,20 @@ const getAsyncStorageObject = async key => {
   }
 };
 
+const removeAsyncStorageItem = async key => {
+  try {
+    AsyncStorage.removeItem(key)
+      .then(() => true)
+      .catch(() => false);
+  } catch (e) {
+    console.log('failed get data. error: ' + e);
+  }
+};
+
 export {
   getAsyncStorage,
   getAsyncStorageObject,
   storeAsyncStorage,
   storeAsyncStorageObject,
+  removeAsyncStorageItem,
 };

@@ -1,32 +1,72 @@
-import React, {useEffect} from 'react';
-import {ActivityIndicator, Image, View, StatusBar} from 'react-native';
-import {Logo} from '../../../assets/image';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  StatusBar,
+  ActivityIndicator,
+  Animated,
+} from 'react-native';
+import React, {useEffect, useRef} from 'react';
 import {colors} from '../../../utils/ColorsConfig/Colors';
-import styles from '../style/Splash.style';
+import Gap from '../../../components/Gap';
 
-const Splash = ({navigation}) => {
+const SplashScreen = ({navigation}) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const handleFadeIn = () => {
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 0,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   useEffect(() => {
+    handleFadeIn();
     setTimeout(() => {
       navigation.replace('Main');
-    }, 1500);
-  }, [navigation]);
+    }, 1200);
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <StatusBar backgroundColor={colors.secondary} barStyle="dark-content" />
-      <View style={styles.logo}>
-        <Logo />
-        <ActivityIndicator size="large" color="#FF0000" style={{margin: 25}} />
+    <>
+      <StatusBar
+        animated
+        backgroundColor={colors.white}
+        barStyle="dark-content"
+      />
+      <View
+        style={{
+          flex: 1,
+          // backgroundColor: colors.primary,
+          backgroundColor: colors.white,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <Animated.View style={{opacity: fadeAnim}}>
+          <Image
+            source={require('../../../assets/image/logo-ideabox.png')}
+            style={{
+              width: 100,
+              height: 50,
+              resizeMode: 'contain',
+            }}
+          />
+        </Animated.View>
+        <Gap height={16} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
-      <View style={styles.image}>
-        {/* <ImageSplash /> */}
-        <Image
-          source={require('../../../assets/image/ImageSplash.png')}
-          style={styles.imageSplash}
-        />
-      </View>
-    </View>
+    </>
   );
 };
 
-export default Splash;
+export default SplashScreen;
+
+const styles = StyleSheet.create({});

@@ -2,6 +2,7 @@ import {useBackHandler} from '@react-native-community/hooks';
 import {useNavigationState} from '@react-navigation/native';
 import React, {useEffect, useRef, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import ActionMyAchievements from '../../../components/ActionMyAchievements';
 import AddMyAchievements from '../../../components/AddMyAchievements';
 import AddMySkills from '../../../components/AddMySkills';
 import CardDetailProfileContent from '../../../components/CardDetailProfileContent';
@@ -11,7 +12,7 @@ import CardMySkills from '../../../components/CardMySkills';
 import CardProfileMainContent from '../../../components/CardProfileMainContent';
 import ContactDetail from '../../../components/ContactDetail';
 import EditMyAbout from '../../../components/EditMyAbout';
-import ActionMyAchievements from '../../../components/ActionMyAchievements';
+import EditMyAchievements from '../../../components/EditMyAchievements';
 import EditMyBackgroundPhoto from '../../../components/EditMyBackgroundPhoto';
 import EditMyProfile from '../../../components/EditMyProfile';
 import EditMySkills from '../../../components/EditMySkills';
@@ -20,7 +21,6 @@ import Header from '../../../components/Header';
 import ModalEditProfile from '../../../components/ModalEditProfile';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
-import EditMyAchievements from '../../../components/EditMyAchievements';
 
 const MyProfile = ({navigation, route}) => {
   const editableProfile =

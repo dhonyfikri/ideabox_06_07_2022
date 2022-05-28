@@ -2,40 +2,37 @@ import CheckBox from '@react-native-community/checkbox';
 import moment from 'moment';
 import React, {useEffect, useState} from 'react';
 import {
-  Platform,
+  Image,
+  StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   View,
-  Image,
-  Text,
 } from 'react-native';
-import {prefetchConfiguration} from 'react-native-app-auth';
-import {useSelector} from 'react-redux';
-import getData from '../../../components/GetData';
-import LoadingFull from '../../../components/LoadingFull';
-import {
-  AuthConfig,
-  defaultAuthState,
-  defaultAuthStateLogin,
-} from '../../../config/Auth.cfg';
-import {storeAsyncStorageObject} from '../../../utils/AsyncStorage/StoreAsyncStorage';
+import LoadingProcessFull from '../../../components/LoadingProcessFull';
+import ModalMessage from '../../../components/ModalMessage';
+import {defaultAuthState} from '../../../config/Auth.cfg';
+import {LoginAPI} from '../../../config/RequestAPI/LoginAPI';
 import {colors} from '../../../utils/ColorsConfig/Colors';
+import {storeAsyncStorageObject} from '../../../utils/AsyncStorage/StoreAsyncStorage';
 // import styles from '../style/Login.style';
 
 const Login = ({navigation, route}) => {
-  const stateGlobal = useSelector(state => state);
-
   let _toggleCheckBox = false;
   if (route.params !== undefined && route.params.checked !== undefined) {
     _toggleCheckBox = route.params.checked;
   }
 
   const [data, setData] = useState(defaultAuthState);
-  const [ldap, setLdap] = useState(defaultAuthStateLogin);
   const [toggleCheckBox, setToggleCheckBox] = useState(_toggleCheckBox);
-  const [login, setLogin] = useState(true);
-  const [showLoading, setShowLoading] = useState(false);
+  const [loading, setLoading] = useState({visible: false, message: undefined});
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
 
   const expiredCheck = () => {
     // if not expired
@@ -44,39 +41,15 @@ const Login = ({navigation, route}) => {
     }
   };
 
-  const handleAuthorizeLdap = () => {
-    // dummy selagi server gagal
-    setShowLoading(true);
-    setTimeout(() => {
-      storeAsyncStorageObject('authState', {
-        hasLoggedInOnce: true,
-        token: 'cchyt23r423jr32vr',
-        expireAt: 0,
-        name: 'MUHAMMAD FARIZKO NURDITAMA EDIT',
-        email: '930241@TELKOM.CO.ID',
-        id: '1',
-        provider: 'ldap',
-        provider_id: '930241',
-      })
-        .then(() => {
-          setShowLoading(false);
-          navigation.replace('TabNavigation');
-        })
-        .catch(() => {
-          setShowLoading(false);
-        });
-    }, 500);
-  };
-
-  useEffect(() => {
-    prefetchConfiguration({
-      warmAndPrefetchChrome: Platform.OS === 'android',
-      ...AuthConfig,
-    });
-    getData().then(jsonValue => {
-      setData(jsonValue);
-    });
-  }, []);
+  // useEffect(() => {
+  //   prefetchConfiguration({
+  //     warmAndPrefetchChrome: Platform.OS === 'android',
+  //     ...AuthConfig,
+  //   });
+  //   getData().then(jsonValue => {
+  //     setData(jsonValue);
+  //   });
+  // }, []);
 
   useEffect(() => {
     if (data !== defaultAuthState) {
@@ -90,18 +63,44 @@ const Login = ({navigation, route}) => {
   const [invalidPassword, setInvalidPassword] = useState(true);
 
   const handleSignIn = () => {
-    email === '' ? setInvalidEmail(false) : setInvalidEmail(true);
-    password === '' ? setInvalidPassword(false) : setInvalidPassword(true);
-    if (email !== '' && password !== '') {
-      handleAuthorizeLdap();
+    email.trim() === '' ? setInvalidEmail(false) : setInvalidEmail(true);
+    password.trim() === ''
+      ? setInvalidPassword(false)
+      : setInvalidPassword(true);
+    if (email.trim() !== '' && password.trim() !== '') {
+      setLoading({...loading, visible: true});
+      LoginAPI(email, password, toggleCheckBox).then(res => {
+        setLoading({...loading, visible: false});
+        if (res.status === 'SUCCESS') {
+          storeAsyncStorageObject('@USER_TOKEN', res.data).then(() => {
+            navigation.replace('TabNavigation');
+          });
+        } else if (
+          res.status === 'SOMETHING_WRONG' ||
+          res.status === 'USER_NOT_FOUND' ||
+          res.status === 'UNAUTHORIZED' ||
+          res.status === 'SERVER_ERROR'
+        ) {
+          setMessageModal({
+            ...messageModal,
+            visible: true,
+            title: 'Failed',
+            message: res.message,
+            type: 'confused',
+          });
+        }
+      });
     }
   };
+
   const handleSignUp = () => {
     navigation.push('Register');
   };
+
   const handleForgotPassword = () => {
     navigation.push('ForgotPassword');
   };
+
   return (
     <View style={styles.container}>
       <View style={{alignItems: 'center'}}>
@@ -123,7 +122,6 @@ const Login = ({navigation, route}) => {
           keyboardType="email-address"
           onChangeText={text => {
             setEmail(text);
-            setLdap({...ldap, username: text});
           }}
         />
         <Text style={[styles.invalid, {opacity: invalidEmail ? 0 : 1}]}>
@@ -136,7 +134,6 @@ const Login = ({navigation, route}) => {
           secureTextEntry={true}
           onChangeText={text => {
             setPassword(text);
-            setLdap({...ldap, password: text});
           }}
         />
         <Text style={[styles.invalid, {opacity: invalidPassword ? 0 : 1}]}>
@@ -184,6 +181,24 @@ const Login = ({navigation, route}) => {
           </Text>
         </Text>
       </View>
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
+      {/* modal message */}
+      <ModalMessage
+        visible={messageModal.visible}
+        withIllustration
+        illustrationType={messageModal.type}
+        title={messageModal.title}
+        message={messageModal.message}
+        withBackButton
+        onBack={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+        onRequestClose={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+      />
     </View>
   );
 };

@@ -1,29 +1,49 @@
+import React, {useEffect, useRef, useState} from 'react';
 import {
-  Text,
-  View,
-  FlatList,
   Animated,
   Dimensions,
+  FlatList,
+  Text,
   TouchableOpacity,
+  View,
 } from 'react-native';
-import React, { useState, useRef, useEffect } from 'react';
-
-import slides from '../components/slides';
+import {RefreshTokenAPI} from '../../../config/RequestAPI/RefreshTokenAPI';
+import {
+  getAsyncStorageObject,
+  storeAsyncStorageObject,
+} from '../../../utils/AsyncStorage/StoreAsyncStorage';
+import jwt_decode from 'jwt-decode';
+import moment from 'moment';
 import OnboardingItem from '../components/OnboardingItem';
 import Paginator from '../components/Paginator';
-
+import slides from '../components/slides';
 import styles from '../style/Main.style';
 
-const Main = ({ navigation }) => {
+const Main = ({navigation}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [userToken, setUserToken] = useState(undefined);
   const scrollX = useRef(new Animated.Value(0)).current;
-  const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
+  const viewConfig = useRef({viewAreaCoveragePercentThreshold: 50}).current;
   const slidesRef = useRef(null);
-  const viewableItemsChanged = useRef(({ viewableItems }) => {
+  const viewableItemsChanged = useRef(({viewableItems}) => {
     setCurrentIndex(viewableItems[0].index);
   }).current;
 
-  const { width } = Dimensions.get('window');
+  const {width} = Dimensions.get('window');
+
+  const expiredCheck = () => {
+    let decodedToken = undefined;
+    try {
+      decodedToken = jwt_decode(userToken.authToken);
+    } catch (e) {
+      console.log(e);
+    }
+    if (decodedToken?.exp > moment().unix()) {
+      return false;
+    } else {
+      return true;
+    }
+  };
 
   useEffect(() => {
     let scrollValue = 0,
@@ -31,23 +51,52 @@ const Main = ({ navigation }) => {
 
     const intervalId = setInterval(() => {
       scrolled++;
-      if (scrolled < slides.length) { scrollValue = scrollValue + width; }
-      else {
+      if (scrolled < slides.length) {
+        scrollValue = scrollValue + width;
+      } else {
         scrollValue = 0;
         scrolled = 0;
       }
 
-      slidesRef.current.scrollToOffset({ animated: true, offset: scrollValue });
+      slidesRef.current.scrollToOffset({animated: true, offset: scrollValue});
     }, 3000);
     return () => clearInterval(intervalId);
   }, [width]);
+
+  useEffect(() => {
+    getAsyncStorageObject('@USER_TOKEN').then(res => {
+      setUserToken(res);
+    });
+  }, []);
+
+  const handleRefreshToken = () => {
+    if (userToken !== undefined) {
+      if (userToken === null) {
+        navigation.replace('Login', {checked: false});
+      } else {
+        if (!expiredCheck()) {
+          RefreshTokenAPI(userToken.refreshToken).then(res => {
+            if (res.status === 'SUCCESS') {
+              storeAsyncStorageObject('@USER_TOKEN', res.data).then(() => {
+                navigation.replace('TabNavigation');
+              });
+            } else {
+              navigation.replace('Login', {checked: false});
+            }
+          });
+        } else {
+          navigation.replace('Login', {checked: false});
+        }
+      }
+    }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.flatlist}>
         <FlatList
           data={slides}
-          renderItem={({ item }) => <OnboardingItem item={item} />}
+          renderItem={({item}) => <OnboardingItem item={item} />}
           horizontal
           showsHorizontalScrollIndicator={false}
           pagingEnabled
@@ -57,11 +106,11 @@ const Main = ({ navigation }) => {
             [
               {
                 nativeEvent: {
-                  contentOffset: { x: scrollX },
+                  contentOffset: {x: scrollX},
                 },
               },
             ],
-            { useNativeDriver: false },
+            {useNativeDriver: false},
           )}
           scrollEventThrottle={32}
           onViewableItemsChanged={viewableItemsChanged}
@@ -73,7 +122,11 @@ const Main = ({ navigation }) => {
         />
       </View>
       <Paginator data={slides} scrollX={scrollX} />
-      <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Login', { checked: false })}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          handleRefreshToken();
+        }}>
         <Text style={styles.getstarted}>Get Started</Text>
       </TouchableOpacity>
     </View>
