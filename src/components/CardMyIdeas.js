@@ -5,28 +5,33 @@ import fonts from '../utils/FontsConfig/Fonts';
 import Divider from './Divider';
 import Gap from './Gap';
 
-const CardMyIdeas = ({myIdeas = []}) => {
+const CardMyIdeas = ({myIdeas = [], showAll = false, showLimit = 2}) => {
+  const ideas = showAll ? myIdeas : myIdeas.slice(0, showLimit);
   return (
     <>
-      {myIdeas.map((item, index) => {
+      {ideas?.map((item, index) => {
         return (
           <TouchableOpacity
             key={index.toString()}
             onPress={() => {
-              console.log(`index ${index} clicked`);
+              console.log(`index ${item.id} ${item.desc[0].value} clicked`);
             }}>
             <View style={styles.main}>
-              <Image style={styles.picture} source={item.picture} />
+              {/* <Image style={styles.picture} source={item.picture} /> */}
+              <Image
+                style={styles.picture}
+                source={require('../assets/image/img_dummy_my_idea_1.png')}
+              />
               <Gap width={12} />
               <Text numberOfLines={4} style={styles.title}>
-                {item.title}
+                {item.desc[0].value}
               </Text>
             </View>
             <Gap height={8} />
             <Text numberOfLines={2} style={styles.desc}>
-              {item.desc}
+              {item.desc[1].value}
             </Text>
-            {index + 1 !== myIdeas.length && (
+            {index + 1 !== ideas.length && (
               <>
                 <Gap height={8} />
                 <Divider lineColors={colors.divider2} />

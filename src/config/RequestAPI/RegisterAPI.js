@@ -45,7 +45,7 @@ const RegisterAPI = (
       })
       .catch(error => {
         // console.log(error.response.data);
-        if (error.response.status === 422) {
+        if (error.response?.status === 422) {
           resolve({
             status: 'FIELD_ERROR',
             message:

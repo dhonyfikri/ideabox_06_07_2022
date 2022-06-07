@@ -1,6 +1,9 @@
-import {useScrollToTop} from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
+import axios from 'axios';
+import jwtDecode from 'jwt-decode';
 import React, {useEffect, useRef, useState} from 'react';
 import {
+  FlatList,
   Image,
   RefreshControl,
   SafeAreaView,
@@ -13,57 +16,18 @@ import {
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import {RadioButton} from 'react-native-paper';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import {useDispatch, useSelector} from 'react-redux';
 import CardContentNew from '../../../components/CardContentNew';
-import getData from '../../../components/GetData';
-import {defaultAuthState} from '../../../config/Auth.cfg';
-import {GetDataIdea} from '../../../config/GetData/GetDataIdea';
-import CommentIdea from '../../../config/PostData/Comment';
-import JoinIdea from '../../../config/PostData/JoinIdea';
-import PromoteIdea from '../../../config/PostData/PromoteIdea';
-import styles from '../style/Explore.style';
+import ModalMessage from '../../../components/ModalMessage';
+import {ApiGatewayBaseUrl} from '../../../config/Environment.cfg';
+import {GetIdeasAPI} from '../../../config/RequestAPI/IdeaAPI';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
+import styles from '../style/Explore.style';
 
 const ExploreContent = ({navigation, route}) => {
-  const dispatch = useDispatch();
-  const stateGlobal = useSelector(state => state);
-
-  const [isLoading, setLoading] = useState(true);
-  const [idLike, setIdLike] = useState(null);
-  const [idCommentReply, setIdCommentReply] = useState(null);
-  const [nameReply, setNameReply] = useState(null);
   const [data, setData] = useState({isSet: false, data: []});
-  const [data2, setData2] = useState(null);
-  const [modalComment, setModalComment] = useState(false);
-  const [modalJoinVisible, setModalJoinVisible] = useState(false);
-  const [modalPromoteVisible, setModalPromoteVisible] = useState(false);
-  const [modalBottom, setModalBottom] = useState(false);
-  const [hasil, setHasil] = useState('');
-  const [value, setValue] = useState('');
-  const [idIdea, setIdIdea] = useState(0);
-  const [idIdeaJoin, setIdIdeaJoin] = useState(0);
-  const [idComment, setIdComment] = useState(null);
-  const [idUser, setIdUser] = useState(null);
-  const [join, setJoin] = useState(null);
-  const [promote, setPromote] = useState(null);
-  const [textJoin, setTextJoin] = useState('');
-  const [textPromote, setTextPromote] = useState('');
-  const [like, setLike] = useState(false);
-  const [success, setSuccess] = useState(null);
-  const [dataAsync, setDataAsync] = useState(defaultAuthState);
-  const [imageLike, setImageLike] = useState(
-    require('../../../assets/icon/loveFalse.png'),
-  );
-  const [comment, setComment] = useState('');
-  const [replyComment, setReplyComment] = useState('');
-  const getDataIdea = dataSearch => {
-    setHasil(dataSearch);
-  };
-  const [change, setChange] = useState(false);
-
+  const [listUserData, setListUserData] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(false);
-  const [showRefreshButton, setShowRefreshButton] = useState(false);
   const [search, setSearch] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [searchClick, setSearchClick] = useState('');
@@ -72,6 +36,14 @@ const ExploreContent = ({navigation, route}) => {
   const [mostLikedIdea, setMostLikedIdea] = useState(false);
   const [mostCommentedIdea, setMostCommentedIdea] = useState(false);
   const [mostProductiveInovator, setMostProductiveInovator] = useState(false);
+
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
 
   //filter
   const refRBSheet = useRef();
@@ -82,141 +54,119 @@ const ExploreContent = ({navigation, route}) => {
   const [checked4, setChecked4] = useState(false);
   const [checked5, setChecked5] = useState(false);
   const [checked6, setChecked6] = useState(false);
-  const [expand, setExpand] = useState(true);
 
   const fetchIdeas = withIndicator => {
     if (withIndicator) {
       setFetchLoading(true);
-      setHasil('');
     }
-    GetDataIdea().then(res => {
-      setFetchLoading(false);
-      if (res) {
-        setData({isSet: true, data: res});
-      } else {
-        setShowRefreshButton(true);
+    GetIdeasAPI(route.params?.userToken?.authToken).then(res => {
+      if (res.status === 'SUCCESS') {
+        // ini untuk mensiasati API get all user yang belum bisa digunakan. jadi list user hanya diambil dari orang yang sudah pernah submit ide
+        // ya Allah... masa nyusun data yang harusnya di BE malah diakalan dari FE :'(
+        let fixResult = [];
+        let uniqueUserId = [];
+        res.data.map(item => {
+          uniqueUserId.push(item.createdBy);
+          item.like.map(item => {
+            uniqueUserId.push(item.createdBy);
+          });
+          item.comment.map(item => {
+            uniqueUserId.push(item.createdBy);
+          });
+          uniqueUserId.push(
+            jwtDecode(route.params?.userToken?.authToken).data.id,
+          );
+        });
+        if (res.data.length > 0) {
+          uniqueUserId = [...new Set(uniqueUserId)];
+        }
+        const request = userId => {
+          return axios.get(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${route.params?.userToken?.authToken}`,
+              Tenant: `https://${
+                jwtDecode(route.params?.userToken?.authToken).data
+                  .tenantSubdomain
+              }.ideaboxapp.com`,
+            },
+          });
+        };
+
+        const listUser = [];
+        const listGetUserRequest = [];
+
+        uniqueUserId.map(item => {
+          listGetUserRequest.push(request(item));
+        });
+
+        axios
+          .all(listGetUserRequest)
+          .then(
+            axios.spread((...responses) => {
+              setFetchLoading(false);
+              responses.map(item => {
+                if (item.data.data.length > 0) {
+                  listUser.push(item.data.data[0]);
+                }
+              });
+              // console.log(listUser);
+              res.data.map(item => {
+                const tempItem = item;
+                listUser.map(item => {
+                  if (item.id === tempItem.createdBy) {
+                    tempItem.user = item;
+                  }
+                });
+                fixResult.push(tempItem);
+              });
+              setData({isSet: true, data: fixResult});
+              setListUserData(listUser);
+            }),
+          )
+          .catch(errors => {
+            setFetchLoading(false);
+            console.log(errors);
+            setData({...data, isSet: true});
+          });
+
+        // setData({isSet: true, data: res.data});
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'NOT_FOUND' ||
+        res.status === 'UNDEFINED_HEADER' ||
+        res.status === 'UNAUTHORIZED' ||
+        res.status === 'SERVER_ERROR'
+      ) {
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Failed',
+          message: res.message,
+          type: 'confused',
+        });
       }
     });
   };
 
-  // ambil data authstate sekali
   useEffect(() => {
-    getData().then(jsonValue => {
-      setDataAsync(jsonValue);
+    if (route.params?.userToken) {
       fetchIdeas(true);
-    });
+    }
   }, []);
 
+  // ini cara untuk memicu refresh ketika dibutuhkan.
   useEffect(() => {
-    fetchIdeas(false);
-  }, [like]);
+    if (route.params?.refresh?.status) {
+      fetchIdeas(true);
+    }
+    if (route.params?.refresh?.status) {
+      navigation.setParams({
+        ...route.params,
+        refresh: {status: false},
+      });
+    }
+  }, [route.params?.refresh]);
 
-  useEffect(() => {
-    fetchIdeas(false);
-    setComment('');
-    setReplyComment('');
-  }, [success]);
-
-  const ref = useRef(null);
-  useScrollToTop(ref);
-
-  const suggestions = [
-    {id: '1', name: 'David Tabaka'},
-    {id: '2', name: 'Mary'},
-    {id: '3', name: 'Tony'},
-    {id: '4', name: 'Mike'},
-    {id: '5', name: 'Grey'},
-  ];
-
-  // const handleLike = id => {
-  //   LikeIdea(id, dataAsync.id).then(val => setLike(val));
-  //   setIdLike(id);
-  //   setChange(false);
-  // };
-  const handleComment = text => {
-    CommentIdea(idComment, text, 0, dataAsync.id).then(val => setSuccess(val));
-  };
-  const handleReplyComment = text => {
-    CommentIdea(idComment, text, idCommentReply, dataAsync.id).then(val =>
-      setSuccess(val),
-    );
-  };
-  const handleJoin = () => {
-    JoinIdea(idIdeaJoin, idUser, textJoin).then(val => setJoin(val));
-  };
-  const handlePromote = () => {
-    PromoteIdea(idIdeaJoin, textPromote).then(val => setPromote(val));
-  };
-  // Sugesstion
-  // const renderSuggestions = ({keyword, onSuggestionPress}) => {
-  //   if (keyword == null) {
-  //     return null;
-  //   }
-  //   return (
-  //     <View style={{position: 'relative', flex: 1}}>
-  //       <ScrollView
-  //         showsVerticalScrollIndicator={false}
-  //         style={{
-  //           height: 200,
-  //           backgroundColor: '#FFFFFF',
-  //           width: windowWidth - 22,
-  //           borderColor: '#085D7A',
-  //           top: -1,
-  //           borderBottomWidth: 0.5,
-  //         }}>
-  //         {suggestions
-  //           .filter(one =>
-  //             one.name
-  //               .toLocaleLowerCase()
-  //               .includes(keyword.toLocaleLowerCase()),
-  //           )
-  //           .map(one => (
-  //             <Pressable
-  //               key={one.id}
-  //               onPress={() => onSuggestionPress(one)}
-  //               style={{padding: 12}}>
-  //               <Text>{one.name}</Text>
-  //             </Pressable>
-  //           ))}
-  //       </ScrollView>
-  //     </View>
-  //   );
-  // };
-  // End Sugesstion
-  const getDataSuccess = data => {
-    setSuccess(data);
-  };
-  const getDataJoin = data => {
-    setJoin(data);
-  };
-  const getDataPromote = data => {
-    setPromote(data);
-  };
-  const getDataChange = data => {
-    setChange(data);
-  };
-  if (change === true) {
-    fetchIdeas(false);
-    setChange(false);
-  }
-  // const onShare = async id => {
-  //   try {
-  //     const result = await Share.share({
-  //       message: 'https://dev-ideabox.digitalamoeba.id/ideabox/ideas/' + {id},
-  //     });
-  //     if (result.action === Share.sharedAction) {
-  //       if (result.activityType) {
-  //         // shared with activity type of result.activityType
-  //       } else {
-  //         // shared
-  //       }
-  //     } else if (result.action === Share.dismissedAction) {
-  //       // dismissed
-  //     }
-  //   } catch (error) {
-  //     alert(error.message);
-  //   }
-  // };
   const CheckboxComponent = props => {
     return (
       <View
@@ -248,6 +198,7 @@ const ExploreContent = ({navigation, route}) => {
       </View>
     );
   };
+
   const RadioButtonComponent = props => {
     return (
       <View
@@ -266,6 +217,7 @@ const ExploreContent = ({navigation, route}) => {
       </View>
     );
   };
+
   const ContainerHistory = props => {
     return (
       <View style={styles.containerHistory}>
@@ -283,6 +235,7 @@ const ExploreContent = ({navigation, route}) => {
       </View>
     );
   };
+
   const SearchHistory = () => {
     return (
       <View>
@@ -295,6 +248,7 @@ const ExploreContent = ({navigation, route}) => {
       </View>
     );
   };
+
   const ContainerLikeComment = props => {
     return (
       <View style={styles.containerMost}>
@@ -352,6 +306,7 @@ const ExploreContent = ({navigation, route}) => {
       </View>
     );
   };
+
   const MostLikedIdea = () => {
     return (
       <View style={{padding: 16}}>
@@ -412,6 +367,7 @@ const ExploreContent = ({navigation, route}) => {
       </View>
     );
   };
+
   const MostCommentedIdea = () => {
     return (
       <View style={{padding: 16}}>
@@ -452,6 +408,7 @@ const ExploreContent = ({navigation, route}) => {
       </View>
     );
   };
+
   const ContainerProductive = props => {
     return (
       <View style={styles.containerMost}>
@@ -492,6 +449,7 @@ const ExploreContent = ({navigation, route}) => {
       </View>
     );
   };
+
   const MostProductive = () => {
     return (
       <View style={{padding: 16}}>
@@ -523,6 +481,7 @@ const ExploreContent = ({navigation, route}) => {
       </View>
     );
   };
+
   const MenuSearch = () => {
     return (
       <View>
@@ -624,6 +583,7 @@ const ExploreContent = ({navigation, route}) => {
       </View>
     );
   };
+
   const OutputSearch = () => {
     return (
       <View
@@ -911,85 +871,114 @@ const ExploreContent = ({navigation, route}) => {
   }
   return (
     <SafeAreaView style={styles.container}>
-      <>
-        <View style={{padding: 16}}>
-          <TouchableOpacity
-            activeOpacity={1}
-            style={styles.searchBar}
-            onPress={() => {
-              setSearch(true);
-              setSearchClick('');
-            }}>
-            <Text style={styles.inputSearch}>Search...</Text>
-            <View style={styles.iconSearchContainer}>
-              <Image
-                source={require('../../../assets/icon/searchnew.png')}
-                style={styles.iconSearch}
-              />
-            </View>
-          </TouchableOpacity>
-        </View>
+      <View style={{padding: 16}}>
+        <TouchableOpacity
+          activeOpacity={1}
+          style={styles.searchBar}
+          onPress={() => {
+            setSearch(true);
+            setSearchClick('');
+          }}>
+          <Text style={styles.inputSearch}>Search...</Text>
+          <View style={styles.iconSearchContainer}>
+            <Image
+              source={require('../../../assets/icon/searchnew.png')}
+              style={styles.iconSearch}
+            />
+          </View>
+        </TouchableOpacity>
+      </View>
 
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={fetchLoading}
+            onRefresh={() => fetchIdeas(true)}
+            colors={['#085D7A']} // add more array value to switching colors while progressing
+          />
+        }
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: 'center',
+          padding: data.isSet && data.data.length === 0 ? 20 : 0,
+          paddingBottom: 20,
+        }}>
         {data.isSet && data.data.length === 0 ? (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              flexGrow: 1,
-              justifyContent: 'center',
-              padding: 20,
-            }}
-            refreshControl={
-              <RefreshControl
-                refreshing={fetchLoading}
-                onRefresh={() => fetchIdeas(true)}
-                colors={['#085D7A']} // add more array value to switching colors while progressing
-              />
-            }>
-            <Text
-              style={{
-                textAlign: 'center',
-                fontSize: 18,
-                color: colors.text.secondary,
-                fontFamily: fonts.secondary[400],
-              }}>
-              List of ideas not yet available
-            </Text>
-          </ScrollView>
+          <Text
+            style={{
+              textAlign: 'center',
+              fontSize: 15,
+              color: colors.text.secondary,
+              fontFamily: fonts.secondary[400],
+            }}>
+            List of ideas not yet available
+          </Text>
         ) : (
           <>
-            <ScrollView
-              ref={ref}
-              refreshControl={
-                <RefreshControl
-                  refreshing={fetchLoading}
-                  onRefresh={() => fetchIdeas(true)}
-                  colors={['#085D7A']} // add more array value to switching colors while progressing
+            <FlatList
+              data={data.data}
+              keyExtractor={(_, index) => index.toString()}
+              scrollEnabled={false}
+              showsVerticalScrollIndicator={false}
+              inverted={false}
+              renderItem={({item, index}) => (
+                <CardContentNew
+                  ideaId={item.id}
+                  userToken={route.params?.userToken}
+                  creatorId={item.user?.id}
+                  creatorName={item.user?.name?.replace(
+                    /(?:^|\s)\S/g,
+                    function (a) {
+                      return a.toUpperCase();
+                    },
+                  )}
+                  listUser={listUserData}
+                  title={item.desc[0].value}
+                  description={item.desc[1].value}
+                  likes={item.like}
+                  // totalComments={item.totalComment}
+                  comments={item.comment}
+                  // onLikeOrComment={() => fetchIdeas(true)}
+                  onIdeaPress={ideaId =>
+                    navigation.navigate('DetailIdea', {
+                      ideaId: ideaId,
+                      userToken: route.params?.userToken,
+                      creatorData: item.user,
+                      listUser: listUserData,
+                      ideaDataList: data.data,
+                    })
+                  }
+                  onCreatorPress={creatorId =>
+                    navigation.navigate('MyProfile', {
+                      editable: false,
+                      userId: creatorId,
+                      userToken: route.params?.userToken,
+                      ideaData: data.data,
+                    })
+                  }
                 />
-              }>
-              <CardContentNew
-                onIdeaPress={() =>
-                  navigation.navigate('DetailIdeaUser', {ideaId: 4})
-                }
-              />
-              <CardContentNew
-                onIdeaPress={() =>
-                  navigation.navigate('DetailIdeaUser', {ideaId: 4})
-                }
-              />
-              <CardContentNew
-                onIdeaPress={() =>
-                  navigation.navigate('DetailIdeaUser', {ideaId: 4})
-                }
-              />
-              <CardContentNew
-                onIdeaPress={() =>
-                  navigation.navigate('DetailIdeaUser', {ideaId: 4})
-                }
-              />
-            </ScrollView>
+              )}
+            />
           </>
         )}
-      </>
+      </ScrollView>
+      {/* modal message */}
+      <ModalMessage
+        visible={messageModal.visible}
+        withIllustration
+        illustrationType={messageModal.type}
+        title={messageModal.title}
+        message={messageModal.message}
+        withBackButton
+        onBack={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+        onRequestClose={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+      />
     </SafeAreaView>
   );
 };

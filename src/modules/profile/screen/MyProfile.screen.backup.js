@@ -18,11 +18,7 @@ import EditMyProfile from '../../../components/EditMyProfile';
 import EditMySkills from '../../../components/EditMySkills';
 import Gap from '../../../components/Gap';
 import Header from '../../../components/Header';
-import LoadingProcessFull from '../../../components/LoadingProcessFull';
 import ModalEditProfile from '../../../components/ModalEditProfile';
-import ModalMessage from '../../../components/ModalMessage';
-import RefreshFull from '../../../components/RefreshFull';
-import {GetUserById} from '../../../config/RequestAPI/UserAPI';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
 
@@ -37,13 +33,11 @@ const MyProfile = ({navigation, route}) => {
   const openModalDiscardAddAchievementReff = useRef(null);
   const openModalDiscardEditAchievementReff = useRef(null);
 
+  const [myAbout, setMyAbout] = useState('');
   const [mySkills, setMySkills] = useState([]);
   const [myAchivements, setMyAchivements] = useState([]);
-  const [profileData, setProfileData] = useState(
-    route.params?.existingProfileData !== undefined
-      ? route.params?.existingProfileData
-      : {},
-  );
+  const [myIdeas, setMyIdeas] = useState([]);
+  const [profileData, setProfileData] = useState(route.params.profileData);
 
   const [modalEditBackgroundPhotoVisible, setModalEditBackgroundPhotoVisible] =
     useState(false);
@@ -58,79 +52,24 @@ const MyProfile = ({navigation, route}) => {
     useState(false);
   const [modalEditAchievemensVisible, setModalEditAchievemensVisible] =
     useState(false);
-  const [showAllMyIdeas, setShowAllMyIdeas] = useState(false);
 
   const [achievementIndexToEdit, setAchievementIndexToEdit] = useState(null);
-
-  const [showRefreshBUtton, setShowRefreshButton] = useState(false);
-  const [loading, setLoading] = useState({
-    visible: route.params?.existingProfileData !== undefined ? false : true,
-    message: 'Please wait',
-  });
-  const [isChanged, setIsChanged] = useState(false);
-
-  const myIdeaList = route.params?.ideaData?.filter(
-    item => item.createdBy === route.params?.userId,
-  );
-
-  let countLike = 0;
-  let countComment = 0;
-  myIdeaList?.map(item => {
-    countLike = countLike + parseInt(item.totalLike);
-    countComment = countComment + parseInt(item.totalComment);
-  });
 
   // example to get route index
   const routeIndex = useNavigationState(state => state.index);
 
-  const fetchUserData = () => {
-    setLoading({...loading, visible: true});
-    GetUserById(route.params?.userToken, route.params?.userId).then(res => {
-      setLoading({...loading, visible: false});
-      if (res.status === 'SUCCESS') {
-        if (res.data.length > 0) {
-          setProfileData(res.data[0]);
-        }
-      } else if (
-        res.status === 'SOMETHING_WRONG' ||
-        res.status === 'FAILED' ||
-        res.status === 'SERVER_ERROR'
-      ) {
-        setShowRefreshButton(true);
-      }
-    });
-  };
-
-  const setChanged = () => {
-    if (!isChanged) {
-      setIsChanged(true);
-    }
-  };
-
   const backToPreviousPage = () => {
     if (routeIndex > 0) {
-      if (route.params?.fromPage === 'USER_SCREEN') {
-        if (isChanged) {
-          navigation.navigate('TabNavigation', {
-            screen: 'Profile',
-            params: {
-              updatedProfileData: profileData,
-              userToken: route.params?.userToken,
-              ideaData: route.params?.ideaData,
-            },
-          });
-        } else {
-          navigation.goBack();
-        }
-      } else {
-        navigation.goBack();
-      }
+      navigation.goBack();
     } else {
       navigation.replace('TabNavigation');
     }
   };
 
   useEffect(() => {
+    setMyAbout(
+      'Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet. Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet',
+    );
     setMySkills([
       'UI/UX Designer',
       'Product Owner',
@@ -149,12 +88,18 @@ const MyProfile = ({navigation, route}) => {
         date: '18/03/2016',
       },
     ]);
-  }, []);
-
-  useEffect(() => {
-    if (profileData.id === undefined) {
-      fetchUserData();
-    }
+    setMyIdeas([
+      {
+        title: 'Sistem Keuangan Berbasis Web untuk UMKM',
+        desc: 'Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit',
+        picture: require('../../../assets/image/img_dummy_my_idea_1.png'),
+      },
+      {
+        title: 'Sistem Keuangan Berbasis Web untuk UMKM',
+        desc: 'Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit',
+        picture: require('../../../assets/image/img_dummy_my_idea_2.png'),
+      },
+    ]);
   }, []);
 
   useBackHandler(() => {
@@ -173,25 +118,15 @@ const MyProfile = ({navigation, route}) => {
       <ScrollView>
         <CardProfileMainContent
           editable={editableProfile}
-          profilePhoto={profileData.pictures}
-          backgroundPhoto={profileData.background}
+          profilePhoto={profileData.profilePhoto}
+          backgroundPhoto={profileData.backgroundPhoto}
           name={profileData.name}
           teamStructure={profileData.teamStructure}
-          job={
-            profileData.pekerjaan !== '' && profileData.pekerjaan !== null
-              ? profileData.pekerjaan
-              : 'Job Unknown'
-          }
-          location={
-            profileData.workingLocation !== '' &&
-            profileData.workingLocation !== null &&
-            profileData.workingLocation !== undefined
-              ? profileData.workingLocation
-              : 'Location Unknown'
-          }
-          numberOfIdeas={myIdeaList?.length}
-          numberOfLikes={countLike}
-          numberOfComments={countComment}
+          job={profileData.job}
+          location={profileData.location}
+          numberOfIdeas={profileData.numberOfIdeas}
+          numberOfLikes={profileData.numberOfLikes}
+          numberOfComments={profileData.numberOfComments}
           onEditBackgroundPhotoPress={() =>
             setModalEditBackgroundPhotoVisible(true)
           }
@@ -204,15 +139,7 @@ const MyProfile = ({navigation, route}) => {
             title="About"
             withEditButton
             onEditPress={() => setModalEditAboutVisible(true)}>
-            {profileData.bio !== undefined && (
-              <Text
-                style={{
-                  ...styles.aboutText,
-                  textAlign: profileData.bio !== '' ? 'justify' : 'center',
-                }}>
-                {profileData.bio !== '' ? profileData.bio : 'No Biography'}
-              </Text>
-            )}
+            {myAbout !== '' && <Text style={styles.aboutText}>{myAbout}</Text>}
           </CardDetailProfileContent>
           <Gap height={16} />
           <CardDetailProfileContent
@@ -237,10 +164,10 @@ const MyProfile = ({navigation, route}) => {
           <Gap height={16} />
           <CardDetailProfileContent
             title="Ideas"
-            withTextAction={!showAllMyIdeas}
+            withTextAction
             textAction="View All Ideas"
-            onTextActionPress={() => setShowAllMyIdeas(true)}>
-            <CardMyIdeas myIdeas={myIdeaList} showAll={showAllMyIdeas} />
+            onTextActionPress={() => console.log('Show More Ideas Clicked')}>
+            <CardMyIdeas myIdeas={myIdeas} />
           </CardDetailProfileContent>
         </View>
       </ScrollView>
@@ -255,14 +182,13 @@ const MyProfile = ({navigation, route}) => {
         }>
         <EditMyBackgroundPhoto
           openModalDiscardReff={openModalDiscardEditBackgroundPhotoReff}
-          backgroundPhoto={profileData.background}
+          backgroundPhoto={profileData.backgroundPhoto}
           onSavePress={newBackgroundPhoto => {
             setModalEditBackgroundPhotoVisible(false);
             setProfileData({
               ...profileData,
-              background: newBackgroundPhoto,
+              backgroundPhoto: newBackgroundPhoto,
             });
-            setChanged();
           }}
           onDiscardPress={() => setModalEditBackgroundPhotoVisible(false)}
         />
@@ -288,11 +214,10 @@ const MyProfile = ({navigation, route}) => {
               setProfileData({
                 ...profileData,
                 ...newProfileData,
-                pictures: profileData.profilePhoto,
+                profilePhoto: profileData.profilePhoto,
               });
             }
             setModalEditProfileVisible(false);
-            setChanged();
           }}
           onDiscardPress={() => setModalEditProfileVisible(false)}
         />
@@ -300,14 +225,11 @@ const MyProfile = ({navigation, route}) => {
 
       {/* modal contact info */}
       <ModalEditProfile
-        title={profileData.name?.replace(/(?:^|\s)\S/g, function (a) {
-          return a.toUpperCase();
-        })}
+        title="Elon Murz"
         visible={modalContactInfoVisible}
         onRequestClose={() => setModalContactInfoVisible(false)}
         onCloseButtonPress={() => setModalContactInfoVisible(false)}>
-        <ContactDetail email={profileData.email} phone={profileData.noTelp} />
-        <Gap height={14} />
+        <ContactDetail email={profileData.email} phone={profileData.phone} />
       </ModalEditProfile>
 
       {/* modal edit my about */}
@@ -318,12 +240,10 @@ const MyProfile = ({navigation, route}) => {
         onCloseButtonPress={() => openModalDiscardEditAboutReff.current()}>
         <EditMyAbout
           openModalDiscardReff={openModalDiscardEditAboutReff}
-          userToken={route.params?.userToken}
-          text={profileData.bio}
+          text={myAbout}
           onSavePress={newAbout => {
             setModalEditAboutVisible(false);
-            setProfileData({...profileData, bio: newAbout});
-            setChanged();
+            setMyAbout(newAbout);
           }}
           onDiscardPress={() => setModalEditAboutVisible(false)}
         />
@@ -436,17 +356,6 @@ const MyProfile = ({navigation, route}) => {
           }}
         />
       </ModalEditProfile>
-
-      <LoadingProcessFull visible={loading.visible} message={loading.message} />
-
-      <RefreshFull
-        visible={showRefreshBUtton}
-        onPress={() => {
-          setShowRefreshButton(false);
-          fetchUserData();
-        }}
-        onBackPress={() => navigation.goBack()}
-      />
     </View>
   );
 };

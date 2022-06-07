@@ -96,6 +96,8 @@ import IcCalendarOrange from './ic_calendar_orange.svg';
 import IcChevronDownOrange from './ic_chevron_down_orange.svg';
 import IcAddOrangeRounded from './ic_add_orange_rounded.svg';
 import IcCopyClipboard from './ic_copy_clipboard.svg';
+import IcLikeActive from './ic_like_active.svg';
+import IcLikeInactive from './ic_like_inactive.svg';
 
 export {
   IconEvent,
@@ -196,4 +198,6 @@ export {
   IcChevronDownOrange,
   IcAddOrangeRounded,
   IcCopyClipboard,
+  IcLikeActive,
+  IcLikeInactive,
 };

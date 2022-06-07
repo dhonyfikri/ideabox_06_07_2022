@@ -12,6 +12,7 @@ import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import Dot from './Dot';
 import Gap from './Gap';
+import {InitialIcon} from './InitialIcon';
 
 const CardProfileMainContent = ({
   editable,
@@ -33,6 +34,18 @@ const CardProfileMainContent = ({
       <View style={styles.photoWrapper}>
         <View style={styles.backgroundPhotoContainer}>
           <Image
+            style={{
+              ...styles.imageBackground,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+            }}
+            resizeMode="cover"
+            source={require('../assets/image/img_default_photo_background.png')}
+          />
+          <Image
             style={styles.imageBackground}
             resizeMode="cover"
             source={
@@ -52,7 +65,7 @@ const CardProfileMainContent = ({
           )}
         </View>
         <View style={styles.profilePhotoContainer}>
-          <Image
+          {/* <Image
             style={{
               ...styles.imageProfile,
               position: 'absolute',
@@ -61,7 +74,10 @@ const CardProfileMainContent = ({
             }}
             resizeMode="cover"
             source={require('../assets/image/fotoProfile.png')}
-          />
+          /> */}
+          <View style={{position: 'absolute', top: 0, left: 0}}>
+            <InitialIcon width={80} height={80} name={name} fontSize={25} />
+          </View>
           <Image
             style={styles.imageProfile}
             resizeMode="cover"
@@ -80,14 +96,20 @@ const CardProfileMainContent = ({
       <View style={{marginHorizontal: 15}}>
         <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
           <Text style={styles.nameText}>
-            {name}
+            {name?.replace(/(?:^|\s)\S/g, function (a) {
+              return a.toUpperCase();
+            })}
             <Gap width={8} />
             <Text style={styles.teamStructureText}>
               {teamStructure && '(' + teamStructure + ')'}
             </Text>
           </Text>
         </View>
-        <Text style={styles.positionText}>{job}</Text>
+        <Text style={styles.positionText}>
+          {job?.replace(/(?:^|\s)\S/g, function (a) {
+            return a.toUpperCase();
+          })}
+        </Text>
         <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
           <Text style={styles.locationText}>
             {location}

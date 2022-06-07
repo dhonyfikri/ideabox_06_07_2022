@@ -1,13 +1,13 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import React from 'react';
 import {
+  Dimensions,
   Image,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Dimensions,
 } from 'react-native';
 import {
   IcDashboardActive,
@@ -20,7 +20,9 @@ import {
   IcUserInactive,
 } from '../assets/icon';
 import MainCreateIdea from '../modules/createidea/screen/MainCreateIdea';
-import Explore from '../modules/explore/screen/Explore.route';
+import DashboardPage from '../modules/dashboard/screen/Dashboard.screen';
+import Event from '../modules/event/screen/Event.screen';
+import ExploreContent from '../modules/explore/screen/ExploreContent.screen';
 import Profile from '../modules/profile/screen/Profile.screen';
 import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
@@ -127,7 +129,10 @@ const TabNavigation = ({navigation, route}) => {
           }}>
           <Tab.Screen
             name="Home"
-            component={Explore}
+            component={ExploreContent}
+            initialParams={{
+              userToken: route.params?.userToken,
+            }}
             options={{
               headerShown: false,
               tabBarIcon: ({focused}) => (
@@ -141,16 +146,7 @@ const TabNavigation = ({navigation, route}) => {
           />
           <Tab.Screen
             name="Events"
-            component={() => (
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text>Events</Text>
-              </View>
-            )}
+            component={Event}
             options={{
               headerShown: false,
               tabBarIcon: ({focused}) => (
@@ -165,6 +161,7 @@ const TabNavigation = ({navigation, route}) => {
           <Tab.Screen
             name="Create"
             component={MainCreateIdea}
+            initialParams={{userToken: route.params?.userToken}}
             options={{
               headerShown: false,
               tabBarIcon: ({focused}) => (
@@ -191,16 +188,7 @@ const TabNavigation = ({navigation, route}) => {
           />
           <Tab.Screen
             name="Dashboard"
-            component={() => (
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text>Dashboard</Text>
-              </View>
-            )}
+            component={DashboardPage}
             options={{
               headerShown: false,
               tabBarIcon: ({focused}) => (
@@ -217,6 +205,9 @@ const TabNavigation = ({navigation, route}) => {
           <Tab.Screen
             name="Profile"
             component={Profile}
+            initialParams={{
+              userToken: route.params?.userToken,
+            }}
             options={{
               headerShown: false,
               tabBarIcon: ({focused}) => (

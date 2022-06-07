@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  StatusBar,
 } from 'react-native';
 import {RefreshTokenAPI} from '../../../config/RequestAPI/RefreshTokenAPI';
 import {
@@ -18,10 +19,12 @@ import OnboardingItem from '../components/OnboardingItem';
 import Paginator from '../components/Paginator';
 import slides from '../components/slides';
 import styles from '../style/Main.style';
+import LoadingProcessFull from '../../../components/LoadingProcessFull';
 
 const Main = ({navigation}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userToken, setUserToken] = useState(undefined);
+  const [loading, setLoading] = useState({visible: false, message: undefined});
   const scrollX = useRef(new Animated.Value(0)).current;
   const viewConfig = useRef({viewAreaCoveragePercentThreshold: 50}).current;
   const slidesRef = useRef(null);
@@ -75,10 +78,12 @@ const Main = ({navigation}) => {
         navigation.replace('Login', {checked: false});
       } else {
         if (!expiredCheck()) {
+          setLoading({...loading, visible: true});
           RefreshTokenAPI(userToken.refreshToken).then(res => {
+            setLoading({...loading, visible: false});
             if (res.status === 'SUCCESS') {
               storeAsyncStorageObject('@USER_TOKEN', res.data).then(() => {
-                navigation.replace('TabNavigation');
+                navigation.replace('TabNavigation', {userToken: res.data});
               });
             } else {
               navigation.replace('Login', {checked: false});
@@ -93,6 +98,7 @@ const Main = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar animated backgroundColor="#5F49D2" barStyle="light-content" />
       <View style={styles.flatlist}>
         <FlatList
           data={slides}
@@ -129,6 +135,7 @@ const Main = ({navigation}) => {
         }}>
         <Text style={styles.getstarted}>Get Started</Text>
       </TouchableOpacity>
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
     </View>
   );
 };

@@ -22,6 +22,7 @@ import fonts from '../utils/FontsConfig/Fonts';
 import Gap from './Gap';
 import ModalMessage from './ModalMessage';
 import EditActionButton from './EditActionButton';
+import {InitialIcon} from './InitialIcon';
 
 const EditMyProfile = ({
   openModalDiscardReff,
@@ -83,7 +84,7 @@ const EditMyProfile = ({
       if (image.size <= 1000000000) {
         setCurrentProfileData({
           ...currentProfileData,
-          profilePhoto: {uri: image.path},
+          pictures: {uri: image.path},
         });
         setPhotoProfileChanged(true);
         stateEdited();
@@ -99,7 +100,7 @@ const EditMyProfile = ({
       const tempDate = new Date(currentDate);
       const fullDate = dateToText(tempDate);
 
-      setCurrentProfileData({...currentProfileData, birthOfDate: fullDate});
+      setCurrentProfileData({...currentProfileData, tglLahir: fullDate});
       stateEdited();
     }
   };
@@ -116,7 +117,13 @@ const EditMyProfile = ({
 
   useEffect(() => {
     let disableSave = false;
-    if (currentProfileData.name === '') {
+    if (
+      currentProfileData.name?.trim().length === 0 ||
+      currentProfileData.nik?.trim().length === 0 ||
+      currentProfileData.noTelp?.trim().length === 0 ||
+      currentProfileData.tglLahir?.trim().length === 0 ||
+      currentProfileData.pekerjaan?.trim().length === 0
+    ) {
       disableSave = true;
     }
     if (disableSaveButton !== disableSave) {
@@ -172,9 +179,17 @@ const EditMyProfile = ({
             borderRadius: 80 / 2,
             overflow: 'hidden',
           }}>
+          <View style={{position: 'absolute', top: 0, left: 0}}>
+            <InitialIcon
+              width={80}
+              height={80}
+              name={currentProfileData.name}
+              fontSize={40}
+            />
+          </View>
           <Image
             style={{width: '100%', height: '100%', resizeMode: 'cover'}}
-            source={currentProfileData.profilePhoto}
+            source={currentProfileData.pictures}
           />
           <TouchableOpacity
             style={{
@@ -218,10 +233,10 @@ const EditMyProfile = ({
           onFocus={() => setFocusedInput('nipField')}
           onBlur={() => setFocusedInput('')}
           onChangeText={text => {
-            setCurrentProfileData({...currentProfileData, nip: text});
+            setCurrentProfileData({...currentProfileData, nik: text});
             stateEdited();
           }}>
-          <Text style={{lineHeight: 15}}>{currentProfileData.nip}</Text>
+          <Text style={{lineHeight: 15}}>{currentProfileData.nik}</Text>
         </TextInput>
       </View>
       <Text style={styles.title}>Phone Number</Text>
@@ -234,15 +249,16 @@ const EditMyProfile = ({
           onFocus={() => setFocusedInput('phoneNumberField')}
           onBlur={() => setFocusedInput('')}
           onChangeText={text => {
-            setCurrentProfileData({...currentProfileData, phone: text});
+            setCurrentProfileData({...currentProfileData, noTelp: text});
             stateEdited();
           }}>
-          <Text style={{lineHeight: 15}}>{currentProfileData.phone}</Text>
+          <Text style={{lineHeight: 15}}>{currentProfileData.noTelp}</Text>
         </TextInput>
       </View>
       <Text style={styles.title}>Email</Text>
       <View style={styles.field(focusedInput === 'emailField')}>
         <TextInput
+          editable={false}
           style={styles.textInput}
           placeholder="type your email address"
           keyboardType="email-address"
@@ -270,7 +286,7 @@ const EditMyProfile = ({
               lineHeight: 15,
               flex: 1,
             }}>
-            {currentProfileData.birthOfDate}
+            {currentProfileData.tglLahir}
           </Text>
           <Gap width={4} />
           <IcCalendar />
@@ -284,10 +300,10 @@ const EditMyProfile = ({
           onFocus={() => setFocusedInput('jobTitleField')}
           onBlur={() => setFocusedInput('')}
           onChangeText={text => {
-            setCurrentProfileData({...currentProfileData, job: text});
+            setCurrentProfileData({...currentProfileData, pekerjaan: text});
             stateEdited();
           }}>
-          <Text style={{lineHeight: 15}}>{currentProfileData.job}</Text>
+          <Text style={{lineHeight: 15}}>{currentProfileData.pekerjaan}</Text>
         </TextInput>
       </View>
       {/* dropdown working location */}
@@ -394,11 +410,12 @@ const EditMyProfile = ({
       {showDatePicker && (
         <DateTimePicker
           testID="dateTimePicker"
+          maximumDate={new Date()}
           value={
-            currentProfileData.birthOfDate !== undefined &&
-            currentProfileData.birthOfDate !== null &&
-            currentProfileData.birthOfDate !== ''
-              ? textToDate(currentProfileData.birthOfDate)
+            currentProfileData.tglLahir !== undefined &&
+            currentProfileData.tglLahir !== null &&
+            currentProfileData.tglLahir !== ''
+              ? textToDate(currentProfileData.tglLahir)
               : new Date()
           }
           mode="date"

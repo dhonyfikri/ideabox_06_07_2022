@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, {useEffect, useRef, useState} from 'react';
 import {
   Animated,
@@ -13,50 +14,62 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import {
   IcComment,
   IcEnvelope,
+  IcLikeActive,
   IcSmileEmote,
   IcUnactiveLike,
 } from '../../../assets/icon';
-import CardComment from '../../../components/CardComment';
 import CardDetailTeamDesc from '../../../components/CardDetailTeamsDesc';
 import CardProfile from '../../../components/CardProfile';
 import CardReply from '../../../components/CardReply';
 import DetailIdeaDesc from '../../../components/DetailIdeaDesc';
 import Divider from '../../../components/Divider';
-import EditActionButton from '../../../components/EditActionButton';
 import Gap from '../../../components/Gap';
 import Header from '../../../components/Header';
+import RefreshFull from '../../../components/RefreshFull';
 import LeanCanvasItem from '../../../components/LeanCanvasItem';
-import ModalAction from '../../../components/ModalAction';
-import ModalMessage from '../../../components/ModalMessage';
+import LoadingProcessFull from '../../../components/LoadingProcessFull';
 import MultilineTextView from '../../../components/MultilineTextView';
-import TalentApprovalAcceptOrReject from '../../../components/TalentApprovalAcceptOrReject';
+import {GetDetailIdeaAPI} from '../../../config/RequestAPI/IdeaAPI';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
 import DummyResponseDetailIdea from '../../riset/DummyResponseDetailIdea';
-import _ from 'lodash';
+import CardComment from '../../../components/CardCommentSementara';
+import ModalMessage from '../../../components/ModalMessage';
+import {AddLikeAPI} from '../../../config/RequestAPI/LikeAPI';
+import jwtDecode from 'jwt-decode';
+import {AddCommentAPI} from '../../../config/RequestAPI/CommentAPI';
 
-const TalentApprovalAction = ({navigation, route}) => {
-  const approvalData = route.params.approvalData;
-  const ideaData = _.cloneDeep(DummyResponseDetailIdea);
+const DetailIdeaScreen = ({navigation, route}) => {
+  // const ideaData = _.cloneDeep(DummyResponseDetailIdea);
+
+  const decodedJwt = route.params?.userToken
+    ? jwtDecode(route.params.userToken.authToken)
+    : {};
 
   const refRBSheetComment = useRef();
 
-  const [finish, setFinish] = useState(false);
   const [activeIndexOfContent, setActiveIndexOfContent] = useState(0);
-  const [approveMessage, setApproveMessage] = useState('');
-  const [rejectMessage, setRejectMessage] = useState('');
-  const [modalApproveVisible, setModalApproveVisible] = useState(false);
-  const [modalRejectVisible, setModalRejectVisible] = useState(false);
-  const [messageSuccessModalVisible, setMessageSuccessModalVisible] =
-    useState(false);
-  const [
-    messageSuccessRejectModalVisible,
-    setMessageSuccessRejectModalVisible,
-  ] = useState(false);
+  const [loading, setLoading] = useState({
+    visible: true,
+    message: 'Please wait',
+  });
+  const [ideaData, setIdeaData] = useState(undefined);
+  const [commentText, setCommentText] = useState('');
+  const [showRefreshBUtton, setShowRefreshButton] = useState(false);
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
   const [replyData, setReplyData] = useState({
     replying: false,
     nameToReply: '',
+    commentIdToReply: '',
   });
+  const [disableLikeButton, setDisableLikeButton] = useState(false);
+  const [isChanged, setIsChanged] = useState(false);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const handleFadeIn = () => {
@@ -81,6 +94,12 @@ const TalentApprovalAction = ({navigation, route}) => {
     }
   };
 
+  const setChanged = () => {
+    if (!isChanged) {
+      setIsChanged(true);
+    }
+  };
+
   const customerLC = [];
   const problemLC = [];
   const earlyAdopterLC = [];
@@ -88,65 +107,199 @@ const TalentApprovalAction = ({navigation, route}) => {
   const uniqueValueLC = [];
   const proposedSolutionLC = [];
 
-  ideaData.lc.map(res => {
-    if (res.field === 'customer') {
-      customerLC.push(res.value);
-    }
-    if (res.field === 'problem') problemLC.push(res.value);
-    if (res.field === 'earlyAdopter') earlyAdopterLC.push(res.value);
-    if (res.field === 'existingSolution') existingSolutionLC.push(res.value);
-    if (res.field === 'uniqueValue') uniqueValueLC.push(res.value);
-    if (res.field === 'proposedSolution') proposedSolutionLC.push(res.value);
-  });
+  if (ideaData) {
+    ideaData?.lc?.map(res => {
+      if (res.field === 'customers') {
+        customerLC.push(res.value);
+      }
+      if (res.field === 'problems') problemLC.push(res.value);
+      if (res.field === 'earlyAdopters') earlyAdopterLC.push(res.value);
+      if (res.field === 'existingSolutions') existingSolutionLC.push(res.value);
+      if (res.field === 'uniqueValues') uniqueValueLC.push(res.value);
+      if (res.field === 'proposedSolutions') proposedSolutionLC.push(res.value);
+    });
+  }
+
+  const likeStatus =
+    ideaData?.like?.filter(item => item.createdBy === decodedJwt.data.id)
+      .length > 0;
+
+  const fetchIdeas = () => {
+    setLoading({...loading, visible: true, message: 'Please wait'});
+    setShowRefreshButton(false);
+    GetDetailIdeaAPI(
+      route.params?.userToken?.authToken,
+      route.params?.ideaId,
+    ).then(res => {
+      setLoading({...loading, visible: false});
+      handleFadeIn();
+      if (res.status === 'SUCCESS') {
+        setIdeaData(res.data);
+      } else if (res.status === 'SERVER_ERROR') {
+        setShowRefreshButton(true);
+      }
+    });
+  };
+
+  const handleLike = () => {
+    setDisableLikeButton(true);
+    AddLikeAPI(route.params?.userToken.authToken, route.params?.ideaId).then(
+      res => {
+        setDisableLikeButton(false);
+        console.log(res);
+        const tempIdeaData = {...ideaData};
+        if (res.status === 'SUCCESS' || res.status === 'UNDEFINED_HEADER') {
+          setChanged();
+          let temptLikeList = tempIdeaData.like;
+          if (likeStatus) {
+            temptLikeList = [];
+            temptLikeList = ideaData?.like?.filter(
+              item => item.createdBy !== decodedJwt.data.id,
+            );
+            tempIdeaData.totalLike = tempIdeaData.totalLike - 1;
+          } else {
+            temptLikeList.push({
+              // id: '5',
+              ideaId: route.params?.ideaId,
+              createdBy: decodedJwt.data.id,
+            });
+            tempIdeaData.totalLike = tempIdeaData.totalLike + 1;
+          }
+          tempIdeaData.like = temptLikeList;
+          setIdeaData(tempIdeaData);
+        } else if (
+          res.status === 'SOMETHING_WRONG' ||
+          res.status === 'NOT_FOUND' ||
+          res.status === 'UNAUTHORIZED' ||
+          res.status === 'SERVER_ERROR'
+        ) {
+          setMessageModal({
+            ...messageModal,
+            visible: true,
+            title: 'Failed',
+            message: res.message,
+            type: 'confused',
+            // onClose: () => {},
+          });
+        }
+      },
+    );
+  };
+
+  const handleComment = () => {
+    setLoading({...loading, visible: true, message: 'Adding your comment'});
+    AddCommentAPI(
+      route.params?.userToken.authToken,
+      ideaData.id,
+      commentText,
+    ).then(res => {
+      setLoading({...loading, visible: false});
+      console.log(res);
+      if (res.status === 'SUCCESS' || res.status === 'UNDEFINED_HEADER') {
+        setChanged();
+        const tempCommentList = [...ideaData.comment];
+        tempCommentList.push({
+          // id: '5',
+          ideaId: ideaData.id,
+          commentId: '0',
+          comment: commentText,
+          createdBy: decodedJwt.data.id,
+          replyComment: [],
+        });
+        setIdeaData({
+          ...ideaData,
+          comment: tempCommentList,
+          totalComment: ideaData.totalComment + 1,
+        });
+        setCommentText('');
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'NOT_FOUND' ||
+        res.status === 'UNAUTHORIZED' ||
+        res.status === 'SERVER_ERROR'
+      ) {
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Failed',
+          message: res.message,
+          type: 'confused',
+          // onClose: () => {},
+        });
+      }
+    });
+  };
 
   useEffect(() => {
-    handleFadeIn();
+    fetchIdeas();
   }, []);
 
-  useEffect(() => {
-    if (finish) {
-      navigation.goBack();
-    }
-  }, [finish]);
-
-  let commentCount = 0;
-  ideaData.comment.map(item => {
-    commentCount += 1;
-    item.replyComment.map(() => {
-      commentCount += 1;
-    });
-  });
+  // let commentCount = 0;
+  // if (ideaData) {
+  //   ideaData?.comment?.map(item => {
+  //     commentCount += 1;
+  //     item.replyComment?.map(() => {
+  //       commentCount += 1;
+  //     });
+  //   });
+  // }
 
   return (
     <View style={styles.page}>
       <Header
         backButton
-        onBackPress={() => navigation.goBack()}
+        onBackPress={() => {
+          if (isChanged) {
+            navigation.navigate('TabNavigation', {
+              screen: 'Home',
+              params: {
+                userToken: route.params?.userToken,
+                refresh: {status: true},
+              },
+            });
+          } else {
+            navigation.goBack();
+          }
+        }}
         backText="Back"
         onNotificationPress={() => navigation.navigate('Notification')}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}>
-        <Gap height={8} />
-        <TalentApprovalAcceptOrReject
-          isPending={approvalData.status?.toLowerCase() === 'pending'}
-          name={approvalData.personName}
-          onRejectPress={() => setModalRejectVisible(true)}
-          onAcceptPress={() => setModalApproveVisible(true)}
+        <CardProfile
+          withJoinButton={true}
+          userData={route.params?.creatorData}
+          onCreatorPress={() => {
+            navigation.navigate('MyProfile', {
+              editable: false,
+              userId: route.params?.creatorData.id,
+              userToken: route.params?.userToken,
+              ideaData: route.params?.ideaDataList,
+            });
+          }}
         />
-        <Gap height={24} />
-        <CardProfile withJoinButton={false} />
         <Gap height={16} />
         <View style={styles.interactions}>
-          <TouchableOpacity style={styles.interactionsItem}>
-            <IcUnactiveLike width={24} height={24} />
+          <TouchableOpacity
+            style={styles.interactionsItem}
+            onPress={() => {
+              if (!disableLikeButton) {
+                handleLike();
+              }
+            }}>
+            {likeStatus ? (
+              <IcLikeActive width={24} height={24} />
+            ) : (
+              <IcUnactiveLike width={24} height={24} />
+            )}
+
             <Gap width={6.5} />
             <Text
               numberOfLines={1}
               ellipsizeMode="tail"
               style={styles.interactionsText}>
-              482
+              {ideaData ? ideaData.totalLike : '-'}
             </Text>
           </TouchableOpacity>
           <Gap width={6.5} />
@@ -159,7 +312,7 @@ const TalentApprovalAction = ({navigation, route}) => {
               numberOfLines={1}
               ellipsizeMode="tail"
               style={styles.interactionsText}>
-              {commentCount}
+              {ideaData ? ideaData.totalComment : '-'}
             </Text>
           </TouchableOpacity>
           <Gap width={6.5} />
@@ -211,29 +364,27 @@ const TalentApprovalAction = ({navigation, route}) => {
           <Animated.View
             style={{...styles.dataSessionContainer, opacity: fadeAnim}}>
             <DetailIdeaDesc
-              title={ideaData.desc[0].value}
-              desc={ideaData.desc[2].value}
-              image={ideaData.desc[1].value}
+              title={ideaData?.desc[0]?.value}
+              desc={ideaData?.desc[1]?.value}
+              image={ideaData?.desc[2]?.value}
             />
           </Animated.View>
         )}
         {activeIndexOfContent === 1 && (
           <Animated.View
             style={{...styles.dataSessionContainer, opacity: fadeAnim}}>
-            <>
-              <Gap height={4} />
-              <Text style={styles.title}>Why</Text>
-              <Gap height={4} />
-              <MultilineTextView text={ideaData.gc[0].value} height={150} />
-              <Gap height={21} />
-              <Text style={styles.title}>How</Text>
-              <Gap height={4} />
-              <MultilineTextView text={ideaData.gc[1].value} height={150} />
-              <Gap height={21} />
-              <Text style={styles.title}>What</Text>
-              <Gap height={4} />
-              <MultilineTextView text={ideaData.gc[2].value} height={150} />
-            </>
+            <Gap height={4} />
+            <Text style={styles.title}>Why</Text>
+            <Gap height={4} />
+            <MultilineTextView text={ideaData?.gc[0]?.value} height={150} />
+            <Gap height={21} />
+            <Text style={styles.title}>How</Text>
+            <Gap height={4} />
+            <MultilineTextView text={ideaData?.gc[1]?.value} height={150} />
+            <Gap height={21} />
+            <Text style={styles.title}>What</Text>
+            <Gap height={4} />
+            <MultilineTextView text={ideaData?.gc[2]?.value} height={150} />
           </Animated.View>
         )}
         {activeIndexOfContent === 2 && (
@@ -278,9 +429,9 @@ const TalentApprovalAction = ({navigation, route}) => {
         {activeIndexOfContent === 3 && (
           <Animated.View
             style={{...styles.dataSessionContainer, opacity: fadeAnim}}>
-            {ideaData !== null &&
-              (ideaData.approval.length > 0 ? (
-                ideaData.approval.map((item, index) => {
+            {ideaData &&
+              (ideaData.approval?.length > 0 ? (
+                ideaData.approval?.map((item, index) => {
                   return (
                     <>
                       <CardDetailTeamDesc
@@ -341,8 +492,13 @@ const TalentApprovalAction = ({navigation, route}) => {
         <View style={styles.bottomSheetContentContainer}>
           <View style={{flexDirection: 'row'}}>
             <Text style={styles.bottomSheetTitle}>
-              {commentCount > 100 ? '100+' : commentCount} Comment
-              {commentCount > 1 && 's'}
+              {ideaData
+                ? ideaData.totalComment > 100
+                  ? '100+'
+                  : ideaData?.totalComment
+                : '-'}{' '}
+              Comment
+              {ideaData?.totalComment > 1 && 's'}
             </Text>
             <TouchableOpacity
               style={styles.cancelContainer}
@@ -354,7 +510,7 @@ const TalentApprovalAction = ({navigation, route}) => {
           <View style={{flex: 1}}>
             <ScrollView showsVerticalScrollIndicator={false}>
               <FlatList
-                data={ideaData.comment}
+                data={ideaData?.comment}
                 keyExtractor={(_, index) => index.toString()}
                 scrollEnabled={false}
                 showsVerticalScrollIndicator={false}
@@ -363,9 +519,14 @@ const TalentApprovalAction = ({navigation, route}) => {
                   return (
                     <>
                       <CardComment
+                        userList={route.params?.listUser}
                         commentsData={item}
-                        onMainRepplyPress={name => {
-                          setReplyData({status: true, nameToReply: name});
+                        onMainRepplyPress={(commentId, creatorName) => {
+                          setReplyData({
+                            status: true,
+                            commentIdToReply: commentId,
+                            nameToReply: creatorName,
+                          });
                         }}
                       />
                       {index !== ideaData.comment.length - 1 && (
@@ -392,8 +553,9 @@ const TalentApprovalAction = ({navigation, route}) => {
             <View
               style={{
                 flexDirection: 'row',
-                marginHorizontal: 16,
+                // marginHorizontal: 16,
                 padding: 8,
+                paddingLeft: 16,
                 borderRadius: 20,
                 borderWidth: 1,
                 borderColor: colors.text.primary,
@@ -409,8 +571,9 @@ const TalentApprovalAction = ({navigation, route}) => {
                     fontSize: 12,
                     color: colors.text.primary,
                     padding: 0,
-                  }}>
-                  <Text style={{lineHeight: 22}}></Text>
+                  }}
+                  onChangeText={text => setCommentText(text)}>
+                  <Text style={{lineHeight: 22}}>{commentText}</Text>
                 </TextInput>
               </View>
               <Gap width={16} />
@@ -426,6 +589,11 @@ const TalentApprovalAction = ({navigation, route}) => {
                       paddingHorizontal: 24,
                       borderRadius: 16,
                       backgroundColor: colors.primary,
+                    }}
+                    onPress={() => {
+                      if (ideaData && commentText.trim().length > 0) {
+                        handleComment();
+                      }
                     }}>
                     <Text
                       style={{
@@ -444,183 +612,37 @@ const TalentApprovalAction = ({navigation, route}) => {
           </View>
         </View>
       </RBSheet>
-      {/* Modal approve action */}
-      <ModalAction
-        visible={modalApproveVisible}
-        title="Approve Join Request"
-        onCloseButtonPress={() => setModalApproveVisible(false)}
-        onRequestClose={() => setModalApproveVisible(false)}>
-        <View style={styles.noticeContainer}>
-          <Text style={styles.noticeText}>
-            Are you sure you want to{' '}
-            <Text
-              style={{
-                ...styles.noticeText,
-                fontFamily: fonts.secondary[700],
-                color: colors.success,
-              }}>
-              approve
-            </Text>{' '}
-            this request from{' '}
-            <Text
-              style={{
-                ...styles.noticeText,
-                fontFamily: fonts.secondary[700],
-              }}>
-              {approvalData.personName}
-            </Text>
-            ?{' '}
-            <Text
-              style={{
-                ...styles.noticeText,
-                fontFamily: fonts.secondary[700],
-              }}>
-              {approvalData.ideaName}
-            </Text>
-          </Text>
-        </View>
-        <Gap height={28} />
-        <Text style={styles.messageTitle}>
-          Please fill the reason in the field below*
-        </Text>
-        <Gap height={8} />
-        <TextInput
-          multiline
-          textAlignVertical="top"
-          style={styles.board}
-          placeholder="(Max. 60 Characters)"
-          maxLength={60}
-          onChangeText={text => {
-            setApproveMessage(text);
-          }}>
-          <Text style={{lineHeight: 22}}>{approveMessage}</Text>
-        </TextInput>
-        <Gap height={48} />
-        <EditActionButton
-          disableSaveButton={approveMessage.trim().length <= 0}
-          onDiscardPress={() => setModalApproveVisible(false)}
-          onSavePress={() => {
-            setModalApproveVisible(false);
-            setMessageSuccessModalVisible(true);
-          }}
-        />
-      </ModalAction>
-      {/* Modal reject action */}
-      <ModalAction
-        visible={modalRejectVisible}
-        title="Reject Join Request"
-        onCloseButtonPress={() => setModalRejectVisible(false)}
-        onRequestClose={() => setModalRejectVisible(false)}>
-        <View style={styles.noticeContainer}>
-          <Text style={styles.noticeText}>
-            Are you sure you want to{' '}
-            <Text
-              style={{
-                ...styles.noticeText,
-                fontFamily: fonts.secondary[700],
-                color: colors.reject,
-              }}>
-              reject
-            </Text>{' '}
-            this request from{' '}
-            <Text
-              style={{
-                ...styles.noticeText,
-                fontFamily: fonts.secondary[700],
-              }}>
-              {approvalData.personName}
-            </Text>
-            ?{' '}
-            <Text
-              style={{
-                ...styles.noticeText,
-                fontFamily: fonts.secondary[700],
-              }}>
-              {approvalData.ideaName}
-            </Text>
-          </Text>
-        </View>
-        <Gap height={28} />
-        <Text style={styles.messageTitle}>
-          Please fill the reason in the field below*
-        </Text>
-        <Gap height={8} />
-        <TextInput
-          multiline
-          textAlignVertical="top"
-          style={styles.board}
-          placeholder="(Max. 60 Characters)"
-          maxLength={60}
-          onChangeText={text => {
-            setRejectMessage(text);
-          }}>
-          <Text style={{lineHeight: 22}}>{rejectMessage}</Text>
-        </TextInput>
-        <Gap height={48} />
-        <EditActionButton
-          disableSaveButton={rejectMessage.trim().length <= 0}
-          onDiscardPress={() => setModalRejectVisible(false)}
-          onSavePress={() => {
-            setModalRejectVisible(false);
-            setMessageSuccessRejectModalVisible(true);
-          }}
-        />
-      </ModalAction>
-      {/* modal success message */}
-      <ModalMessage
-        visible={messageSuccessModalVisible}
-        withIllustration
-        illustrationType="smile"
-        title="Success"
-        message={
-          <Text style={styles.customMessageStyle}>
-            You have{' '}
-            <Text style={{...styles.customMessageStyle, color: colors.success}}>
-              approved
-            </Text>{' '}
-            this request
-          </Text>
-        }
-        withBackButton
-        onBack={() => {
-          setMessageSuccessModalVisible(false);
-          setFinish(true);
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
+      <RefreshFull
+        visible={showRefreshBUtton}
+        onPress={() => {
+          setShowRefreshButton(false);
+          fetchIdeas();
         }}
-        onRequestClose={() => {
-          setMessageSuccessModalVisible(false);
-          setFinish(true);
-        }}
+        onBackPress={() => navigation.goBack()}
       />
-      {/* modal success reject message */}
+      {/* modal message */}
       <ModalMessage
-        visible={messageSuccessRejectModalVisible}
+        visible={messageModal.visible}
         withIllustration
-        illustrationType="confused"
-        title="You’re all done"
-        message={
-          <Text style={styles.customMessageStyle}>
-            You have{' '}
-            <Text style={{...styles.customMessageStyle, color: colors.reject}}>
-              rejected
-            </Text>{' '}
-            this request
-          </Text>
-        }
+        illustrationType={messageModal.type}
+        title={messageModal.title}
+        message={messageModal.message}
         withBackButton
         onBack={() => {
-          setMessageSuccessRejectModalVisible(false);
-          setFinish(true);
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
         }}
         onRequestClose={() => {
-          setMessageSuccessRejectModalVisible(false);
-          setFinish(true);
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
         }}
       />
     </View>
   );
 };
 
-export default TalentApprovalAction;
+export default DetailIdeaScreen;
 
 const styles = StyleSheet.create({
   page: {flex: 1, backgroundColor: '#FFFFFF'},

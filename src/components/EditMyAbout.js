@@ -1,12 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TextInput} from 'react-native';
 import EditActionButton from '../components/EditActionButton';
+import {EditAboutAPI} from '../config/RequestAPI/UserAPI';
 import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import Gap from './Gap';
 import ModalMessage from './ModalMessage';
 
 const EditMyAbout = ({
+  userToken,
   openModalDiscardReff,
   text,
   onSavePress = () => {},
@@ -17,7 +19,40 @@ const EditMyAbout = ({
     useState(false);
   const [messageSuccessModalVisible, setMessageSuccessModalVisible] =
     useState(false);
+  const [loading, setLoading] = useState({
+    visible: false,
+    message: 'Please wait',
+  });
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
   const [edited, setEdited] = useState(false);
+
+  const handleEditAbout = () => {
+    setLoading({...loading, visible: true});
+    EditAboutAPI(userToken, newText).then(res => {
+      setLoading({...loading, visible: false});
+      if (res.status === 'SUCCESS') {
+        setMessageSuccessModalVisible(true);
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'FAILED' ||
+        res.status === 'SERVER_ERROR'
+      ) {
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Failed',
+          message: res.message,
+          type: 'confused',
+        });
+      }
+    });
+  };
 
   useEffect(() => {
     if (openModalDiscardReff !== undefined) {
@@ -48,6 +83,7 @@ const EditMyAbout = ({
       <TextInput
         multiline
         textAlignVertical="top"
+        autoCorrect={false}
         style={styles.board}
         onChangeText={text => {
           setNewText(text);
@@ -59,7 +95,7 @@ const EditMyAbout = ({
       <EditActionButton
         disableSaveButton={!edited}
         onDiscardPress={() => discard()}
-        onSavePress={() => setMessageSuccessModalVisible(true)}
+        onSavePress={() => handleEditAbout()}
       />
 
       {/* modal discard confirmation message */}
@@ -99,6 +135,24 @@ const EditMyAbout = ({
         onRequestClose={() => {
           setMessageSuccessModalVisible(false);
           onSavePress(newText);
+        }}
+      />
+
+      {/* modal message */}
+      <ModalMessage
+        visible={messageModal.visible}
+        withIllustration
+        illustrationType={messageModal.type}
+        title={messageModal.title}
+        message={messageModal.message}
+        withBackButton
+        onBack={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+        onRequestClose={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
         }}
       />
     </>

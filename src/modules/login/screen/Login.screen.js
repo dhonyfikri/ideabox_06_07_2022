@@ -1,6 +1,5 @@
 import CheckBox from '@react-native-community/checkbox';
-import moment from 'moment';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   Image,
   StyleSheet,
@@ -11,10 +10,9 @@ import {
 } from 'react-native';
 import LoadingProcessFull from '../../../components/LoadingProcessFull';
 import ModalMessage from '../../../components/ModalMessage';
-import {defaultAuthState} from '../../../config/Auth.cfg';
 import {LoginAPI} from '../../../config/RequestAPI/LoginAPI';
-import {colors} from '../../../utils/ColorsConfig/Colors';
 import {storeAsyncStorageObject} from '../../../utils/AsyncStorage/StoreAsyncStorage';
+import {colors} from '../../../utils/ColorsConfig/Colors';
 // import styles from '../style/Login.style';
 
 const Login = ({navigation, route}) => {
@@ -23,7 +21,6 @@ const Login = ({navigation, route}) => {
     _toggleCheckBox = route.params.checked;
   }
 
-  const [data, setData] = useState(defaultAuthState);
   const [toggleCheckBox, setToggleCheckBox] = useState(_toggleCheckBox);
   const [loading, setLoading] = useState({visible: false, message: undefined});
   const [messageModal, setMessageModal] = useState({
@@ -33,29 +30,6 @@ const Login = ({navigation, route}) => {
     type: 'smile',
     onClose: () => {},
   });
-
-  const expiredCheck = () => {
-    // if not expired
-    if (data.expireAt > moment().unix()) {
-      navigation.replace('TabNavigation');
-    }
-  };
-
-  // useEffect(() => {
-  //   prefetchConfiguration({
-  //     warmAndPrefetchChrome: Platform.OS === 'android',
-  //     ...AuthConfig,
-  //   });
-  //   getData().then(jsonValue => {
-  //     setData(jsonValue);
-  //   });
-  // }, []);
-
-  useEffect(() => {
-    if (data !== defaultAuthState) {
-      expiredCheck();
-    }
-  }, [data]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -73,12 +47,13 @@ const Login = ({navigation, route}) => {
         setLoading({...loading, visible: false});
         if (res.status === 'SUCCESS') {
           storeAsyncStorageObject('@USER_TOKEN', res.data).then(() => {
-            navigation.replace('TabNavigation');
+            navigation.replace('TabNavigation', {userToken: res.data});
           });
         } else if (
           res.status === 'SOMETHING_WRONG' ||
           res.status === 'USER_NOT_FOUND' ||
           res.status === 'UNAUTHORIZED' ||
+          res.status === 'INVALID_EMAIL' ||
           res.status === 'SERVER_ERROR'
         ) {
           setMessageModal({

@@ -4,23 +4,44 @@ import {colors} from '../utils/ColorsConfig/Colors';
 import {IcButtonJoin} from '../assets/icon';
 import Gap from '../components/Gap';
 import fonts from '../utils/FontsConfig/Fonts';
+import {InitialIcon} from './InitialIcon';
 
-const CardProfile = ({withJoinButton = true, onJoinButtonPress}) => {
+const CardProfile = ({
+  withJoinButton = true,
+  onJoinButtonPress,
+  userData,
+  onCreatorPress,
+}) => {
+  const name = userData?.name
+    ? userData?.name?.replace(/(?:^|\s)\S/g, function (a) {
+        return a.toUpperCase();
+      })
+    : '-';
   return (
     <View style={styles.container}>
-      <Image
-        style={styles.profileImage}
-        source={require('../assets/image/user_dummy.png')}
-      />
-      <Gap width={10} />
-      <View style={styles.detailWrapper}>
-        <Text numberOfLines={2} ellipsizeMode="tail" style={styles.nameText}>
-          Reno Sudrajat
-        </Text>
-        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.zipText}>
-          15475
-        </Text>
-      </View>
+      <TouchableOpacity
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+        onPress={onCreatorPress}>
+        <InitialIcon
+          width={50}
+          height={50}
+          name={userData?.name}
+          fontSize={20}
+        />
+        <Gap width={10} />
+        <View style={styles.detailWrapper}>
+          <Text numberOfLines={2} ellipsizeMode="tail" style={styles.nameText}>
+            {name}
+          </Text>
+          <Text numberOfLines={1} ellipsizeMode="tail" style={styles.zipText}>
+            {userData?.nik !== '' ? userData?.nik : '-'}
+          </Text>
+        </View>
+      </TouchableOpacity>
       {withJoinButton && (
         <>
           <Gap width={10} />

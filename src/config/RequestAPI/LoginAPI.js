@@ -26,16 +26,21 @@ const LoginAPI = (email, password, rememberMe) => {
         }
       })
       .catch(error => {
-        // console.log(error.response.data);
-        if (error.response.status === 404) {
+        // console.log(error.response.status);
+        if (error.response?.status === 404) {
           resolve({
             status: 'USER_NOT_FOUND',
             message: error.response.data?.messages,
           });
-        } else if (error.response.status === 401) {
+        } else if (error.response?.status === 401) {
           resolve({
             status: 'UNAUTHORIZED',
             message: error.response.data?.messages,
+          });
+        } else if (error.response?.status === 422) {
+          resolve({
+            status: 'INVALID_EMAIL',
+            message: error.response.data?.data?.email,
           });
         } else {
           resolve({

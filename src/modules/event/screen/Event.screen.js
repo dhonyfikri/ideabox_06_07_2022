@@ -1,7 +1,7 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 
-const DashboardPage = () => {
+const Event = () => {
   return (
     <View
       style={{
@@ -9,11 +9,11 @@ const DashboardPage = () => {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-      <Text>Dashboard</Text>
+      <Text>Events</Text>
     </View>
   );
 };
 
-export default DashboardPage;
+export default Event;
 
 const styles = StyleSheet.create({});

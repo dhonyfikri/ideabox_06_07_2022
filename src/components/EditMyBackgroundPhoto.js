@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
 import ImageCropPicker from 'react-native-image-crop-picker';
+import {height} from 'styled-system';
 import {IcCamera} from '../assets/icon';
 import EditActionButton from '../components/EditActionButton';
 import {colors} from '../utils/ColorsConfig/Colors';
@@ -68,8 +69,6 @@ const EditMyBackgroundPhoto = ({
         style={{
           height: 126,
           borderRadius: 8,
-          justifyContent: 'center',
-          alignItems: 'center',
           overflow: 'hidden',
         }}>
         <Image
@@ -78,20 +77,43 @@ const EditMyBackgroundPhoto = ({
             height: '100%',
             resizeMode: 'cover',
             position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+          }}
+          source={require('../assets/image/img_default_photo_background.png')}
+        />
+        <Image
+          style={{
+            width: '100%',
+            height: '100%',
+            resizeMode: 'cover',
           }}
           source={currentBackgroundPhoto}
         />
-        <TouchableOpacity
+        <View
           style={{
-            width: 40,
-            height: 40,
-            padding: 10,
-            borderRadius: 50,
-            backgroundColor: '#00000044',
-          }}
-          onPress={() => takeBackgroundPhotoFromLibrary()}>
-          <IcCamera />
-        </TouchableOpacity>
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <TouchableOpacity
+            style={{
+              width: 40,
+              height: 40,
+              padding: 10,
+              borderRadius: 50,
+              backgroundColor: '#00000044',
+            }}
+            onPress={() => takeBackgroundPhotoFromLibrary()}>
+            <IcCamera />
+          </TouchableOpacity>
+        </View>
       </View>
       <Gap height={24} />
       <EditActionButton

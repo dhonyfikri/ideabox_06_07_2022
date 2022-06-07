@@ -2,22 +2,22 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import * as React from 'react';
 import TabNavigation from '../../components/Tabs';
 import CreateIdeaStep from '../../modules/createidea/screen/CreateIdeaStep';
-import DetailExplore from '../../modules/explore/screen/DetailExplore.screen';
+import EditIdea from '../../modules/createidea/screen/EditIdea.screen';
+import DetailIdeaScreen from '../../modules/explore/screen/DetailIdea.screen';
 import ForgorPassword from '../../modules/forgotPassword/screen/ForgotPassword.screen';
 import Login from '../../modules/login/screen/Login.screen';
 import Main from '../../modules/main/screen/Main.screen';
+import JoinedIdea from '../../modules/myidea/screen/JoinedIdea.screen';
+import SubmittedIdea from '../../modules/myidea/screen/SubmittedIdea.screen';
 import Notification from '../../modules/notification/screen/Notification.screen';
 import Page404 from '../../modules/page404/Page404.screen';
 import privacyPolicy from '../../modules/privacyPolicy/screen/privacyPolicy.screen';
 import MyProfile from '../../modules/profile/screen/MyProfile.screen';
 import RegisterScreen from '../../modules/register/screen/Register.screen';
 import SplashScreen from '../../modules/splash/screen/Splash.screen';
-import TermCondi from '../../modules/termcondi/screen/TermCondi.screen';
 import TalentApproval from '../../modules/talentapproval/screen/TalentApproval.screen';
 import TalentApprovalAction from '../../modules/talentapproval/screen/TalentApprovalAction.screen';
-import SubmittedIdea from '../../modules/myidea/screen/SubmittedIdea.screen';
-import JoinedIdea from '../../modules/myidea/screen/JoinedIdea.screen';
-import EditIdea from '../../modules/createidea/screen/EditIdea.screen';
+import TermCondi from '../../modules/termcondi/screen/TermCondi.screen';
 
 const Stack = createNativeStackNavigator();
 
@@ -72,8 +72,8 @@ const Routes = () => {
         options={{headerShown: false}}
       />
       <Stack.Screen
-        name="DetailIdeaUser"
-        component={DetailExplore}
+        name="DetailIdea"
+        component={DetailIdeaScreen}
         options={{headerShown: false}}
       />
       <Stack.Screen
