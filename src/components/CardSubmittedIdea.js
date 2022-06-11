@@ -1,5 +1,12 @@
 import React, {useEffect, useRef} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View, Animated} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ScrollView,
+  Animated,
+} from 'react-native';
 import {IcDotThree} from '../assets/icon';
 import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
@@ -61,7 +68,12 @@ const CardSubmittedIdea = ({
         transform: [{translateY: translateAnim}, {translateX: translateAnim}],
       }}>
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
-        <Text style={styles.ideaName}>{ideaName}</Text>
+        <ScrollView
+          contentContainerStyle={{flexGrow: 1}}
+          horizontal
+          showsHorizontalScrollIndicator={false}>
+          <Text style={styles.ideaName}>{ideaName}</Text>
+        </ScrollView>
         <Gap width={8} />
         <TouchableOpacity
           style={{flexDirection: 'row', alignItems: 'center'}}

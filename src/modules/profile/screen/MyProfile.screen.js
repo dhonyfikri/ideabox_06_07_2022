@@ -445,7 +445,7 @@ const MyProfile = ({navigation, route}) => {
           setShowRefreshButton(false);
           fetchUserData();
         }}
-        onBackPress={() => navigation.goBack()}
+        onOffsetTouch={() => navigation.goBack()}
       />
     </View>
   );

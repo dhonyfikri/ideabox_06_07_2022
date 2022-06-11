@@ -13,9 +13,14 @@ const CreateAdditionalAttachment = ({
   onUpdate = () => {},
   onNextRequest = () => {},
 }) => {
-  const [attachment, setAttachment] = useState([
-    {type: null, source: '', desc: '', documentName: ''},
-  ]);
+  const blankAttachment = {
+    type: null,
+    source: '',
+    desc: '',
+    documentName: '',
+    link: '',
+  };
+  const [attachment, setAttachment] = useState([blankAttachment]);
 
   useEffect(() => {
     let isCompleted = true;
@@ -23,12 +28,14 @@ const CreateAdditionalAttachment = ({
       if (
         attachment[0].type !== null ||
         attachment[0].source !== '' ||
+        attachment[0].link !== '' ||
         attachment[0].desc !== ''
       ) {
         isCompleted = false;
         if (
           attachment[0].type !== null &&
-          attachment[0].source !== '' &&
+          ((attachment[0].type === 'File' && attachment[0].source !== '') ||
+            (attachment[0].type === 'Link' && attachment[0].link !== '')) &&
           attachment[0].desc !== ''
         ) {
           isCompleted = true;
@@ -38,7 +45,8 @@ const CreateAdditionalAttachment = ({
       for (let i = 0; i < attachment.length; i++) {
         if (
           attachment[i].type === null ||
-          attachment[i].source === '' ||
+          (attachment[i].type === 'File' && attachment[i].source === '') ||
+          (attachment[i].type === 'Link' && attachment[i].link === '') ||
           attachment[i].desc === ''
         ) {
           isCompleted = false;
@@ -50,22 +58,26 @@ const CreateAdditionalAttachment = ({
   }, [attachment]);
 
   useEffect(() => {
+    const newFileAttachment = [];
+    const newLinkAttachment = attachment
+      .filter(item => item.type === 'Link')
+      .map(item => {
+        return {name: item.desc, link: item.link};
+      });
     if (onNextReff !== undefined) {
       if (attachment.length <= 1) {
-        if (
-          attachment[0].type === null ||
-          attachment[0].source === '' ||
-          attachment[0].desc === ''
-        ) {
-          onNextReff.current = () => onNextRequest([]);
+        if (attachment[0].type === null) {
+          onNextReff.current = () => onNextRequest([], []);
         } else {
-          onNextReff.current = () => onNextRequest(attachment);
+          onNextReff.current = () =>
+            onNextRequest(newFileAttachment, newLinkAttachment);
         }
       } else {
-        onNextReff.current = () => onNextRequest(attachment);
+        onNextReff.current = () =>
+          onNextRequest(newFileAttachment, newLinkAttachment);
       }
     }
-  }, [attachment]);
+  });
 
   return (
     <CardCreateIdeaSession
@@ -74,7 +86,7 @@ const CreateAdditionalAttachment = ({
       mandatory={false}>
       {attachment.map((item, index) => {
         return (
-          <>
+          <View key={index.toString()}>
             <CreateAdditionalAttachmentField
               withSelfDelete={attachment.length > 1 ? true : false}
               onSelfDelete={() => {
@@ -83,17 +95,20 @@ const CreateAdditionalAttachment = ({
                 setAttachment(tempAttachment);
               }}
               onClear={() => {
-                setAttachment([{type: null, source: '', desc: ''}]);
+                setAttachment([blankAttachment]);
               }}
               selectedType={item.type}
               onTypeChange={newType => {
                 let tempAttachment = [...attachment];
                 tempAttachment[index].type = newType;
-                tempAttachment[index].source = '';
-                tempAttachment[index].documentName = '';
                 setAttachment(tempAttachment);
               }}
-              sourceValue={item.source}
+              linkValue={item.link}
+              onLinkChange={newLink => {
+                let tempAttachment = [...attachment];
+                tempAttachment[index].link = newLink;
+                setAttachment(tempAttachment);
+              }}
               onSourceChange={(newSource, newDocumentSourceName = '') => {
                 let tempAttachment = [...attachment];
                 tempAttachment[index].source = newSource;
@@ -126,7 +141,7 @@ const CreateAdditionalAttachment = ({
                     }}
                     onPress={() => {
                       let tempAttachment = [...attachment];
-                      tempAttachment.push({type: null, source: '', desc: ''});
+                      tempAttachment.push(blankAttachment);
                       setAttachment(tempAttachment);
                     }}>
                     <IcAdd />
@@ -138,7 +153,7 @@ const CreateAdditionalAttachment = ({
                 </View>
               </>
             )}
-          </>
+          </View>
         );
       })}
     </CardCreateIdeaSession>

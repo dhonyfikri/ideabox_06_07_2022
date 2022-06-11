@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   FlatList,
   ScrollView,
@@ -11,7 +11,6 @@ import {
 import {IcOutlinedAdd, IcOutlinedRemove} from '../assets/icon';
 import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
-import BoardTextInput from './BoardTextInput';
 import CardCreateIdeaSession from './CardCreateIdeaSession';
 import Gap from './Gap';
 
@@ -23,13 +22,13 @@ const EditLeanCanvas = ({
   uniqueValue,
   proposedSolution,
   onLeanCanvasChange = () => {},
-  onProposedSolutionChange = () => {},
 }) => {
   const [customerInput, setCustomerInput] = useState('');
   const [problemInput, setProblemInput] = useState('');
   const [earlyAdopterInput, setEarlyAdopterInput] = useState('');
   const [existingSolutionInput, setExistingSolutionInput] = useState('');
   const [uniqueValueInput, setUniqueValueInput] = useState('');
+  const [proposedSolutionInput, setProposedSolutionInput] = useState('');
 
   return (
     <CardCreateIdeaSession title="Lean Canvas" mandatory>
@@ -50,7 +49,7 @@ const EditLeanCanvas = ({
           style={styles.buttonSingleLineInput(true)}
           onPress={() => {
             if (customerInput.trim() !== '') {
-              onLeanCanvasChange('add', 'customer', customerInput);
+              onLeanCanvasChange('add', 'customers', customerInput);
               setCustomerInput('');
             }
           }}>
@@ -109,7 +108,7 @@ const EditLeanCanvas = ({
           style={styles.buttonSingleLineInput(true)}
           onPress={() => {
             if (problemInput.trim() !== '') {
-              onLeanCanvasChange('add', 'problem', problemInput);
+              onLeanCanvasChange('add', 'problems', problemInput);
               setProblemInput('');
             }
           }}>
@@ -169,7 +168,7 @@ const EditLeanCanvas = ({
           style={styles.buttonSingleLineInput(true)}
           onPress={() => {
             if (earlyAdopterInput.trim() !== '') {
-              onLeanCanvasChange('add', 'earlyAdopter', earlyAdopterInput);
+              onLeanCanvasChange('add', 'earlyAdopters', earlyAdopterInput);
               setEarlyAdopterInput('');
             }
           }}>
@@ -230,7 +229,7 @@ const EditLeanCanvas = ({
             if (existingSolutionInput.trim() !== '') {
               onLeanCanvasChange(
                 'add',
-                'existingSolution',
+                'existingSolutions',
                 existingSolutionInput,
               );
               setExistingSolutionInput('');
@@ -292,7 +291,7 @@ const EditLeanCanvas = ({
           style={styles.buttonSingleLineInput(true)}
           onPress={() => {
             if (uniqueValueInput.trim() !== '') {
-              onLeanCanvasChange('add', 'uniqueValue', uniqueValueInput);
+              onLeanCanvasChange('add', 'uniqueValues', uniqueValueInput);
               setUniqueValueInput('');
             }
           }}>
@@ -339,12 +338,71 @@ const EditLeanCanvas = ({
         can really love you?
         <Text style={{color: colors.alert}}>*</Text>
       </Text>
-      <BoardTextInput
+      {/* <BoardTextInput
         text={proposedSolution[0]?.value}
         placeholder="(Max. 1000 Characters)"
         maxLength={1000}
         onChangeText={text => {
           onProposedSolutionChange(text);
+        }}
+      /> */}
+      <View style={styles.singleLineInputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter here"
+          value={proposedSolutionInput}
+          onChangeText={text => {
+            setProposedSolutionInput(text);
+          }}
+        />
+        <TouchableOpacity
+          style={styles.buttonSingleLineInput(true)}
+          onPress={() => {
+            if (proposedSolutionInput.trim() !== '') {
+              onLeanCanvasChange(
+                'add',
+                'proposedSolutions',
+                proposedSolutionInput,
+              );
+              setProposedSolutionInput('');
+            }
+          }}>
+          <IcOutlinedAdd />
+        </TouchableOpacity>
+      </View>
+      <Gap height={16} />
+      <FlatList
+        data={proposedSolution}
+        keyExtractor={(_, index) => index.toString()}
+        scrollEnabled={false}
+        showsVerticalScrollIndicator={false}
+        inverted
+        renderItem={({item, index}) => {
+          return (
+            <>
+              <Gap height={16} />
+              <View style={styles.singleLineInputContainer}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{marginHorizontal: 16}}
+                  contentContainerStyle={{
+                    flexGrow: 1,
+                  }}>
+                  <View style={styles.leanCanvasItemTextContainer}>
+                    <Text style={styles.leanCanvasItemText}>{item.value}</Text>
+                  </View>
+                </ScrollView>
+                <TouchableOpacity
+                  style={styles.buttonSingleLineInput(false)}
+                  onPress={() => {
+                    onLeanCanvasChange('remove', item.field, item.value);
+                  }}>
+                  <IcOutlinedRemove />
+                </TouchableOpacity>
+              </View>
+            </>
+          );
         }}
       />
     </CardCreateIdeaSession>

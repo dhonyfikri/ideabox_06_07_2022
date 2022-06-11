@@ -9,22 +9,88 @@ import Gap from './Gap';
 
 const CreateTeams = ({
   onNextReff,
+  listUserData,
+  myId,
   onUpdate = () => {},
   onNextRequest = () => {},
 }) => {
-  const [teams, setTeams] = useState([
-    {name: '', nik: '', teamStructure: null, workingLocation: '', unit: ''},
-  ]);
+  const blankTeam = {
+    id: '',
+    name: '',
+    email: '',
+    teamStructure: null,
+    workingLocation: '',
+    unitId: null,
+    notes: 'Join yuk',
+  };
+  const [teams, setTeams] = useState([blankTeam]);
+
+  const addTeamsField = () => {
+    let tempTeams = [...teams];
+    tempTeams.push(blankTeam);
+    setTeams(tempTeams);
+  };
+
+  const reconstructTeams = (index, tempTeamItem) => {
+    let tempTeams = [...teams];
+    tempTeams[index] = {
+      id: tempTeamItem.id,
+      name: tempTeamItem.name,
+      email: tempTeamItem.email,
+      teamStructure:
+        tempTeamItem.teamStructure !== null
+          ? tempTeamItem.teamStructure
+          : 'Hipster',
+      workingLocation: tempTeamItem.workingLocation,
+      unitId: tempTeamItem.unitId,
+      notes: 'Join yuk',
+    };
+    setTeams(tempTeams);
+  };
+
+  const matchToUserList = (index, email) => {
+    let tempTeamItem = {
+      ...blankTeam,
+      teamStructure: teams[index].teamStructure,
+      email: teams[index].email,
+    };
+    for (let i = 0; i < listUserData?.length; i++) {
+      if (listUserData[i].email === email) {
+        if (teams.filter(item => item.id === listUserData[i].id).length === 0) {
+          tempTeamItem = {...tempTeamItem, ...listUserData[i]};
+        }
+        break;
+      }
+    }
+    reconstructTeams(index, tempTeamItem);
+  };
+
+  useEffect(() => {
+    let tempTeamItem = {
+      ...blankTeam,
+      teamStructure: teams[0].teamStructure,
+    };
+    for (let i = 0; i < listUserData?.length; i++) {
+      if (listUserData[i].id === myId) {
+        tempTeamItem = {...tempTeamItem, ...listUserData[i]};
+        break;
+      }
+    }
+    reconstructTeams(0, tempTeamItem);
+  }, [listUserData]);
 
   useEffect(() => {
     let isCompleted = true;
     for (let i = 0; i < teams.length; i++) {
       if (
-        teams[i].name === '' ||
-        teams[i].nik === '' ||
-        teams[i].teamStructure === null ||
-        teams[i].workingLocation === '' ||
-        teams[i].unit === ''
+        // teams[i].name === '' ||
+        // teams[i].email === '' ||
+        // teams[i].teamStructure === null ||
+        // teams[i].workingLocation === '' ||
+        // teams[i].unitId === null
+
+        teams[i].id === '' ||
+        teams[i].teamStructure === null
       ) {
         isCompleted = false;
         break;
@@ -35,26 +101,35 @@ const CreateTeams = ({
 
   useEffect(() => {
     if (onNextReff !== undefined) {
-      onNextReff.current = () => onNextRequest(teams);
+      const teamsToPass = teams.map(item => {
+        return {
+          userId: item.id,
+          teamStructure: item.teamStructure,
+          notes: item.notes,
+        };
+      });
+      onNextReff.current = () => onNextRequest(teamsToPass);
     }
-  }, [teams]);
+  });
 
   return (
     <>
       {teams.map((item, index) => {
         return (
-          <>
+          <View key={index.toString()}>
             <CardCreateIdeaSession
               title={index === 0 ? 'Teams' : undefined}
               mandatory={index === 0 ? true : false}>
               <CreateTeamsField
+                disableEmailField={item.id === myId}
                 title={`Team Member ${index + 1}`}
-                withSelfDelete={teams.length > 1 ? true : false}
-                nikValue={item.nik}
-                onNikChange={newNik => {
-                  let tempTeams = [...teams];
-                  tempTeams[index].nik = newNik;
-                  setTeams(tempTeams);
+                withSelfDelete={index !== 0 ? true : false}
+                emailValue={item.email}
+                onEmailChange={newEmail => {
+                  // let tempTeams = [...teams];
+                  // tempTeams[index].email = newEmail;
+                  // setTeams(tempTeams);
+                  matchToUserList(index, newEmail);
                 }}
                 nameValue={item.name}
                 onNameChange={newName => {
@@ -68,10 +143,10 @@ const CreateTeams = ({
                   tempTeams[index].workingLocation = newWorkingLocation;
                   setTeams(tempTeams);
                 }}
-                unitValue={item.unit}
-                onUnitChange={newUnit => {
+                unitValue={item.unitId}
+                onUnitChange={newUnitId => {
                   let tempTeams = [...teams];
-                  tempTeams[index].unit = newUnit;
+                  tempTeams[index].unitId = newUnitId;
                   setTeams(tempTeams);
                 }}
                 teamStructureItem={[
@@ -101,15 +176,7 @@ const CreateTeams = ({
                         alignItems: 'center',
                       }}
                       onPress={() => {
-                        let tempTeams = [...teams];
-                        tempTeams.push({
-                          name: '',
-                          nik: '',
-                          teamStructure: null,
-                          workingLocation: '',
-                          unit: '',
-                        });
-                        setTeams(tempTeams);
+                        addTeamsField();
                       }}>
                       <IcAdd />
                       <Gap width={8} />
@@ -122,7 +189,7 @@ const CreateTeams = ({
               )}
             </CardCreateIdeaSession>
             {index !== teams.length - 1 && <Gap height={16} />}
-          </>
+          </View>
         );
       })}
     </>

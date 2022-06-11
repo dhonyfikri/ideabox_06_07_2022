@@ -241,6 +241,7 @@ const JoinedIdea = ({navigation, route}) => {
                 refRBSheetAction.current.close();
                 navigation.navigate('EditIdea', {
                   ideaId: selectedIdea.ideaId,
+                  userToken: route.params?.userToken,
                   isGuest: true,
                 });
               }}>
@@ -355,6 +356,7 @@ const JoinedIdea = ({navigation, route}) => {
           <Gap height={8} />
           <TextInput
             multiline
+            autoCorrect={false}
             textAlignVertical="top"
             style={styles.board}
             placeholder="Fill your reason.."

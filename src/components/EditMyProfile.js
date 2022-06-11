@@ -224,7 +224,9 @@ const EditMyProfile = ({
           </Text>
         </TextInput>
       </View>
-      <Text style={styles.title}>NIP</Text>
+      <Text style={styles.title}>
+        NIP <Text style={{...styles.title, color: colors.alert}}>*</Text>
+      </Text>
       <View style={styles.field(focusedInput === 'nipField')}>
         <TextInput
           style={styles.textInput}
@@ -239,7 +241,10 @@ const EditMyProfile = ({
           <Text style={{lineHeight: 15}}>{currentProfileData.nik}</Text>
         </TextInput>
       </View>
-      <Text style={styles.title}>Phone Number</Text>
+      <Text style={styles.title}>
+        Phone Number{' '}
+        <Text style={{...styles.title, color: colors.alert}}>*</Text>
+      </Text>
       <View style={styles.field(focusedInput === 'phoneNumberField')}>
         <TextInput
           style={styles.textInput}
@@ -255,7 +260,9 @@ const EditMyProfile = ({
           <Text style={{lineHeight: 15}}>{currentProfileData.noTelp}</Text>
         </TextInput>
       </View>
-      <Text style={styles.title}>Email</Text>
+      <Text style={styles.title}>
+        Email <Text style={{...styles.title, color: colors.alert}}>*</Text>
+      </Text>
       <View style={styles.field(focusedInput === 'emailField')}>
         <TextInput
           editable={false}
@@ -272,7 +279,10 @@ const EditMyProfile = ({
           <Text style={{lineHeight: 15}}>{currentProfileData.email}</Text>
         </TextInput>
       </View>
-      <Text style={styles.title}>Birth of Date</Text>
+      <Text style={styles.title}>
+        Birth of Date{' '}
+        <Text style={{...styles.title, color: colors.alert}}>*</Text>
+      </Text>
       <View style={{...styles.field(false), paddingVertical: 6}}>
         <TouchableOpacity
           style={{
@@ -292,7 +302,9 @@ const EditMyProfile = ({
           <IcCalendar />
         </TouchableOpacity>
       </View>
-      <Text style={styles.title}>Job Title</Text>
+      <Text style={styles.title}>
+        Job Title <Text style={{...styles.title, color: colors.alert}}>*</Text>
+      </Text>
       <View style={styles.field(focusedInput === 'jobTitleField')}>
         <TextInput
           style={styles.textInput}
@@ -307,7 +319,10 @@ const EditMyProfile = ({
         </TextInput>
       </View>
       {/* dropdown working location */}
-      <Text style={styles.title}>Working Location</Text>
+      <Text style={styles.title}>
+        Working Location{' '}
+        <Text style={{...styles.title, color: colors.alert}}>*</Text>
+      </Text>
       <DropDownPicker
         open={openDropdownWorkingLocation}
         value={valueDropdownWorkingLocation}
@@ -338,7 +353,10 @@ const EditMyProfile = ({
         placeholderStyle={styles.dropdownPlaceholder}
       />
       {/* dropdown team structure */}
-      <Text style={styles.title}>Team Structure</Text>
+      <Text style={styles.title}>
+        Team Structure{' '}
+        <Text style={{...styles.title, color: colors.alert}}>*</Text>
+      </Text>
       <DropDownPicker
         open={openDropdownTeamStructure}
         value={valueDropdownTeamStructure}
@@ -369,7 +387,9 @@ const EditMyProfile = ({
         placeholderStyle={styles.dropdownPlaceholder}
       />
       {/* dropdown unit */}
-      <Text style={styles.title}>Unit</Text>
+      <Text style={styles.title}>
+        Unit <Text style={{...styles.title, color: colors.alert}}>*</Text>
+      </Text>
       <DropDownPicker
         open={openDropdownUnit}
         value={valueDropdownUnit}
@@ -399,6 +419,29 @@ const EditMyProfile = ({
         labelStyle={styles.dropdownLabel}
         placeholderStyle={styles.dropdownPlaceholder}
       />
+      <Text style={styles.title}>
+        Role <Text style={{...styles.title, color: colors.alert}}>*</Text>
+      </Text>
+      <View
+        style={{
+          ...styles.field(focusedInput === 'role'),
+          backgroundColor: colors.divider,
+        }}>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Your role"
+          editable={false}>
+          <Text style={{lineHeight: 15}}>
+            {currentProfileData.roleId === '1'
+              ? 'Admin'
+              : currentProfileData.roleId === '2'
+              ? 'Innovator'
+              : currentProfileData.roleId === '3'
+              ? 'Innovation Manager'
+              : 'Unknown'}
+          </Text>
+        </TextInput>
+      </View>
       <Gap height={4} />
       <Text style={styles.noticeText}>* Indicates required</Text>
       <Gap height={24} />

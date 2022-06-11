@@ -28,6 +28,7 @@ const EditTeamStructureField = ({
       <Text style={styles.fieldTitle}>Team Name</Text>
       <View style={styles.field}>
         <TextInput
+          editable={false}
           style={styles.titleInput}
           placeholder="Nama"
           onChangeText={text => {

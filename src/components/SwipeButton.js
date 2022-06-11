@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {StyleSheet, TouchableOpacity} from 'react-native';
 import {PanGestureHandler} from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
@@ -106,6 +106,10 @@ const SwipeButton = ({onToggle, value}) => {
       };
     }),
   };
+
+  useEffect(() => {
+    X.value = !value ? 0 : BUTTON_WIDTH / 2;
+  }, [value]);
 
   return (
     <TouchableOpacity

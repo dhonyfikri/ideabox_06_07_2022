@@ -204,11 +204,13 @@ const CardContentNew = ({
             alignItems: 'center',
           }}
           disabled={creatorId === decodedJwt.data?.id ? true : false}>
-          {creatorId !== decodedJwt.data?.id && (
+          {creatorId !== decodedJwt.data?.id ? (
             <Image
               source={require('../assets/icon/joinidea.png')}
               style={{width: 20, height: 20}}
             />
+          ) : (
+            <Gap height={20} />
           )}
           <Text
             style={{
@@ -314,11 +316,13 @@ const CardContentNew = ({
                 }}>
                 Liked by{' '}
                 <Text style={{fontWeight: 'bold'}}>
-                  {lastLikeUser.length === 0
-                    ? '-'
-                    : lastLikeUser.length < 9
-                    ? lastLikeUser
-                    : lastLikeUser.slice(0, 9 - 3) + '...'}
+                  {lastLikeUser
+                    ? lastLikeUser.length === 0
+                      ? '-'
+                      : lastLikeUser.length < 9
+                      ? lastLikeUser
+                      : lastLikeUser.slice(0, 9 - 3) + '...'
+                    : '-'}
                 </Text>
               </Text>
             </View>

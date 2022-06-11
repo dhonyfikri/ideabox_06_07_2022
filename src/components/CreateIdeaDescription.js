@@ -40,9 +40,8 @@ const CreateIdeaDescription = ({
     ideaDescription.category,
   );
   const [itemsDropdownIdeaCategory, setItemsDropdownIdeaCategory] = useState([
-    {label: 'Artificial Intelegent', value: 'Artificial Intelegent'},
-    {label: 'Robotika', value: 'Robotika'},
-    {label: 'Social Colaboration', value: 'Social Colaboration'},
+    {label: 'Lingkungan', value: '1'},
+    {label: 'Social Colaboration', value: '2'},
   ]);
 
   const takeCoverPhotoFromLibrary = () => {
@@ -53,7 +52,14 @@ const CreateIdeaDescription = ({
       cropping: true,
     }).then(image => {
       if (image.size <= 1000000000) {
-        setIdeaDescription({...ideaDescription, cover: {uri: image.path}});
+        setIdeaDescription({
+          ...ideaDescription,
+          cover: {
+            uri: image.path,
+            mime: image.mime,
+            name: image.path?.split('/')?.slice(-1)[0],
+          },
+        });
         onEdited();
       }
     });
@@ -91,7 +97,8 @@ const CreateIdeaDescription = ({
     if (onNextReff !== undefined) {
       onNextReff.current = () => onNextRequest(ideaDescription);
     }
-  }, [ideaDescription]);
+    // }, [ideaDescription]); // ya Allah... menghapus dependensi ini bikin aku inget waktu susah cari sinyal di Tegal sampe jauh-jauh ke kota buat ngerjain ini :') . sekarang malah dihapus hhmmm...
+  });
 
   return (
     <CardCreateIdeaSession title="Idea Description" mandatory>

@@ -21,9 +21,102 @@ import EditLeanCanvas from '../../../components/EditLeanCanvas';
 import EditTeams from '../../../components/EditTeams';
 import EditAdditionalAttachment from '../../../components/EditAdditionalAttachment';
 import ModalMessage from '../../../components/ModalMessage';
+import jwtDecode from 'jwt-decode';
+import {dateToText} from '../../../utils/DateConfig/DateConvert';
+import LoadingProcessFull from '../../../components/LoadingProcessFull';
+import RefreshFull from '../../../components/RefreshFull';
+import {
+  EditIdeaAPI,
+  GetDetailIdeaAPI,
+} from '../../../config/RequestAPI/IdeaAPI';
+import {useBackHandler} from '@react-native-community/hooks';
 
 const EditIdea = ({navigation, route}) => {
-  const ideaData = _.cloneDeep(DummyResponseDetailIdea);
+  const decodedJwt = jwtDecode(route.params?.userToken.authToken);
+  let ideaData = _.cloneDeep(DummyResponseDetailIdea);
+
+  // only example
+  ideaData = {
+    ...ideaData,
+    approval: [
+      {
+        id: '17',
+        name: 'Fani Alisya',
+        nik: '2523634643345',
+        noTelp: '085735446657',
+        email: 'fani@mandiri.com',
+        teamStructure: 'Hipster',
+        unit: 'Technical',
+        status: 'approved',
+        approvedDate: '05/05/2022',
+        createdDate: '05/05/2022',
+        updatedDate: '05/05/2022',
+      },
+      {
+        id: '15',
+        name: 'Yudi Pramudya',
+        nik: '432632623452',
+        noTelp: '085743770056',
+        email: 'fani@yudi@mandiri.com',
+        teamStructure: 'Hustler',
+        unit: 'Managerial',
+        status: 'approved',
+        approvedDate: '10/05/2022',
+        createdDate: '02/05/2022',
+        updatedDate: '02/05/2022',
+      },
+    ],
+    files: [
+      {
+        field: 'additionalFileAttachment',
+        value: {
+          name: '[upload] SPTJM Alfian Nur Fathoni L200190002 Telkom.pdf',
+          extension: 'pdf',
+          link: '1649927752_cd23eecb32ae54ddcbc2.pdf',
+        },
+        ideaId: '48',
+        uploadedById: '17',
+        uploadedByName: 'Fani Alisya',
+        uploadedDate: '01/05/2022',
+      },
+      {
+        field: 'additionalFileLinkAttachment',
+        value: {
+          name: 'dokumen 1',
+          extension: null,
+          link: 'http://lokasifile.com',
+        },
+        ideaId: '48',
+        uploadedById: '17',
+        uploadedByName: 'Fani Alisya',
+        uploadedDate: '01/05/2022',
+      },
+      {
+        field: 'additionalFileAttachment',
+        value: {
+          name: '1.1 [Format] SPTJM Mahasiswa MSIB Batch 2.pdf',
+          extension: 'pdf',
+          link: '1649927752_7dcdfa63d7f2da3d30f3.pdf',
+        },
+        ideaId: '48',
+        uploadedById: '17',
+        uploadedByName: 'Fani Alisya',
+        uploadedDate: '01/05/2022',
+      },
+      {
+        field: 'additionalFileLinkAttachment',
+        value: {
+          name: 'dokumen 21',
+          extension: null,
+          link: 'http://lokasifile222.com',
+        },
+        ideaId: '48',
+        uploadedById: '17',
+        uploadedByName: 'Fani Alisya',
+        uploadedDate: '01/05/2022',
+      },
+    ],
+  };
 
   const stepSession = [
     'Idea Description',
@@ -36,7 +129,8 @@ const EditIdea = ({navigation, route}) => {
   const stepSessionRef = useRef(null);
 
   const [activeIndexOfContent, setActiveIndexOfContent] = useState(0);
-  const [currentIdeaData, setCurrentIdeaData] = useState(ideaData);
+  const [actualIdeaData, setActualIdeaData] = useState(null);
+  const [currentIdeaData, setCurrentIdeaData] = useState(null);
   const [isFlatlistMounted, setIsFlatlistMounted] = useState(false);
   const [edited, setEdited] = useState(false);
   const [messageDiscardEditModalVisible, setMessageDiscardEditModalVisible] =
@@ -45,6 +139,18 @@ const EditIdea = ({navigation, route}) => {
     messageSuccessUpdateIdeaModalVisible,
     setMessageSuccessUpdateIdeaModalVisible,
   ] = useState(false);
+  const [loading, setLoading] = useState({
+    visible: true,
+    message: 'Please wait',
+  });
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
+  const [showRefreshBUtton, setShowRefreshButton] = useState(false);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const handleFadeIn = () => {
@@ -60,6 +166,194 @@ const EditIdea = ({navigation, route}) => {
         useNativeDriver: true,
       }),
     ]).start();
+  };
+
+  const fetchIdea = () => {
+    setLoading({...loading, visible: true, message: 'Please wait'});
+    setShowRefreshButton(false);
+    GetDetailIdeaAPI(
+      route.params?.userToken?.authToken,
+      route.params?.ideaId,
+    ).then(res => {
+      setLoading({...loading, visible: false});
+      handleFadeIn();
+      if (res.status === 'SUCCESS') {
+        let fixData = null;
+        fixData = {
+          ...res.data,
+          allowJoin: route.params?.allowJoin ? route.params?.allowJoin : '0',
+          approval: [
+            {
+              id: '17',
+              name: 'Fani Alisya',
+              nik: '2523634643345',
+              noTelp: '085735446657',
+              email: 'fani@mandiri.com',
+              teamStructure: 'Hipster',
+              unit: 'Technical',
+              status: 'approved',
+              approvedDate: '05/05/2022',
+              createdDate: '05/05/2022',
+              updatedDate: '05/05/2022',
+            },
+            {
+              id: '15',
+              name: 'Yudi Pramudya',
+              nik: '432632623452',
+              noTelp: '085743770056',
+              email: 'fani@yudi@mandiri.com',
+              teamStructure: 'Hustler',
+              unit: 'Managerial',
+              status: 'approved',
+              approvedDate: '10/05/2022',
+              createdDate: '02/05/2022',
+              updatedDate: '02/05/2022',
+            },
+          ],
+          files: [
+            {
+              field: 'additionalFileAttachment',
+              value: {
+                name: '[upload] SPTJM Alfian Nur Fathoni L200190002 Telkom.pdf',
+                extension: 'pdf',
+                link: '1649927752_cd23eecb32ae54ddcbc2.pdf',
+              },
+              ideaId: '48',
+              uploadedById: '17',
+              uploadedByName: 'Fani Alisya',
+              uploadedDate: '01/05/2022',
+            },
+            {
+              field: 'additionalFileLinkAttachment',
+              value: {
+                name: 'dokumen 1',
+                extension: null,
+                link: 'http://lokasifile.com',
+              },
+              ideaId: '48',
+              uploadedById: '17',
+              uploadedByName: 'Fani Alisya',
+              uploadedDate: '01/05/2022',
+            },
+            {
+              field: 'additionalFileAttachment',
+              value: {
+                name: '1.1 [Format] SPTJM Mahasiswa MSIB Batch 2.pdf',
+                extension: 'pdf',
+                link: '1649927752_7dcdfa63d7f2da3d30f3.pdf',
+              },
+              ideaId: '48',
+              uploadedById: '17',
+              uploadedByName: 'Fani Alisya',
+              uploadedDate: '01/05/2022',
+            },
+            {
+              field: 'additionalFileLinkAttachment',
+              value: {
+                name: 'dokumen 21',
+                extension: null,
+                link: 'http://lokasifile222.com',
+              },
+              ideaId: '48',
+              uploadedById: '17',
+              uploadedByName: 'Fani Alisya',
+              uploadedDate: '01/05/2022',
+            },
+          ],
+        };
+        fixData.desc[2].value = {
+          uri: res.data.desc[2].value,
+          mime: 'image/' + res.data.desc[2].value?.split('.')?.slice(-1)[0],
+          name: res.data.desc[2].value,
+        };
+        setActualIdeaData(fixData);
+        setCurrentIdeaData(fixData);
+      } else if (res.status === 'SERVER_ERROR') {
+        setShowRefreshButton(true);
+      }
+    });
+  };
+
+  const convertDataIdeaToPost = () => {
+    let inviteList = [];
+    currentIdeaData?.approval?.map(item => {
+      inviteList.push({
+        userId: item.id,
+        notes: 'yuk join',
+        teamStructure: item.teamStructure,
+      });
+    });
+    let linkAttachment = [];
+    currentIdeaData?.files?.map(item => {
+      if (item.field === 'additionalFileLinkAttachment') {
+        linkAttachment.push({name: item.value.name, link: item.value.link});
+      }
+    });
+    return {
+      ideaDescription: {
+        title: currentIdeaData?.desc[0].value,
+        cover: currentIdeaData?.desc[2].value,
+        category: currentIdeaData?.categoryIdea[0]?.id,
+        description: currentIdeaData?.desc[1].value,
+        allowToJoin: currentIdeaData?.allowJoin === '1' ? true : false,
+      },
+      storyBehind: {
+        why: currentIdeaData?.gc[0].value,
+        how: currentIdeaData?.gc[1].value,
+        what: currentIdeaData?.gc[2].value,
+      },
+      leanCanvas: {
+        customer: currentIdeaData?.lc
+          .filter(item => item.field === 'customers')
+          .map(item => item.value),
+        problem: currentIdeaData?.lc
+          .filter(item => item.field === 'problems')
+          .map(item => item.value),
+        earlyAdopter: currentIdeaData?.lc
+          .filter(item => item.field === 'earlyAdopters')
+          .map(item => item.value),
+        existingSolution: currentIdeaData?.lc
+          .filter(item => item.field === 'existingSolutions')
+          .map(item => item.value),
+        uniqueValue: currentIdeaData?.lc
+          .filter(item => item.field === 'uniqueValues')
+          .map(item => item.value),
+        proposedSolution: currentIdeaData?.lc
+          .filter(item => item.field === 'proposedSolutions')
+          .map(item => item.value),
+      },
+      inviteUsers: inviteList,
+      // attachment: [],
+      additionalFileLinkAttachment: linkAttachment,
+    };
+  };
+
+  const handleSaveEdit = () => {
+    setLoading({...loading, visible: true, message: 'Updating your idea'});
+    EditIdeaAPI(
+      route.params?.userToken.authToken,
+      route.params?.ideaId,
+      convertDataIdeaToPost(),
+    ).then(res => {
+      setLoading({...loading, visible: false});
+      if (res.status === 'SUCCESS') {
+        setMessageSuccessUpdateIdeaModalVisible(true);
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'UNAUTHORIZED' ||
+        res.status === 'VALIDATION_ERROR' ||
+        res.status === 'BACKEND_ERROR' ||
+        res.status === 'SERVER_ERROR'
+      ) {
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Failed',
+          message: res.message,
+          type: 'confused',
+        });
+      }
+    });
   };
 
   const toggleActive = index => {
@@ -79,64 +373,65 @@ const EditIdea = ({navigation, route}) => {
     let completed = true;
     // idea description check
     if (
-      currentIdeaData.desc[0].value.trim().length === 0 ||
-      currentIdeaData.desc[1].value === null ||
-      currentIdeaData.desc[2].value.trim().length === 0 ||
-      currentIdeaData.categoryIdea.length === 0 ||
-      currentIdeaData.allowJoin === null
+      currentIdeaData?.desc[0]?.value?.trim()?.length === 0 ||
+      currentIdeaData?.desc[1]?.value?.trim()?.length === 0 ||
+      currentIdeaData?.desc[2]?.value === null ||
+      currentIdeaData?.categoryIdea?.length === 0 ||
+      currentIdeaData?.allowJoin === null
     ) {
       completed = false;
     }
     // story behind check
     if (
-      currentIdeaData.gc[0].value.trim().length === 0 ||
-      currentIdeaData.gc[1].value.trim().length === 0 ||
-      currentIdeaData.gc[2].value.trim().length === 0
+      currentIdeaData?.gc[0].value.trim().length === 0 ||
+      currentIdeaData?.gc[1].value.trim().length === 0 ||
+      currentIdeaData?.gc[2].value.trim().length === 0
     ) {
       completed = false;
     }
     // lean canvas check
-    let customer = currentIdeaData.lc.filter(item => {
-      return item.field === 'customer';
+    let customer = currentIdeaData?.lc.filter(item => {
+      return item.field === 'customers';
     });
-    let problem = currentIdeaData.lc.filter(item => {
-      return item.field === 'problem';
+    let problem = currentIdeaData?.lc.filter(item => {
+      return item.field === 'problems';
     });
-    let earlyAdopter = currentIdeaData.lc.filter(item => {
-      return item.field === 'earlyAdopter';
+    let earlyAdopter = currentIdeaData?.lc.filter(item => {
+      return item.field === 'earlyAdopters';
     });
-    let existingSolution = currentIdeaData.lc.filter(item => {
-      return item.field === 'existingSolution';
+    let existingSolution = currentIdeaData?.lc.filter(item => {
+      return item.field === 'existingSolutions';
     });
-    let uniqueValue = currentIdeaData.lc.filter(item => {
-      return item.field === 'uniqueValue';
+    let uniqueValue = currentIdeaData?.lc.filter(item => {
+      return item.field === 'uniqueValues';
     });
-    let proposedSolution = currentIdeaData.lc.filter(item => {
-      return item.field === 'proposedSolution';
+    let proposedSolution = currentIdeaData?.lc.filter(item => {
+      return item.field === 'proposedSolutions';
     });
     if (
-      customer.length === 0 ||
-      problem.length === 0 ||
-      earlyAdopter.length === 0 ||
-      existingSolution.length === 0 ||
-      uniqueValue.length === 0 ||
-      proposedSolution.length === 0 ||
-      proposedSolution[0]?.value.trim().length === 0
-    ) {
-      completed = false;
-    }
-    // story behind check
-    if (
-      currentIdeaData.gc[0].value.trim().length === 0 ||
-      currentIdeaData.gc[1].value.trim().length === 0 ||
-      currentIdeaData.gc[2].value.trim().length === 0
+      customer?.length === 0 ||
+      problem?.length === 0 ||
+      earlyAdopter?.length === 0 ||
+      existingSolution?.length === 0 ||
+      uniqueValue?.length === 0 ||
+      proposedSolution?.length === 0
     ) {
       completed = false;
     }
     // teams check (not necessary)
     // additional attachment check (not necessary)
-
     return completed && edited;
+  };
+
+  const backToPreviousPage = (withRefresh = false) => {
+    if (withRefresh) {
+      navigation.navigate('SubmittedIdea', {
+        userToken: route.params?.userToken,
+        refresh: {status: true},
+      });
+    } else {
+      navigation.goBack();
+    }
   };
 
   useEffect(() => {
@@ -156,13 +451,25 @@ const EditIdea = ({navigation, route}) => {
 
   useEffect(() => {
     handleFadeIn();
+    fetchIdea();
   }, []);
+
+  useBackHandler(() => {
+    backToPreviousPage();
+    return true;
+  });
 
   return (
     <View style={styles.page}>
       <Header
         backButton
-        onBackPress={() => navigation.goBack()}
+        onBackPress={() => {
+          if (edited) {
+            setMessageDiscardEditModalVisible(true);
+          } else {
+            backToPreviousPage(false);
+          }
+        }}
         backText="Back"
         title="Edit Idea"
         onNotificationPress={() => navigation.navigate('Notification')}
@@ -216,179 +523,180 @@ const EditIdea = ({navigation, route}) => {
             {/* edit idea description */}
             {activeIndexOfContent === 0 && (
               <EditIdeaDescription
-                ideaTitle={currentIdeaData.desc[0]?.value}
+                ideaTitle={currentIdeaData?.desc[0].value}
                 ideaCover={
-                  currentIdeaData.desc[1]?.value !== null
-                    ? {uri: currentIdeaData.desc[1]?.value}
+                  currentIdeaData?.desc[2].value
+                    ? currentIdeaData?.desc[2].value
                     : null
                 }
-                ideaCategory={currentIdeaData.categoryIdea[0]?.name}
-                ideaDesc={currentIdeaData.desc[2]?.value}
-                allowToJoin={currentIdeaData.allowJoin === '1' ? true : false}
+                ideaCategory={currentIdeaData?.categoryIdea[0]?.id}
+                ideaDesc={currentIdeaData?.desc[1].value}
+                allowToJoin={currentIdeaData?.allowJoin === '1' ? true : false}
                 onIdeaTitleChange={newTitle => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  tempCurrentIdeaData.desc[0].value = newTitle;
-                  setCurrentIdeaData(tempCurrentIdeaData);
-                  handleEdited();
+                  if (currentIdeaData !== null) {
+                    let tempCurrentIdeaData = {...currentIdeaData};
+                    tempCurrentIdeaData.desc[0].value = newTitle;
+                    setCurrentIdeaData(tempCurrentIdeaData);
+                    handleEdited();
+                  }
                 }}
                 onIdeaCoverChange={newCover => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  tempCurrentIdeaData.desc[1].value = newCover;
-                  setCurrentIdeaData(tempCurrentIdeaData);
-                  handleEdited();
+                  if (currentIdeaData !== null) {
+                    let tempCurrentIdeaData = {...currentIdeaData};
+                    tempCurrentIdeaData.desc[2].value = newCover;
+                    setCurrentIdeaData(tempCurrentIdeaData);
+                    handleEdited();
+                  }
                 }}
-                onIdeaCategoryChange={newCategory => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  tempCurrentIdeaData.categoryIdea[0].name = newCategory;
-                  setCurrentIdeaData(tempCurrentIdeaData);
+                onIdeaCategoryChange={(newCategoryId, newCategoryName) => {
+                  if (currentIdeaData !== null) {
+                    let tempCurrentIdeaData = {...currentIdeaData};
+                    tempCurrentIdeaData.categoryIdea[0].id = newCategoryId;
+                    tempCurrentIdeaData.categoryIdea[0].name = newCategoryName;
+                    setCurrentIdeaData(tempCurrentIdeaData);
+                    handleEdited();
+                  }
                 }}
-                onDropdownValueChange={() => handleEdited()}
+                // onDropdownValueChange={() => handleEdited()}
                 onIdeaDescChange={newDesc => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  tempCurrentIdeaData.desc[2].value = newDesc;
-                  setCurrentIdeaData(tempCurrentIdeaData);
-                  handleEdited();
+                  if (currentIdeaData !== null) {
+                    let tempCurrentIdeaData = {...currentIdeaData};
+                    tempCurrentIdeaData.desc[1].value = newDesc;
+                    setCurrentIdeaData(tempCurrentIdeaData);
+                    handleEdited();
+                  }
                 }}
                 onAllowToJoinChange={newAllowToJoin => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  tempCurrentIdeaData.allowJoin =
-                    newAllowToJoin === true ? '1' : 0;
-                  setCurrentIdeaData(tempCurrentIdeaData);
-                  handleEdited();
+                  if (currentIdeaData !== null) {
+                    let tempCurrentIdeaData = {...currentIdeaData};
+                    tempCurrentIdeaData.allowJoin =
+                      newAllowToJoin === true ? '1' : 0;
+                    setCurrentIdeaData(tempCurrentIdeaData);
+                    handleEdited();
+                  }
                 }}
               />
             )}
             {/* edit story behind */}
             {activeIndexOfContent === 1 && (
               <EditStoryBehind
-                why={currentIdeaData.gc[0].value}
-                how={currentIdeaData.gc[1].value}
-                what={currentIdeaData.gc[2].value}
+                why={currentIdeaData?.gc[0].value}
+                how={currentIdeaData?.gc[1].value}
+                what={currentIdeaData?.gc[2].value}
                 onWhyChange={newWhy => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  tempCurrentIdeaData.gc[0].value = newWhy;
-                  setCurrentIdeaData(tempCurrentIdeaData);
-                  handleEdited();
+                  if (currentIdeaData !== null) {
+                    let tempCurrentIdeaData = {...currentIdeaData};
+                    tempCurrentIdeaData.gc[0].value = newWhy;
+                    setCurrentIdeaData(tempCurrentIdeaData);
+                    handleEdited();
+                  }
                 }}
                 onHowChange={newHow => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  tempCurrentIdeaData.gc[1].value = newHow;
-                  setCurrentIdeaData(tempCurrentIdeaData);
-                  handleEdited();
+                  if (currentIdeaData !== null) {
+                    let tempCurrentIdeaData = {...currentIdeaData};
+                    tempCurrentIdeaData.gc[1].value = newHow;
+                    setCurrentIdeaData(tempCurrentIdeaData);
+                    handleEdited();
+                  }
                 }}
                 onWhatChange={newWhat => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  tempCurrentIdeaData.gc[2].value = newWhat;
-                  setCurrentIdeaData(tempCurrentIdeaData);
-                  handleEdited();
+                  if (currentIdeaData !== null) {
+                    let tempCurrentIdeaData = {...currentIdeaData};
+                    tempCurrentIdeaData.gc[2].value = newWhat;
+                    setCurrentIdeaData(tempCurrentIdeaData);
+                    handleEdited();
+                  }
                 }}
               />
             )}
             {/* edit story lean canvas */}
             {activeIndexOfContent === 2 && (
               <EditLeanCanvas
-                customer={currentIdeaData.lc.filter(item => {
-                  return item.field === 'customer';
+                customer={currentIdeaData?.lc.filter(item => {
+                  return item.field === 'customers';
                 })}
-                problem={currentIdeaData.lc.filter(item => {
-                  return item.field === 'problem';
+                problem={currentIdeaData?.lc.filter(item => {
+                  return item.field === 'problems';
                 })}
-                earlyAdopter={currentIdeaData.lc.filter(item => {
-                  return item.field === 'earlyAdopter';
+                earlyAdopter={currentIdeaData?.lc.filter(item => {
+                  return item.field === 'earlyAdopters';
                 })}
-                existingSolution={currentIdeaData.lc.filter(item => {
-                  return item.field === 'existingSolution';
+                existingSolution={currentIdeaData?.lc.filter(item => {
+                  return item.field === 'existingSolutions';
                 })}
-                uniqueValue={currentIdeaData.lc.filter(item => {
-                  return item.field === 'uniqueValue';
+                uniqueValue={currentIdeaData?.lc.filter(item => {
+                  return item.field === 'uniqueValues';
                 })}
-                proposedSolution={currentIdeaData.lc.filter(item => {
-                  return item.field === 'proposedSolution';
+                proposedSolution={currentIdeaData?.lc.filter(item => {
+                  return item.field === 'proposedSolutions';
                 })}
                 onLeanCanvasChange={(type, field, value) => {
-                  if (type === 'add') {
-                    let tempCurrentIdeaData = {...currentIdeaData};
-                    tempCurrentIdeaData.lc.push({field: field, value: value});
-                    setCurrentIdeaData(tempCurrentIdeaData);
-                    handleEdited();
-                  } else if (type === 'remove') {
-                    let tempCurrentIdeaData = {...currentIdeaData};
-                    let tempLeanCanvas = tempCurrentIdeaData.lc.filter(item => {
-                      return item.field !== field || item.value !== value;
-                    });
-                    tempCurrentIdeaData.lc = tempLeanCanvas;
-                    setCurrentIdeaData(tempCurrentIdeaData);
-                    handleEdited();
+                  if (currentIdeaData !== null) {
+                    if (type === 'add') {
+                      let tempCurrentIdeaData = {...currentIdeaData};
+                      tempCurrentIdeaData.lc.push({field: field, value: value});
+                      setCurrentIdeaData(tempCurrentIdeaData);
+                      handleEdited();
+                    } else if (type === 'remove') {
+                      let tempCurrentIdeaData = {...currentIdeaData};
+                      let tempLeanCanvas = tempCurrentIdeaData.lc.filter(
+                        item => {
+                          return item.field !== field || item.value !== value;
+                        },
+                      );
+                      tempCurrentIdeaData.lc = tempLeanCanvas;
+                      setCurrentIdeaData(tempCurrentIdeaData);
+                      handleEdited();
+                    }
                   }
-                }}
-                onProposedSolutionChange={newProposedSolution => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  let tempLeanCanvas = tempCurrentIdeaData.lc.filter(item => {
-                    return item.field !== 'proposedSolution';
-                  });
-                  tempCurrentIdeaData.lc = tempLeanCanvas;
-                  tempCurrentIdeaData.lc.push({
-                    field: 'proposedSolution',
-                    value: newProposedSolution,
-                  });
-                  setCurrentIdeaData(tempCurrentIdeaData);
-                  handleEdited();
                 }}
               />
             )}
             {/* edit teams */}
             {activeIndexOfContent === 3 && (
               <EditTeams
+                userToken={route.params?.userToken}
                 isGuest={
                   route.params.isGuest === undefined
                     ? false
                     : route.params.isGuest
                 }
-                ideaName={DummyResponseDetailIdea.desc[0]?.value}
-                teams={currentIdeaData.approval}
+                ideaName={actualIdeaData?.desc[0]?.value}
+                teams={currentIdeaData?.approval}
                 onProfilePress={(person, id) => {
                   if (person === 'me') {
                     navigation.navigate('MyProfile', {
-                      profileData: {
-                        profilePhoto: {
-                          uri: 'https://cdn0-production-images-kly.akamaized.net/S9AM35Gly7_IQDK9cwINANo5qoU=/1200x900/smart/filters:quality(75):strip_icc():format(jpeg)/kly-media-production/medias/957804/original/067365400_1439796663-thom_yorke.jpg',
-                        },
-                        backgroundPhoto: {
-                          uri: 'https://www.cufonfonts.com/images/thumb/6571/paranoid-android-741x415-1762fc0191.jpg',
-                        },
-                        name: 'Elon Murz',
-                        nip: '2317345',
-                        phone: '081289058901',
-                        email: 'elon@gmail.com',
-                        birthOfDate: '22/03/1999',
-                        job: 'Product Owner IdeaBox',
-                        workingLocation: 'Jakarta',
-                        teamStructure: 'Hacker',
-                        unit: 'Ideabox2',
-                        location: 'Karawang, Jawa Barat, Indonesia',
-                        numberOfIdeas: '36',
-                        numberOfLikes: '402',
-                        numberOfComments: '381',
-                      },
                       editable: false,
+                      userId: decodedJwt.data.id,
+                      userToken: route.params?.userToken,
+                      ideaData: route.params?.ideaDataList,
                     });
                   } else if (person === 'others') {
-                    console.log('open profile with user id =', id);
+                    navigation.navigate('MyProfile', {
+                      editable: false,
+                      userId: id,
+                      userToken: route.params?.userToken,
+                      ideaData: route.params?.ideaDataList,
+                    });
                   }
                 }}
                 onTeamsRemoved={index => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  tempCurrentIdeaData.approval.splice(index, 1);
-                  setCurrentIdeaData(tempCurrentIdeaData);
-                  handleEdited();
+                  if (currentIdeaData !== null) {
+                    let tempCurrentIdeaData = {...currentIdeaData};
+                    tempCurrentIdeaData.approval.splice(index, 1);
+                    setCurrentIdeaData(tempCurrentIdeaData);
+                    handleEdited();
+                  }
                 }}
                 onTeamsChange={(index, newName, newTeamStructure) => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  tempCurrentIdeaData.approval[index].approvalTo.name = newName;
-                  tempCurrentIdeaData.approval[index].approvalTo.teamStructure =
-                    newTeamStructure;
-                  setCurrentIdeaData(tempCurrentIdeaData);
-                  handleEdited();
+                  if (currentIdeaData !== null) {
+                    let tempCurrentIdeaData = {...currentIdeaData};
+                    tempCurrentIdeaData.approval[index].name = newName;
+                    tempCurrentIdeaData.approval[index].teamStructure =
+                      newTeamStructure;
+                    setCurrentIdeaData(tempCurrentIdeaData);
+                    handleEdited();
+                  }
                 }}
                 onLeaveIdea={() => {
                   navigation.goBack();
@@ -398,18 +706,40 @@ const EditIdea = ({navigation, route}) => {
             {/* edit additional attachment */}
             {activeIndexOfContent === 4 && (
               <EditAdditionalAttachment
-                attachment={currentIdeaData.additionalAttachment}
+                attachment={currentIdeaData.files}
                 onRemoveAttachment={index => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  tempCurrentIdeaData.additionalAttachment.splice(index, 1);
-                  setCurrentIdeaData(tempCurrentIdeaData);
-                  handleEdited();
+                  if (currentIdeaData !== null) {
+                    let tempCurrentIdeaData = {...currentIdeaData};
+                    tempCurrentIdeaData.files.splice(index, 1);
+                    setCurrentIdeaData(tempCurrentIdeaData);
+                    handleEdited();
+                  }
                 }}
                 onAddAttachment={newAttachment => {
-                  let tempCurrentIdeaData = {...currentIdeaData};
-                  tempCurrentIdeaData.additionalAttachment.push(newAttachment);
-                  setCurrentIdeaData(tempCurrentIdeaData);
-                  handleEdited();
+                  if (currentIdeaData !== null) {
+                    let fixNewAttachment = {
+                      field:
+                        newAttachment.type === 'File'
+                          ? 'additionalFileAttachment'
+                          : 'additionalFileLinkAttachment',
+                      value: {
+                        name: newAttachment.desc,
+                        extension: newAttachment.type === 'File' ? 'pdf' : null,
+                        link:
+                          newAttachment.type === 'File'
+                            ? newAttachment.documentName
+                            : newAttachment.link,
+                      },
+                      ideaId: currentIdeaData.id,
+                      uploadedById: decodedJwt.data.id,
+                      uploadedByName: decodedJwt.data.name,
+                      uploadedDate: dateToText(new Date()),
+                    };
+                    let tempCurrentIdeaData = {...currentIdeaData};
+                    tempCurrentIdeaData.files.push(fixNewAttachment);
+                    setCurrentIdeaData(tempCurrentIdeaData);
+                    handleEdited();
+                  }
                 }}
               />
             )}
@@ -423,7 +753,7 @@ const EditIdea = ({navigation, route}) => {
             if (edited) {
               setMessageDiscardEditModalVisible(true);
             } else {
-              navigation.goBack();
+              backToPreviousPage(false);
             }
           }}>
           <Text style={styles.actionButtonText('discard')}>Discard</Text>
@@ -434,7 +764,7 @@ const EditIdea = ({navigation, route}) => {
           )}
           disabled={!handleCompleted()}
           onPress={() => {
-            setMessageSuccessUpdateIdeaModalVisible(true);
+            handleSaveEdit();
           }}>
           <Text style={styles.actionButtonText('finish')}>Finish</Text>
         </TouchableOpacity>
@@ -456,7 +786,7 @@ const EditIdea = ({navigation, route}) => {
         onCancel={() => setMessageDiscardEditModalVisible(false)}
         onConfirm={() => {
           setMessageDiscardEditModalVisible(false);
-          navigation.goBack();
+          backToPreviousPage(false);
         }}
         onRequestClose={() => setMessageDiscardEditModalVisible(false)}
       />
@@ -476,11 +806,38 @@ const EditIdea = ({navigation, route}) => {
         withBackButton
         onBack={() => {
           setMessageSuccessUpdateIdeaModalVisible(false);
-          navigation.goBack();
+          backToPreviousPage(true);
         }}
         onRequestClose={() => {
           setMessageSuccessUpdateIdeaModalVisible(false);
-          navigation.goBack();
+          backToPreviousPage(true);
+        }}
+      />
+
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
+      <RefreshFull
+        visible={showRefreshBUtton}
+        onPress={() => {
+          setShowRefreshButton(false);
+          fetchIdea();
+        }}
+        onOffsetTouch={() => backToPreviousPage(false)}
+      />
+      {/* modal message */}
+      <ModalMessage
+        visible={messageModal.visible}
+        withIllustration
+        illustrationType={messageModal.type}
+        title={messageModal.title}
+        message={messageModal.message}
+        withBackButton
+        onBack={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+        onRequestClose={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
         }}
       />
     </View>

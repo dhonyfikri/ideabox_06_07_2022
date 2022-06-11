@@ -1,4 +1,6 @@
 import {useBackHandler} from '@react-native-community/hooks';
+import axios from 'axios';
+import jwtDecode from 'jwt-decode';
 import React, {useEffect, useRef, useState} from 'react';
 import {
   Dimensions,
@@ -19,11 +21,16 @@ import CreateTeams from '../../../components/CreateTeams';
 import Divider from '../../../components/Divider';
 import Gap from '../../../components/Gap';
 import Header from '../../../components/Header';
+import LoadingProcessFull from '../../../components/LoadingProcessFull';
 import ModalMessage from '../../../components/ModalMessage';
+import RefreshFull from '../../../components/RefreshFull';
+import {ApiGatewayBaseUrl} from '../../../config/Environment.cfg';
+import {CreateIdeaAPI, GetIdeasAPI} from '../../../config/RequestAPI/IdeaAPI';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
 
 const CreateIdeaStep = ({navigation, route}) => {
+  const decodedJwt = jwtDecode(route.params?.userToken.authToken);
   const onNextCreateIdeaDescriptionReff = useRef(null);
   const onNextCreateStoryBehindReff = useRef(null);
   const onNextCreateLeanCanvasReff = useRef(null);
@@ -55,6 +62,20 @@ const CreateIdeaStep = ({navigation, route}) => {
   ] = useState(false);
   const [messageSuccessModalVisible, setMessageSuccessModalVisible] =
     useState(false);
+  const [listIdea, setListIdea] = useState({isSet: false, data: []});
+  const [listUserData, setListUserData] = useState([]);
+  const [loading, setLoading] = useState({
+    visible: true,
+    message: 'Please Wait',
+  });
+  const [showRefreshBUtton, setShowRefreshButton] = useState(false);
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
 
   const [idea, setIdea] = useState({
     ideaDescription: {
@@ -75,12 +96,11 @@ const CreateIdeaStep = ({navigation, route}) => {
       earlyAdopter: [],
       existingSolution: [],
       uniqueValue: [],
-      proposedSolution: '',
+      proposedSolution: [],
     },
-    teams: [
-      {name: '', nik: '', teamStructure: '', workingLocation: '', unit: ''},
-    ],
-    attachment: [],
+    inviteUsers: [],
+    // attachment: [],
+    additionalFileLinkAttachment: [],
   });
 
   const stepSession = [
@@ -111,12 +131,130 @@ const CreateIdeaStep = ({navigation, route}) => {
     }
   };
 
+  const fetchIdeas = () => {
+    setLoading({...loading, visible: true});
+    GetIdeasAPI(route.params?.userToken?.authToken).then(res => {
+      if (res.status === 'SUCCESS') {
+        let fixResult = [];
+        let uniqueUserId = [];
+        res.data.map(item => {
+          uniqueUserId.push(item.createdBy);
+          item.like.map(item => {
+            uniqueUserId.push(item.createdBy);
+          });
+          item.comment.map(item => {
+            uniqueUserId.push(item.createdBy);
+          });
+          uniqueUserId.push(
+            jwtDecode(route.params?.userToken?.authToken).data.id,
+          );
+        });
+        if (res.data.length > 0) {
+          uniqueUserId = [...new Set(uniqueUserId)];
+        }
+        const request = userId => {
+          return axios.get(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${route.params?.userToken?.authToken}`,
+              Tenant: `https://${
+                jwtDecode(route.params?.userToken?.authToken).data
+                  .tenantSubdomain
+              }.ideaboxapp.com`,
+            },
+          });
+        };
+
+        const listUser = [];
+        const listGetUserRequest = [];
+
+        uniqueUserId.map(item => {
+          listGetUserRequest.push(request(item));
+        });
+
+        axios
+          .all(listGetUserRequest)
+          .then(
+            axios.spread((...responses) => {
+              responses.map(item => {
+                if (item.data.data.length > 0) {
+                  listUser.push(item.data.data[0]);
+                }
+              });
+              // console.log(listUser);
+              res.data.map(item => {
+                const tempItem = item;
+                listUser.map(item => {
+                  if (item.id === tempItem.createdBy) {
+                    tempItem.user = item;
+                  }
+                });
+                fixResult.push(tempItem);
+              });
+              setListIdea(fixResult);
+              setListUserData(listUser);
+              setLoading({...loading, visible: false});
+            }),
+          )
+          .catch(errors => {
+            setLoading({...loading, visible: false});
+            setShowRefreshButton(true);
+            console.log(errors);
+          });
+
+        // setData({isSet: true, data: res.data});
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'NOT_FOUND' ||
+        res.status === 'UNDEFINED_HEADER' ||
+        res.status === 'UNAUTHORIZED' ||
+        res.status === 'SERVER_ERROR'
+      ) {
+        setLoading({...loading, visible: false});
+        setShowRefreshButton(true);
+      }
+    });
+  };
+
   const cancelCreateIdea = () => {
     if (edited) {
       setMessageDiscardCreateModalVisible(true);
     } else {
       navigation.goBack();
     }
+  };
+
+  const postCreateIdea = () => {
+    setLoading({...loading, visible: true, message: 'Uploading your idea'});
+    CreateIdeaAPI(route.params?.userToken.authToken, idea).then(res => {
+      setLoading({...loading, visible: false});
+      setSubmittedIdea(false);
+      if (res.status === 'SUCCESS' || res.status === 'BACKEND_ERROR') {
+        setMessageSuccessModalVisible(true);
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'UNAUTHORIZED' ||
+        res.status === 'VALIDATION_ERROR' ||
+        res.status === 'SERVER_ERROR'
+      ) {
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Failed',
+          message: res.message,
+          type: 'confused',
+        });
+      }
+    });
+  };
+
+  const goHomeAndRefresh = () => {
+    navigation.navigate('TabNavigation', {
+      screen: 'Home',
+      params: {
+        userToken: route.params?.userToken,
+        refresh: {status: true},
+      },
+    });
   };
 
   useBackHandler(() => {
@@ -141,10 +279,15 @@ const CreateIdeaStep = ({navigation, route}) => {
 
   useEffect(() => {
     if (submittedIdea) {
-      console.log(idea);
-      setMessageSuccessModalVisible(true);
+      // setSubmittedIdea(false);
+      // console.log(idea);
+      postCreateIdea();
     }
   }, [submittedIdea]);
+
+  useEffect(() => {
+    fetchIdeas();
+  }, []);
 
   return (
     <View style={styles.page}>
@@ -303,13 +446,15 @@ const CreateIdeaStep = ({navigation, route}) => {
                     <View style={styles.sessionComponentWrapper}>
                       <CreateTeams
                         onNextReff={onNextCreateTeamsReff}
+                        listUserData={listUserData}
+                        myId={decodedJwt?.data.id}
                         onUpdate={isCompleted => {
                           formFieldConpletingHandler(index, isCompleted);
                         }}
                         onNextRequest={newTeams => {
                           setIdea({
                             ...idea,
-                            teams: newTeams,
+                            inviteUsers: newTeams,
                           });
                         }}
                       />
@@ -322,10 +467,13 @@ const CreateIdeaStep = ({navigation, route}) => {
                         onUpdate={isCompleted => {
                           formFieldConpletingHandler(index, isCompleted);
                         }}
-                        onNextRequest={newAttachment => {
+                        onNextRequest={(
+                          newFileAttachment,
+                          newLinkAttachment,
+                        ) => {
                           setIdea({
                             ...idea,
-                            attachment: newAttachment,
+                            additionalFileLinkAttachment: newLinkAttachment,
                           });
                         }}
                       />
@@ -379,6 +527,16 @@ const CreateIdeaStep = ({navigation, route}) => {
           </Text>
         </TouchableOpacity>
       </View>
+
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
+      <RefreshFull
+        visible={showRefreshBUtton}
+        onPress={() => {
+          setShowRefreshButton(false);
+          fetchIdeas();
+        }}
+        onOffsetTouch={() => navigation.goBack()}
+      />
 
       {/* modal discard confirmation message */}
       <ModalMessage
@@ -458,11 +616,29 @@ const CreateIdeaStep = ({navigation, route}) => {
         withBackButton
         onBack={() => {
           setMessageSuccessModalVisible(false);
-          navigation.goBack();
+          goHomeAndRefresh();
         }}
         onRequestClose={() => {
           setMessageSuccessModalVisible(false);
-          navigation.goBack();
+          goHomeAndRefresh();
+        }}
+      />
+
+      {/* modal message */}
+      <ModalMessage
+        visible={messageModal.visible}
+        withIllustration
+        illustrationType={messageModal.type}
+        title={messageModal.title}
+        message={messageModal.message}
+        withBackButton
+        onBack={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+        onRequestClose={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
         }}
       />
     </View>

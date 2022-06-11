@@ -9,6 +9,9 @@ import Login from '../../modules/login/screen/Login.screen';
 import Main from '../../modules/main/screen/Main.screen';
 import JoinedIdea from '../../modules/myidea/screen/JoinedIdea.screen';
 import SubmittedIdea from '../../modules/myidea/screen/SubmittedIdea.screen';
+import IdeaManagement from '../../modules/administrator/screen/IdeaManagement.screen';
+import CategoryManagement from '../../modules/administrator/screen/CategoryManagement.screen';
+import DetailCategory from '../../modules/administrator/screen/DetailCategory.screen';
 import Notification from '../../modules/notification/screen/Notification.screen';
 import Page404 from '../../modules/page404/Page404.screen';
 import privacyPolicy from '../../modules/privacyPolicy/screen/privacyPolicy.screen';
@@ -109,6 +112,21 @@ const Routes = () => {
       <Stack.Screen
         name="TalentApprovalAction"
         component={TalentApprovalAction}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="IdeaManagement"
+        component={IdeaManagement}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="CategoryManagement"
+        component={CategoryManagement}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="DetailCategory"
+        component={DetailCategory}
         options={{headerShown: false}}
       />
       <Stack.Screen

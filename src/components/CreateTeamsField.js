@@ -14,11 +14,12 @@ import Divider from './Divider';
 import Gap from './Gap';
 
 const CreateTeamsField = ({
+  disableEmailField = false,
   title,
   withSelfDelete,
   onSelfDelete,
-  nikValue,
-  onNikChange = () => {},
+  emailValue,
+  onEmailChange = () => {},
   nameValue,
   onNameChange = () => {},
   teamStructureItem,
@@ -40,6 +41,10 @@ const CreateTeamsField = ({
   useEffect(() => {
     onTeamStructureChange(valueDropdownTeamStructure);
   }, [valueDropdownTeamStructure]);
+
+  useEffect(() => {
+    setValueDropdownTeamStructure(selectedTeamStructure);
+  }, [selectedTeamStructure]);
 
   return (
     <>
@@ -63,24 +68,28 @@ const CreateTeamsField = ({
       <Gap height={10} />
       <Divider />
       <Gap height={16} />
-      <Text style={styles.fieldTitle}>NIK</Text>
-      <View style={styles.field}>
+      <Text style={styles.fieldTitle}>Email</Text>
+      <View style={styles.field(disableEmailField)}>
         <TextInput
           style={styles.titleInput}
-          keyboardType="number-pad"
+          editable={true}
+          keyboardType="email-address"
           maxLength={25}
-          placeholder="NIK"
+          placeholder="Email"
           onChangeText={text => {
-            onNikChange(text);
+            onEmailChange(text);
           }}>
-          <Text style={{...styles.titleInput, lineHeight: 20}}>{nikValue}</Text>
+          <Text style={{...styles.titleInput, lineHeight: 20}}>
+            {emailValue}
+          </Text>
         </TextInput>
       </View>
       <Gap height={16} />
       <Text style={styles.fieldTitle}>Name</Text>
-      <View style={styles.field}>
+      <View style={styles.field(true)}>
         <TextInput
           style={styles.titleInput}
+          editable={false}
           placeholder="Nama"
           onChangeText={text => {
             onNameChange(text);
@@ -128,9 +137,10 @@ const CreateTeamsField = ({
       />
       <Gap height={16} />
       <Text style={styles.fieldTitle}>Working Location</Text>
-      <View style={styles.field}>
+      <View style={styles.field(true)}>
         <TextInput
           style={styles.titleInput}
+          editable={false}
           placeholder="Alamat"
           onChangeText={text => {
             onWorkingLocationChange(text);
@@ -142,9 +152,10 @@ const CreateTeamsField = ({
       </View>
       <Gap height={16} />
       <Text style={styles.fieldTitle}>Unit</Text>
-      <View style={styles.field}>
+      <View style={styles.field(true)}>
         <TextInput
           style={styles.titleInput}
+          editable={false}
           placeholder="Unit"
           onChangeText={text => {
             onUnitChange(text);
@@ -167,13 +178,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 17,
   },
-  field: {
+  field: (disabled = false) => ({
     paddingHorizontal: 12,
     paddingVertical: 1.5,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 32,
-  },
+    backgroundColor: disabled ? colors.divider : colors.white,
+  }),
   titleInput: {
     padding: 0,
     fontFamily: fonts.secondary[400],

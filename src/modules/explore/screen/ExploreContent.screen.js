@@ -137,6 +137,7 @@ const ExploreContent = ({navigation, route}) => {
         res.status === 'UNAUTHORIZED' ||
         res.status === 'SERVER_ERROR'
       ) {
+        setFetchLoading(false);
         setMessageModal({
           ...messageModal,
           visible: true,
@@ -147,6 +148,8 @@ const ExploreContent = ({navigation, route}) => {
       }
     });
   };
+
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     if (route.params?.userToken) {
@@ -964,7 +967,7 @@ const ExploreContent = ({navigation, route}) => {
       </ScrollView>
       {/* modal message */}
       <ModalMessage
-        visible={messageModal.visible}
+        visible={messageModal.visible && isFocused}
         withIllustration
         illustrationType={messageModal.type}
         title={messageModal.title}

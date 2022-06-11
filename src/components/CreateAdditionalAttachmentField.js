@@ -19,7 +19,8 @@ const CreateAdditionalAttachmentField = ({
   onClear = () => {},
   selectedType = null,
   onTypeChange = () => {},
-  sourceValue,
+  linkValue,
+  onLinkChange = () => {},
   onSourceChange = () => {},
   descValue,
   onDescChange = () => {},
@@ -46,8 +47,8 @@ const CreateAdditionalAttachmentField = ({
   };
 
   useEffect(() => {
-    onTypeChange(valueDropdownType);
-  }, [valueDropdownType]);
+    setValueDropdownType(selectedType !== undefined ? selectedType : null);
+  }, [selectedType]);
 
   return (
     <>
@@ -60,6 +61,7 @@ const CreateAdditionalAttachmentField = ({
         setOpen={setOpenDropdownType}
         setValue={setValueDropdownType}
         setItems={setItemsDropdownType}
+        onChangeValue={value => onTypeChange(value)}
         placeholder="Type"
         ArrowUpIconComponent={({style}) => (
           <IcChevronDown style={{...style, marginRight: 8}} />
@@ -115,10 +117,10 @@ const CreateAdditionalAttachmentField = ({
             editable={valueDropdownType === null ? false : true}
             placeholder="Use http:// or https://"
             onChangeText={text => {
-              onSourceChange(text);
+              onLinkChange(text);
             }}>
             <Text style={{...styles.titleInput, lineHeight: 20}}>
-              {sourceValue}
+              {linkValue}
             </Text>
           </TextInput>
         </View>

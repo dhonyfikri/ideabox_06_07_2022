@@ -21,49 +21,24 @@ import {colors} from '../../../utils/ColorsConfig/Colors';
 import {textToDate} from '../../../utils/DateConfig/DateConvert';
 import fonts from '../../../utils/FontsConfig/Fonts';
 import ModalMessage from '../../../components/ModalMessage';
+import LoadingProcessFull from '../../../components/LoadingProcessFull';
+import RefreshFull from '../../../components/RefreshFull';
+import {DeleteIdeasAPI, GetIdeasAPI} from '../../../config/RequestAPI/IdeaAPI';
+import axios from 'axios';
+import jwtDecode from 'jwt-decode';
+import {ApiGatewayBaseUrl} from '../../../config/Environment.cfg';
+import {useBackHandler} from '@react-native-community/hooks';
 
 const SubmittedIdea = ({navigation, route}) => {
-  const dataFromServer = [
-    {
-      id: 1,
-      ideaId: 1,
-      ideaName: 'Pembuatan Robot',
-      ownerId: 4,
-      ownerName: 'Siti Bojong G.',
-      createdDate: '20/02/2022, 12:00:01',
-    },
-    {
-      id: 2,
-      ideaId: 5,
-      ideaName: 'Pembuatan Televisi',
-      ownerId: 4,
-      ownerName: 'Siti Bojong G.',
-      createdDate: '04/01/2022, 14:00:01',
-    },
-    {
-      id: 3,
-      ideaId: 20,
-      ideaName: 'Pembuatan Remote',
-      ownerId: 4,
-      ownerName: 'Siti Bojong G.',
-      createdDate: '26/10/2022, 16:00:01',
-    },
-    {
-      id: 4,
-      ideaId: 32,
-      ideaName: 'Pembuatan Microwife',
-      ownerId: 4,
-      ownerName: 'Siti Bojong G.',
-      createdDate: '12/05/2022, 18:00:01',
-    },
-  ];
+  const decodedJwt = jwtDecode(route.params?.userToken.authToken);
 
   const refRBSheetAction = useRef();
   const refRBSheetCalendar = useRef();
 
-  const [submittedIdea, setSubmittedIdea] = useState(dataFromServer);
-  const [submittedIdeaToShow, setSubmittedIdeaToShow] =
-    useState(dataFromServer);
+  const [submittedIdea, setSubmittedIdea] = useState([]);
+  const [submittedIdeaToShow, setSubmittedIdeaToShow] = useState([]);
+  const [listUserData, setListUserData] = useState([]);
+  const [ideaDataList, setIdeaDataList] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [selectedIdea, setSelectedIdea] = useState(null);
 
@@ -79,6 +54,147 @@ const SubmittedIdea = ({navigation, route}) => {
     setMessageSuccessDeleteIdeaModalVisible,
   ] = useState(false);
   const [deleteIdeaMessage, setDeleteIdeaMessage] = useState('');
+  const [loading, setLoading] = useState({
+    visible: true,
+    message: 'Please Wait',
+  });
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
+  const [showRefreshBUtton, setShowRefreshButton] = useState(false);
+  const [isChanged, setIsChanged] = useState(false);
+
+  const fetchIdeas = () => {
+    setLoading({...loading, visible: true});
+    GetIdeasAPI(route.params?.userToken?.authToken).then(res => {
+      if (res.status === 'SUCCESS') {
+        let fixResult = [];
+        let uniqueUserId = [];
+        res.data.map(item => {
+          uniqueUserId.push(item.createdBy);
+          item.like.map(item => {
+            uniqueUserId.push(item.createdBy);
+          });
+          item.comment.map(item => {
+            uniqueUserId.push(item.createdBy);
+          });
+          uniqueUserId.push(
+            jwtDecode(route.params?.userToken?.authToken).data.id,
+          );
+        });
+        if (res.data.length > 0) {
+          uniqueUserId = [...new Set(uniqueUserId)];
+        }
+        const request = userId => {
+          return axios.get(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${route.params?.userToken?.authToken}`,
+              Tenant: `https://${
+                jwtDecode(route.params?.userToken?.authToken).data
+                  .tenantSubdomain
+              }.ideaboxapp.com`,
+            },
+          });
+        };
+
+        const listUser = [];
+        const listGetUserRequest = [];
+
+        uniqueUserId.map(item => {
+          listGetUserRequest.push(request(item));
+        });
+
+        axios
+          .all(listGetUserRequest)
+          .then(
+            axios.spread((...responses) => {
+              responses.map(item => {
+                if (item.data.data.length > 0) {
+                  listUser.push(item.data.data[0]);
+                }
+              });
+              // console.log(listUser);
+              res.data.map(item => {
+                const tempItem = item;
+                listUser.map(item => {
+                  if (item.id === tempItem.createdBy) {
+                    tempItem.user = item;
+                  }
+                });
+                fixResult.push(tempItem);
+              });
+              setIdeaDataList(fixResult);
+              let fixSubmittedIdea = [];
+              fixResult
+                .filter(item => item.createdBy === decodedJwt.data.id)
+                .map(item => {
+                  fixSubmittedIdea.push({
+                    ideaId: item.id,
+                    ideaName: item.desc[0].value,
+                    allowJoin: item.allowJoin,
+                    ownerId: item.createdBy,
+                    ownerName: item.user.name,
+                    createdDate: `${
+                      (item.desc[0].value.length % 29) + 1
+                    }/05/2022, 12:00:01`,
+                  });
+                });
+              setSubmittedIdea(fixSubmittedIdea);
+              setListUserData(listUser);
+              setLoading({...loading, visible: false});
+            }),
+          )
+          .catch(errors => {
+            setLoading({...loading, visible: false});
+            setShowRefreshButton(true);
+            console.log(errors);
+          });
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'NOT_FOUND' ||
+        res.status === 'UNDEFINED_HEADER' ||
+        res.status === 'UNAUTHORIZED' ||
+        res.status === 'SERVER_ERROR'
+      ) {
+        setLoading({...loading, visible: false});
+        setShowRefreshButton(true);
+      }
+    });
+  };
+
+  const handleDeleteSubmittedIdea = () => {
+    setLoading({...loading, visible: true, message: 'Deleting idea'});
+    DeleteIdeasAPI(
+      route.params?.userToken.authToken,
+      parseInt(selectedIdea.ideaId),
+    ).then(res => {
+      setLoading({...loading, visible: false});
+      console.log(res);
+      if (res.status === 'SUCCESS') {
+        setModalDeleteIdeaVisible(false);
+        setSelectedIdea(null);
+        setDeleteIdeaMessage('');
+        setMessageSuccessDeleteIdeaModalVisible(true);
+        setChanged();
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'ERROR' ||
+        res.status === 'SERVER_ERROR'
+      ) {
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Failed',
+          message: res.message,
+          type: 'confused',
+        });
+      }
+    });
+  };
 
   const matchToSearch = () => {
     let tempSubmittedIdea = [];
@@ -99,10 +215,12 @@ const SubmittedIdea = ({navigation, route}) => {
     if (filterDate.start !== 'Unlimited' && filterDate.end !== 'Unlimited') {
       const _tempSubmittedIdea = value.filter(item => {
         return (
-          textToDate(item.createdDate?.split(',')[0]) >=
-            textToDate(filterDate.start) &&
-          textToDate(item.createdDate?.split(',')[0]) <=
-            textToDate(filterDate.end)
+          (item.createdDate
+            ? textToDate(item.createdDate?.split(',')[0])
+            : 0) >= textToDate(filterDate.start) &&
+          (item.createdDate
+            ? textToDate(item.createdDate?.split(',')[0])
+            : 0) <= textToDate(filterDate.end)
         );
       });
       tempSubmittedIdea = _tempSubmittedIdea;
@@ -112,8 +230,9 @@ const SubmittedIdea = ({navigation, route}) => {
     ) {
       const _tempSubmittedIdea = value.filter(item => {
         return (
-          textToDate(item.createdDate?.split(',')[0]) >=
-          textToDate(filterDate.start)
+          (item.createdDate
+            ? textToDate(item.createdDate?.split(',')[0])
+            : 0) >= textToDate(filterDate.start)
         );
       });
       tempSubmittedIdea = _tempSubmittedIdea;
@@ -123,8 +242,9 @@ const SubmittedIdea = ({navigation, route}) => {
     ) {
       const _tempSubmittedIdea = value.filter(item => {
         return (
-          textToDate(item.createdDate?.split(',')[0]) <=
-          textToDate(filterDate.end)
+          (item.createdDate
+            ? textToDate(item.createdDate?.split(',')[0])
+            : 0) <= textToDate(filterDate.end)
         );
       });
       tempSubmittedIdea = _tempSubmittedIdea;
@@ -133,15 +253,57 @@ const SubmittedIdea = ({navigation, route}) => {
     return tempSubmittedIdea;
   };
 
+  const setChanged = () => {
+    if (!isChanged) {
+      setIsChanged(true);
+    }
+  };
+
+  const backToPreviousPage = () => {
+    if (isChanged) {
+      navigation.navigate('TabNavigation', {
+        screen: 'Profile',
+        params: {
+          userToken: route.params?.userToken,
+          refresh: {status: true},
+        },
+      });
+    } else {
+      navigation.goBack();
+    }
+  };
+
   useEffect(() => {
     setSubmittedIdeaToShow(matchToFilter(submittedIdea));
   }, [filterDate, submittedIdea]);
+
+  useEffect(() => {
+    if (route.params?.refresh?.status) {
+      setChanged();
+      fetchIdeas();
+    }
+    if (route.params?.refresh?.status) {
+      navigation.setParams({
+        ...route.params,
+        refresh: {status: false},
+      });
+    }
+  }, [route.params?.refresh]);
+
+  useEffect(() => {
+    fetchIdeas();
+  }, []);
+
+  useBackHandler(() => {
+    backToPreviousPage();
+    return true;
+  });
 
   return (
     <View style={styles.page}>
       <Header
         backButton
-        onBackPress={() => navigation.goBack()}
+        onBackPress={() => backToPreviousPage()}
         backText="Back"
         title="Submitted Idea"
         onNotificationPress={() => navigation.navigate('Notification')}
@@ -186,7 +348,7 @@ const SubmittedIdea = ({navigation, route}) => {
                   raiseDelay={index}
                   ideaName={item.ideaName}
                   ownerName={item.ownerName}
-                  createdDate={item.createdDate}
+                  createdDate={item.createdDate ? item.createdDate : '-'}
                   onDotThreePress={() => {
                     console.log(item.ideaId, item.ideaName);
                     setSelectedIdea(item);
@@ -240,7 +402,12 @@ const SubmittedIdea = ({navigation, route}) => {
               style={{padding: 16}}
               onPress={() => {
                 refRBSheetAction.current.close();
-                navigation.navigate('EditIdea', {ideaId: selectedIdea.ideaId});
+                navigation.navigate('EditIdea', {
+                  ideaId: selectedIdea.ideaId,
+                  allowJoin: selectedIdea.allowJoin,
+                  userToken: route.params?.userToken,
+                  ideaDataList: ideaDataList,
+                });
               }}>
               <Text style={styles.buttonText('normal')}>Edit Idea</Text>
             </TouchableOpacity>
@@ -251,6 +418,9 @@ const SubmittedIdea = ({navigation, route}) => {
                 refRBSheetAction.current.close();
                 navigation.navigate('EditIdea', {
                   ideaId: selectedIdea.ideaId,
+                  allowJoin: selectedIdea.allowJoin,
+                  userToken: route.params?.userToken,
+                  ideaDataList: ideaDataList,
                   indexSection: 3,
                 });
               }}>
@@ -316,6 +486,17 @@ const SubmittedIdea = ({navigation, route}) => {
           />
         </View>
       </RBSheet>
+
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
+      <RefreshFull
+        visible={showRefreshBUtton}
+        onPress={() => {
+          setShowRefreshButton(false);
+          fetchIdeas();
+        }}
+        onOffsetTouch={() => navigation.goBack()}
+      />
+
       {/* Modal delete idea action */}
       <ModalAction
         visible={modalDeleteIdeaVisible}
@@ -365,6 +546,7 @@ const SubmittedIdea = ({navigation, route}) => {
           <Gap height={8} />
           <TextInput
             multiline
+            autoCorrect={false}
             textAlignVertical="top"
             style={styles.board}
             placeholder="Fill your reason.."
@@ -382,14 +564,7 @@ const SubmittedIdea = ({navigation, route}) => {
             setDeleteIdeaMessage('');
           }}
           onSavePress={() => {
-            setModalDeleteIdeaVisible(false);
-            let tempIdea = submittedIdeaToShow.filter(item => {
-              return item.ideaId !== selectedIdea.ideaId;
-            });
-            setSelectedIdea(null);
-            setSubmittedIdeaToShow(tempIdea);
-            setDeleteIdeaMessage('');
-            setMessageSuccessDeleteIdeaModalVisible(true);
+            handleDeleteSubmittedIdea();
           }}
         />
       </ModalAction>
@@ -408,9 +583,11 @@ const SubmittedIdea = ({navigation, route}) => {
         withBackButton
         onBack={() => {
           setMessageSuccessDeleteIdeaModalVisible(false);
+          fetchIdeas();
         }}
         onRequestClose={() => {
           setMessageSuccessDeleteIdeaModalVisible(false);
+          fetchIdeas();
         }}
       />
     </View>

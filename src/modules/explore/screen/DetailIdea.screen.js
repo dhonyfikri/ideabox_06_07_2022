@@ -38,6 +38,7 @@ import ModalMessage from '../../../components/ModalMessage';
 import {AddLikeAPI} from '../../../config/RequestAPI/LikeAPI';
 import jwtDecode from 'jwt-decode';
 import {AddCommentAPI} from '../../../config/RequestAPI/CommentAPI';
+import {useBackHandler} from '@react-native-community/hooks';
 
 const DetailIdeaScreen = ({navigation, route}) => {
   // const ideaData = _.cloneDeep(DummyResponseDetailIdea);
@@ -230,9 +231,28 @@ const DetailIdeaScreen = ({navigation, route}) => {
     });
   };
 
+  const backToPreviousPage = () => {
+    if (isChanged) {
+      navigation.navigate('TabNavigation', {
+        screen: 'Home',
+        params: {
+          userToken: route.params?.userToken,
+          refresh: {status: true},
+        },
+      });
+    } else {
+      navigation.goBack();
+    }
+  };
+
   useEffect(() => {
     fetchIdeas();
   }, []);
+
+  useBackHandler(() => {
+    backToPreviousPage();
+    return true;
+  });
 
   // let commentCount = 0;
   // if (ideaData) {
@@ -249,17 +269,7 @@ const DetailIdeaScreen = ({navigation, route}) => {
       <Header
         backButton
         onBackPress={() => {
-          if (isChanged) {
-            navigation.navigate('TabNavigation', {
-              screen: 'Home',
-              params: {
-                userToken: route.params?.userToken,
-                refresh: {status: true},
-              },
-            });
-          } else {
-            navigation.goBack();
-          }
+          backToPreviousPage();
         }}
         backText="Back"
         onNotificationPress={() => navigation.navigate('Notification')}
@@ -564,6 +574,7 @@ const DetailIdeaScreen = ({navigation, route}) => {
               <View style={{flex: 1, justifyContent: 'center'}}>
                 <TextInput
                   placeholder="Leave a comment"
+                  autoCorrect={false}
                   multiline
                   style={{
                     maxHeight: 100,
@@ -619,7 +630,7 @@ const DetailIdeaScreen = ({navigation, route}) => {
           setShowRefreshButton(false);
           fetchIdeas();
         }}
-        onBackPress={() => navigation.goBack()}
+        onOffsetTouch={() => navigation.goBack()}
       />
       {/* modal message */}
       <ModalMessage

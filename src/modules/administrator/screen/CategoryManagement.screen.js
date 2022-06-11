@@ -1,489 +1,676 @@
-import React, {useEffect, useState} from 'react';
+import {useBackHandler} from '@react-native-community/hooks';
+import axios from 'axios';
+import jwtDecode from 'jwt-decode';
+import React, {useEffect, useState, useRef} from 'react';
 import {
-  SafeAreaView,
   FlatList,
   ScrollView,
+  StyleSheet,
   Text,
-  View,
-  TouchableOpacity,
-  Modal,
-  Image,
   TextInput,
-  Alert,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
-import {SwipeListView} from 'react-native-swipe-list-view';
-import {Cross, EditCategory, Eye, Trash} from '../../../assets/icon';
-import CardCategoryManagement from '../../../components/CardCategoryManagement';
-import getData from '../../../components/GetData';
-import LoadingScreen from '../../../components/LoadingScreen';
-import SearchHeader from '../../../components/SearchHeader';
-import SuccesModal from '../../../components/SuccesModal';
-import FailedModal from '../../../components/FailedModal';
-import DeleteCategoryManagement from '../../../config/DeleteData/DeleteCategoryManagement';
-import {GetDataCategoryManagement} from '../../../config/GetData/GetDataAdministrator';
-import GetParentCategory from '../../../config/GetData/GetParentCategory';
-import UpdateCategory from '../../../config/PostData/UpdateCategory';
-import style from '../../../config/Style/style.cfg';
-import styles from '../style/Administrator.style';
-const CategoryManagement = ({navigation}) => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalAddVisible, setModalAddVisible] = useState(false);
-  const [modalDeleteVisible, setModalDeleteVisible] = useState(false);
-  const [dataCategoryManagement, setDataCategoryManagement] = useState(null);
-  const [deleteSelected, setDeleteSelected] = useState(null);
-  const [array, setArray] = useState(false);
-  const [editSelected, setEditSelected] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [update, setUpdate] = useState(null);
-  const [data, setData] = useState(null);
-  // search
-  const [filterData, setFilterData] = useState([]);
-  const getDataIdea = dataSearch => {
-    searchFilter(dataSearch);
-  };
-  const [dropValue, setDropValue] = useState(null);
-  // dropdown1
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([]);
-  // dropdown2
-  const [open1, setOpen1] = useState(false);
-  const [items1, setItems1] = useState([
-    {label: 'Idea', value: 'idea'},
-    {label: 'Event', value: 'event'},
-    {label: 'Amoeba', value: 'amoeba'},
-  ]);
-  const [value1, setValue1] = useState(items1[0].value);
-  const [textCategory, setTextCategory] = useState('');
-  const [status, setStatus] = useState('');
-  useEffect(() => {
-    if (dataCategoryManagement === null || data === null) {
-      getData().then(res => {
-        setData(res);
-      });
-      GetDataCategoryManagement().then(response => {
-        setDataCategoryManagement(response !== undefined ? response : null);
-        setFilterData(response !== undefined ? response : []);
-      });
-    }
-  }, []);
-  useEffect(() => {
-    GetDataCategoryManagement().then(response => {
-      setDataCategoryManagement(response);
-      setFilterData(response);
-    });
-  }, [success]);
-  useEffect(() => {
-    GetDataCategoryManagement().then(response => {
-      setDataCategoryManagement(response);
-      setFilterData(response);
-    });
-  }, [update]);
-  useEffect(() => {
-    setArray(false);
-    setItems([]);
-    setDropValue(null);
-  }, [value1]);
+import RBSheet from 'react-native-raw-bottom-sheet';
+import {IcAddOrangeRounded, IcSearch} from '../../../assets/icon';
+import CardCategoryTail from '../../../components/CardCategoryTail';
+import Divider from '../../../components/Divider';
+import EditActionButton from '../../../components/EditActionButton';
+import Gap from '../../../components/Gap';
+import Header from '../../../components/Header';
+import LoadingProcessFull from '../../../components/LoadingProcessFull';
+import ModalAction from '../../../components/ModalAction';
+import ModalMessage from '../../../components/ModalMessage';
+import RefreshFull from '../../../components/RefreshFull';
+import {ApiGatewayBaseUrl} from '../../../config/Environment.cfg';
+import {GetIdeasAPI} from '../../../config/RequestAPI/IdeaAPI';
+import {colors} from '../../../utils/ColorsConfig/Colors';
+import fonts from '../../../utils/FontsConfig/Fonts';
 
-  if (dataCategoryManagement === null || data === null) {
-    return <LoadingScreen />;
-  }
-  const handleDelete = () => {
-    DeleteCategoryManagement(deleteSelected).then(val => setSuccess(val));
-  };
-  const handleUpdate = () => {
-    UpdateCategory(editSelected, value, textCategory, data.id, value1).then(
-      val => setUpdate(val),
-    );
-  };
-  const getDataSuccess = data => {
-    setSuccess(data);
-  };
-  const getDataUpdate = data => {
-    setUpdate(data);
-  };
-  // const getDataIdea = dataSearch => {
-  //   searchFilter(dataSearch);
-  // };
-  const searchFilter = text => {
-    if (text) {
-      const newData = dataCategoryManagement.filter(item => {
-        const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
+const CategoryManagement = ({navigation, route}) => {
+  const decodedJwt = jwtDecode(route.params?.userToken.authToken);
 
-        const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
-      });
-      setFilterData(newData);
+  const dataFromServer = [
+    {
+      id: '1654907406594',
+      categoryName: 'Lingkungan',
+      type: '1',
+      parentId: '0',
+      required: true,
+      status: '1',
+      createdBy: '13',
+      updatedBy: '13',
+      createdDate: '04/02/2022',
+      updatedDate: '04/02/2022',
+    },
+    {
+      id: '1654907409462',
+      categoryName: 'Peduli Duafa',
+      type: '2',
+      parentId: '1654907406594',
+      required: true,
+      status: '1',
+      createdBy: '13',
+      updatedBy: '13',
+      createdDate: '04/02/2022',
+      updatedDate: '04/02/2022',
+    },
+    {
+      id: '1654907406255',
+      categoryName: 'Edukasi Umum',
+      type: '2',
+      parentId: '1654907406594',
+      required: true,
+      status: '1',
+      createdBy: '13',
+      updatedBy: '13',
+      createdDate: '04/02/2022',
+      updatedDate: '04/02/2022',
+    },
+    ////////////////////////////////////
+    {
+      id: '1654907402745',
+      categoryName: 'Social Colaboration',
+      type: '1',
+      parentId: '0',
+      required: true,
+      status: '1',
+      createdBy: '13',
+      updatedBy: '13',
+      createdDate: '05/02/2022',
+      updatedDate: '05/02/2022',
+    },
+    {
+      id: '1654907404899',
+      categoryName: 'Kerja Bakti',
+      type: '2',
+      parentId: '1654907402745',
+      required: true,
+      status: '1',
+      createdBy: '13',
+      updatedBy: '13',
+      createdDate: '04/02/2022',
+      updatedDate: '04/02/2022',
+    },
+    {
+      id: '1654907403544',
+      categoryName: 'Rapat Teknis',
+      type: '2',
+      parentId: '1654907402745',
+      required: true,
+      status: '1',
+      createdBy: '13',
+      updatedBy: '13',
+      createdDate: '04/02/2022',
+      updatedDate: '04/02/2022',
+    },
+  ];
+
+  const refRBSheetAction = useRef();
+
+  const [categoryData, setCategoryData] = useState([]);
+  const [categoryDataToShowm, setCategoryDataToShow] = useState([]);
+  const [searchText, setSearchText] = useState('');
+  const [selectedIdea, setSelectedIdea] = useState(null);
+  // hanya pembantu selama api belum jalan
+  const [listUserData, setListUserData] = useState([]);
+  const [ideaDataList, setIdeaDataList] = useState([]);
+  /////////////////////////////////////////
+
+  // console.log(
+  //   Math.floor(Math.random() * Math.floor(Math.random() * Date.now())),
+  // );
+
+  const [modalDeleteIdeaVisible, setModalDeleteIdeaVisible] = useState(false);
+  const [
+    messageSuccessDeleteIdeaModalVisible,
+    setMessageSuccessDeleteIdeaModalVisible,
+  ] = useState(false);
+  const [deleteIdeaMessage, setDeleteIdeaMessage] = useState('');
+  const [loading, setLoading] = useState({
+    visible: true,
+    message: 'Please Wait',
+  });
+  const [showRefreshBUtton, setShowRefreshButton] = useState(false);
+  const [selectedCategoryTile, setSelectedCategoryTile] = useState(null);
+
+  const matchToSearch = () => {
+    let tempCategoryData = [];
+    if (searchText === '') {
+      tempCategoryData = categoryData;
     } else {
-      setFilterData(dataCategoryManagement);
+      tempCategoryData = categoryData.filter(item =>
+        item.categoryName.toLowerCase().includes(searchText.toLowerCase()),
+      );
     }
+    setCategoryDataToShow(tempCategoryData);
   };
-  if (dropValue === null) {
-    GetParentCategory(value1).then(response => {
-      setDropValue(response);
-    });
-  }
-  if (dropValue !== undefined) {
-    if (array === false) {
-      if (dropValue !== null) {
-        dropValue.map(val => {
-          setItems(res => [...res, {label: val.name, value: val.id}]);
+
+  const activateCategory = () => {
+    setLoading({visible: true, message: 'Activate Category'});
+    setCategoryData(
+      categoryData
+        .filter(item => true)
+        .map(item => {
+          if (
+            item.id === selectedCategoryTile.id &&
+            (selectedCategoryTile.parentId === '0' ||
+              categoryData.filter(
+                item => item.id === selectedCategoryTile.parentId,
+              )[0]?.status === '1')
+          ) {
+            return {...item, status: '1'};
+          } else {
+            return item;
+          }
+        }),
+    );
+    setLoading({...loading, visible: false});
+    refRBSheetAction.current.close();
+  };
+
+  const deactivateCategory = () => {
+    setLoading({visible: true, message: 'Deactivate Category'});
+    setCategoryData(
+      categoryData
+        .filter(item => true)
+        .map(item => {
+          if (
+            item.id === selectedCategoryTile.id ||
+            item.parentId === selectedCategoryTile.id
+          ) {
+            return {...item, status: '0'};
+          } else {
+            return item;
+          }
+        }),
+    );
+    setLoading({...loading, visible: false});
+    refRBSheetAction.current.close();
+  };
+
+  const deleteCategory = () => {
+    setLoading({visible: true, message: 'Deleting Category'});
+    setCategoryData(
+      categoryData.filter(
+        item =>
+          item.id !== selectedCategoryTile.id &&
+          item.parentId !== selectedCategoryTile.id,
+      ),
+    );
+    setLoading({...loading, visible: false});
+    setModalDeleteIdeaVisible(false);
+    setMessageSuccessDeleteIdeaModalVisible(true);
+  };
+
+  const fetchIdeas = () => {
+    setLoading({message: 'Please Wait', visible: true});
+    GetIdeasAPI(route.params?.userToken?.authToken).then(res => {
+      if (res.status === 'SUCCESS') {
+        let fixResult = [];
+        let uniqueUserId = [];
+        res.data.map(item => {
+          uniqueUserId.push(item.createdBy);
+          item.like.map(item => {
+            uniqueUserId.push(item.createdBy);
+          });
+          item.comment.map(item => {
+            uniqueUserId.push(item.createdBy);
+          });
+          uniqueUserId.push(
+            jwtDecode(route.params?.userToken?.authToken).data.id,
+          );
         });
-        setArray(true);
-      }
-    }
-  }
-  return (
-    <SafeAreaView style={styles.container}>
-      {success === 200 ? (
-        <SuccesModal
-          desc={'Your data category management have been non active!'}
-          getData={getDataSuccess}
-        />
-      ) : update === 200 ? (
-        <SuccesModal
-          desc={'Your data category management have been updated!'}
-          getData={getDataUpdate}
-        />
-      ) : success !== null ? (
-        <FailedModal
-          desc={'Your data category management cannot update!'}
-          getData={getDataSuccess}
-        />
-      ) : update !== null ? (
-        <FailedModal
-          desc={'Your data category management cannot update!'}
-          getData={getDataUpdate}
-        />
-      ) : null}
-      <SearchHeader
-        onPress={() => navigation.openDrawer()}
-        notification={() => navigation.navigate('Notification')}
-        getData={getDataIdea}
-        placeholder={'Search a Category ...'}
-      />
-      {/* <TextInput
-        style={styles.textInputStyle}
-        value={search}
-        placeholder="Search Item"
-        underlineColorAndroid="transparent"
-        onChangeText={text => searchFilter(text)}
-      /> */}
-      {/* Header navigation */}
-      <View style={styles.headerContainer}>
-        <View style={styles.headerWrap}>
-          {/* <TouchableOpacity
-            style={styles.wrap}
-            onPress={() => {
-              navigation.navigate('UserManagement');
-            }}>
-            <View style={styles.tabBar}>
-              <Text style={styles.textNonActive}>User Management</Text>
-            </View>
-          </TouchableOpacity> */}
-          <TouchableOpacity style={styles.wrap} onPress={() => {}}>
-            <View style={styles.tabBarActive}>
-              <Text style={styles.textActive}>Category Management</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.wrap}
-            onPress={() => navigation.navigate('IdeaManagement')}>
-            <View style={styles.tabBar}>
-              <Text style={styles.textNonActive}>Idea Management</Text>
-            </View>
-          </TouchableOpacity>
-          {/* <TouchableOpacity
-            style={styles.wrap}
-            onPress={() => navigation.navigate('RoleManagement')}>
-            <View style={styles.tabBar}>
-              <Text style={styles.textNonActive}>Role Management</Text>
-            </View>
-          </TouchableOpacity> */}
-        </View>
-      </View>
+        if (res.data.length > 0) {
+          uniqueUserId = [...new Set(uniqueUserId)];
+        }
+        const request = userId => {
+          return axios.get(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${route.params?.userToken?.authToken}`,
+              Tenant: `https://${
+                jwtDecode(route.params?.userToken?.authToken).data
+                  .tenantSubdomain
+              }.ideaboxapp.com`,
+            },
+          });
+        };
 
-      {/* content */}
-      <View style={styles.contentContainer}>
-        {/* <View style={styles.iconContainer}>
-          <TouchableOpacity onPress={() => setModalAddVisible(true)}>
-            <View style={styles.icon}>
-              <Image
-                source={require('../../../assets/icon/plusAdmin.png')}
-                style={styles.imageAdmin}
-              />
-            </View>
-          </TouchableOpacity>
-        </View> */}
+        const listUser = [];
+        const listGetUserRequest = [];
 
-        {/* Popup Add category */}
-        {/* <Modal
-          animationType="none"
-          transparent={true}
-          visible={modalAddVisible}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-            setModalVisible(!modalAddVisible);
-          }}>
-          <View style={styles.centeredView}>
-            <View style={styles.centeredcontainer}>
-              <View style={styles.modalView}>
-                <View style={styles.titleContainer}>
-                  <Text style={styles.textEdit}>Add Category</Text>
-                  <TouchableOpacity onPress={() => setModalAddVisible(false)}>
-                    <Cross />
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.h2}>Category Name :</Text>
-                  <TextInput
-                    style={styles.input}
-                    // value={''}
-                    // onChangeText={() => { }}
-                  />
-                  <Text style={styles.h2}>Parent Category :</Text>
-                  <DropDownPicker
-                    open={open}
-                    value={value}
-                    items={items}
-                    setOpen={setOpen}
-                    setValue={setValue}
-                    setItems={setItems}
-                    style={styles.input}
-                  />
-                  <Text style={styles.h2}>Type Category :</Text>
-                  <DropDownPicker
-                    open={open1}
-                    value={value1}
-                    items={items1}
-                    setOpen={setOpen1}
-                    setValue={setValue1}
-                    setItems={setItems1}
-                    style={styles.input}
-                  />
-                  <TouchableOpacity
-                    onPress={() => setModalAddVisible(false)}
-                    style={styles.button}>
-                    <Text style={styles.save}>SAVE</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </View>
-        </Modal> */}
-        {/* EndPopup */}
+        uniqueUserId.map(item => {
+          listGetUserRequest.push(request(item));
+        });
 
-        {/* Popup Edit category */}
-        <Modal
-          animationType="none"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-            setModalVisible(!modalVisible);
-          }}>
-          <View style={styles.centeredView}>
-            <View style={styles.centeredcontainer}>
-              <View style={styles.modalView}>
-                <View style={styles.titleContainer}>
-                  <Text style={styles.textEdit}>Edit Category</Text>
-                  <TouchableOpacity onPress={() => setModalVisible(false)}>
-                    <Cross />
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.h2}>Category Name :</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={textCategory}
-                    onChangeText={val => {
-                      setTextCategory(val);
-                    }}
-                  />
-                  <Text style={styles.h2}>Type Category :</Text>
-                  <DropDownPicker
-                    listMode="SCROLLVIEW"
-                    dropDownDirection="BOTTOM"
-                    open={open1}
-                    value={value1}
-                    items={items1}
-                    setOpen={setOpen1}
-                    setValue={setValue1}
-                    setItems={setItems1}
-                    style={styles.input}
-                    maxHeight={100}
-                    placeholder={'Select a type category'}
-                  />
-                  <Text style={styles.h2}>Parent Category :</Text>
-                  <DropDownPicker
-                    listMode="SCROLLVIEW"
-                    dropDownDirection="BOTTOM"
-                    open={open}
-                    value={value}
-                    items={items}
-                    maxHeight={100}
-                    setOpen={setOpen}
-                    setValue={setValue}
-                    setItems={setItems}
-                    style={styles.input}
-                    placeholder={
-                      value1 === null
-                        ? 'Insert your type category first!'
-                        : 'Select a parent category'
-                    }
-                  />
-
-                  <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => {
-                      handleUpdate();
-                      setModalVisible(false);
-                    }}>
-                    <Text style={styles.save}>SAVE</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </View>
-        </Modal>
-        {/* EndPopup */}
-
-        {/* Popup delete  */}
-        <Modal
-          animationType="none"
-          transparent={true}
-          visible={modalDeleteVisible}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-            setModalDeleteVisible(!modalDeleteVisible);
-          }}>
-          <View style={styles.centeredView}>
-            <View style={styles.centeredcontainer}>
-              <View style={styles.modalView}>
-                <View style={styles.titleContainer}>
-                  <Text style={styles.textEdit}>Non-Active Category</Text>
-                  <TouchableOpacity
-                    onPress={() => setModalDeleteVisible(false)}>
-                    <Cross />
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.h2}>
-                    Anda ingin menonactivekan category ini?
-                  </Text>
-                  <View style={styles.rowDelete}>
-                    <TouchableOpacity
-                      style={styles.buttondelete}
-                      onPress={() => {
-                        handleDelete();
-                        setModalDeleteVisible(false);
-                      }}>
-                      <Text style={styles.save}>Ya</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.buttoncancel}
-                      onPress={() => setModalDeleteVisible(false)}>
-                      <Text style={styles.save}>Tidak</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </View>
-          </View>
-        </Modal>
-        {/* EndPopup */}
-
-        {/* Content */}
-        <View style={styles.content}>
-          <View style={styles.titleContent}>
-            <View style={styles.title}>
-              <Text
-                style={[style.h5, {textAlign: 'center', fontWeight: 'bold'}]}>
-                No.
-              </Text>
-            </View>
-            <View style={styles.email}>
-              <Text
-                style={[style.h5, {textAlign: 'center', fontWeight: 'bold'}]}>
-                Category Name
-              </Text>
-            </View>
-            <View style={styles.title}>
-              <Text
-                style={[style.h5, {textAlign: 'center', fontWeight: 'bold'}]}>
-                Status
-              </Text>
-            </View>
-          </View>
-          <SwipeListView
-            data={filterData}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item, index}) => {
-              return (
-                <View>
-                  <CardCategoryManagement
-                    id={index + 1}
-                    title={item.name}
-                    status={item.activeFlag === '1' ? 'Active' : 'Non-Active'}
-                  />
-                </View>
-              );
-            }}
-            renderHiddenItem={({item}) => (
-              <View style={styles.rowBack}>
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('DetailCategory', {data: item})
+        axios
+          .all(listGetUserRequest)
+          .then(
+            axios.spread((...responses) => {
+              responses.map(item => {
+                if (item.data.data.length > 0) {
+                  listUser.push(item.data.data[0]);
+                }
+              });
+              // console.log(listUser);
+              res.data.map(item => {
+                const tempItem = item;
+                listUser.map(item => {
+                  if (item.id === tempItem.createdBy) {
+                    tempItem.user = item;
                   }
-                  style={[styles.backRightBtn, styles.backRightBtnRight3]}>
-                  <Eye />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    setModalVisible(true);
-                    setEditSelected(item.id);
-                  }}
-                  style={[styles.backRightBtn, styles.backRightBtnRight2]}>
-                  <EditCategory />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    setDeleteSelected(item.id);
-                    setModalDeleteVisible(true);
-                  }}
-                  style={[styles.backRightBtn, styles.backRightBtnRight]}>
-                  <Trash />
-                </TouchableOpacity>
-              </View>
-            )}
-            rightOpenValue={-225}
-            leftOpenValue={0}
-          />
-          {/* <FlatList
-            keyExtractor={(item, index) => index.toString()}
-            data={dataCategoryManagement}
-            renderItem={({item, index}) => {
-              return (
-                <ScrollView>
-                  <CardCategoryManagement
-                    onPress={() =>
-                      navigation.navigate('DetailCategory', {data: item})
-                    }
-                    edit={() => setModalVisible(true)}
-                    delete={() => setModalDeleteVisible(true)}
-                    id={item.id}
-                    title={item.name}
-                    status={item.activeFlag}
-                  />
-                </ScrollView>
-              );
-            }}
-          /> */}
+                });
+                fixResult.push(tempItem);
+              });
+              setIdeaDataList(fixResult);
+              setListUserData(listUser);
+              setLoading({...loading, visible: false});
+            }),
+          )
+          .catch(errors => {
+            setLoading({...loading, visible: false});
+            setShowRefreshButton(true);
+            console.log(errors);
+          });
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'NOT_FOUND' ||
+        res.status === 'UNDEFINED_HEADER' ||
+        res.status === 'UNAUTHORIZED' ||
+        res.status === 'SERVER_ERROR'
+      ) {
+        setLoading({...loading, visible: false});
+        setShowRefreshButton(true);
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (route.params?.refresh?.status) {
+      // todo something
+
+      //////////////////
+      navigation.setParams({
+        ...route.params,
+        refresh: {status: false},
+      });
+    }
+  }, [route.params?.refresh]);
+
+  useEffect(() => {
+    matchToSearch();
+  }, [categoryData]);
+
+  useEffect(() => {
+    fetchIdeas();
+    setCategoryData(dataFromServer);
+  }, []);
+
+  return (
+    <View style={styles.page}>
+      <Header
+        backButton
+        onBackPress={() => navigation.goBack()}
+        backText="Back"
+        title="Category Management"
+        onNotificationPress={() => navigation.navigate('Notification')}
+      />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}>
+        <View style={styles.searchAndFilterWrapper}>
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search..."
+              value={searchText}
+              onChangeText={text => setSearchText(text)}
+            />
+            <TouchableOpacity
+              style={styles.searchButton}
+              onPress={() => {
+                matchToSearch();
+              }}>
+              <IcSearch />
+            </TouchableOpacity>
+          </View>
+          <Gap width={4} />
+          <TouchableOpacity onPress={() => {}}>
+            <IcAddOrangeRounded />
+          </TouchableOpacity>
         </View>
-      </View>
-    </SafeAreaView>
+        <Gap height={16} />
+        <FlatList
+          data={categoryDataToShowm}
+          keyExtractor={(_, index) => index.toString()}
+          scrollEnabled={false}
+          showsVerticalScrollIndicator={false}
+          inverted={false}
+          renderItem={({item, index}) => {
+            return (
+              <>
+                {index !== 0 && <Gap height={16} />}
+                <CardCategoryTail
+                  categoryName={item.categoryName}
+                  type={item.type}
+                  status={item.status}
+                  valueLength={categoryData.length}
+                  raiseDelay={selectedCategoryTile === null ? index : 0}
+                  onDotThreePress={() => {
+                    setSelectedCategoryTile(item);
+                    refRBSheetAction.current.open();
+                  }}
+                  onCardPress={() => {
+                    refRBSheetAction.current.close();
+                    navigation.navigate('DetailCategory', {
+                      categoryData: categoryData.filter(
+                        _item => _item.id === item.id,
+                      )[0],
+                      listUserData: listUserData,
+                    });
+                  }}
+                />
+              </>
+            );
+          }}
+        />
+      </ScrollView>
+
+      {/* Bottom sheet action */}
+      <RBSheet
+        ref={refRBSheetAction}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        animationType="fade"
+        height={350}
+        customStyles={{
+          container: {
+            paddingTop: 16,
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+          },
+          wrapper: {
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          },
+          draggableIcon: {
+            backgroundColor: '#9CA3AF',
+            margin: 0,
+          },
+        }}>
+        <View style={styles.bottomSheetContentContainer}>
+          <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+            <Text style={styles.bottomSheetTitle}>Action</Text>
+            <TouchableOpacity
+              style={styles.titleContainer}
+              onPress={() => refRBSheetAction.current.close()}>
+              <Text style={styles.bottomSheetCancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+          <Gap height={16} />
+          <Divider />
+          <Gap height={16} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={{padding: 16}}
+              onPress={() => {
+                refRBSheetAction.current.close();
+                navigation.navigate('DetailCategory', {
+                  categoryData: categoryData.filter(
+                    item => item.id === selectedCategoryTile.id,
+                  )[0],
+                  listUserData: listUserData,
+                });
+              }}>
+              <Text style={styles.buttonText('normal')}>Detail Category</Text>
+            </TouchableOpacity>
+            <Divider />
+            <TouchableOpacity style={{padding: 16}}>
+              <Text style={styles.buttonText('normal')}>Edit Category</Text>
+            </TouchableOpacity>
+            <Divider />
+            <TouchableOpacity
+              style={{padding: 16}}
+              onPress={() => {
+                refRBSheetAction.current.close();
+                setModalDeleteIdeaVisible(true);
+              }}>
+              <Text style={styles.buttonText('normal')}>Remove Category</Text>
+            </TouchableOpacity>
+          </View>
+          <Gap height={8} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={{padding: 16}}
+              onPress={() => {
+                if (selectedCategoryTile?.status === '1') {
+                  deactivateCategory();
+                } else {
+                  activateCategory();
+                }
+              }}>
+              <Text style={styles.buttonText('danger')}>
+                {selectedCategoryTile?.status === '1'
+                  ? 'Deactivate Category'
+                  : 'Activate Category'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </RBSheet>
+
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
+      <RefreshFull
+        visible={showRefreshBUtton}
+        onPress={() => {
+          setShowRefreshButton(false);
+          fetchIdeas();
+        }}
+        onOffsetTouch={() => navigation.goBack()}
+      />
+
+      {/* Modal delete idea action */}
+      <ModalAction
+        visible={modalDeleteIdeaVisible}
+        title="Delete Idea"
+        onCloseButtonPress={() => {
+          setModalDeleteIdeaVisible(false);
+          setDeleteIdeaMessage('');
+        }}
+        onRequestClose={() => {
+          setModalDeleteIdeaVisible(false);
+          setDeleteIdeaMessage('');
+        }}
+        contentBackground={colors.secondary}
+        withTitleDivider={false}>
+        <View style={styles.noticeContainer}>
+          <Text style={styles.noticeText}>
+            Are you sure you want to{' '}
+            <Text
+              style={{
+                ...styles.noticeText,
+                fontFamily: fonts.secondary[700],
+                color: colors.reject,
+              }}>
+              delete
+            </Text>{' '}
+            this category?{' '}
+            <Text
+              style={{
+                ...styles.noticeText,
+                fontFamily: fonts.secondary[700],
+              }}>
+              {selectedCategoryTile?.categoryName}
+            </Text>
+          </Text>
+        </View>
+        <Gap height={28} />
+        <View
+          style={{
+            padding: 16,
+            backgroundColor: colors.white,
+            borderRadius: 32,
+          }}>
+          <Text style={styles.messageTitle}>
+            Please fill the reason in the field below
+            <Text style={{color: colors.reject}}>*</Text>
+          </Text>
+          <Gap height={8} />
+          <TextInput
+            multiline
+            autoCorrect={false}
+            textAlignVertical="top"
+            style={styles.board}
+            placeholder="Fill your reason.."
+            onChangeText={text => {
+              setDeleteIdeaMessage(text);
+            }}>
+            <Text style={{lineHeight: 20}}>{deleteIdeaMessage}</Text>
+          </TextInput>
+        </View>
+        <Gap height={16} />
+        <EditActionButton
+          disableSaveButton={deleteIdeaMessage.trim().length <= 0}
+          onDiscardPress={() => {
+            setModalDeleteIdeaVisible(false);
+            setDeleteIdeaMessage('');
+          }}
+          onSavePress={() => {
+            deleteCategory();
+          }}
+        />
+      </ModalAction>
+      {/* modal success delete idea message */}
+      <ModalMessage
+        visible={messageSuccessDeleteIdeaModalVisible}
+        withIllustration
+        illustrationType="confused"
+        title="You’re all done"
+        message={
+          <Text>
+            You have <Text style={{color: colors.reject}}>deleted</Text> this
+            category
+          </Text>
+        }
+        withBackButton
+        onBack={() => {
+          setMessageSuccessDeleteIdeaModalVisible(false);
+        }}
+        onRequestClose={() => {
+          setMessageSuccessDeleteIdeaModalVisible(false);
+        }}
+      />
+    </View>
   );
 };
 
 export default CategoryManagement;
+
+const styles = StyleSheet.create({
+  page: {flex: 1, backgroundColor: '#FFFFFF'},
+  contentContainer: {
+    padding: 16,
+  },
+  searchAndFilterWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    height: '100%',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 32,
+  },
+  searchInput: {
+    flex: 1,
+    marginHorizontal: 24,
+    padding: 0,
+    fontFamily: fonts.secondary[400],
+    fontSize: 14,
+    lineHeight: 17,
+    color: colors.text.primary,
+  },
+  searchButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 32 / 2,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bottomSheetContentContainer: {
+    height: '100%',
+    padding: 16,
+  },
+  bottomSheetTitle: {
+    fontFamily: fonts.secondary[600],
+    fontSize: 14,
+    lineHeight: 17,
+    color: colors.text.primary,
+  },
+  bottomSheetCancelButtonText: {
+    fontFamily: fonts.secondary[400],
+    fontSize: 12,
+    lineHeight: 15,
+    color: colors.text.tertiary,
+  },
+  titleContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+  },
+  buttonContainer: {
+    backgroundColor: colors.dot,
+    borderRadius: 32,
+    overflow: 'hidden',
+  },
+  buttonText: type => ({
+    textAlign: 'center',
+    fontFamily: fonts.secondary[600],
+    fontSize: 16,
+    lineHeight: 20,
+    color:
+      type === 'normal'
+        ? colors.text.primary
+        : type === 'danger'
+        ? colors.reject
+        : colors.text.secondary,
+  }),
+  cancelContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+  },
+  noticeContainer: {
+    paddingVertical: 20,
+    borderRadius: 16,
+  },
+  noticeText: {
+    fontFamily: fonts.secondary[500],
+    fontSize: 16,
+    lineHeight: 24,
+    color: colors.text.primary,
+  },
+  messageTitle: {
+    fontFamily: fonts.secondary[600],
+    fontSize: 14,
+    lineHeight: 17,
+    color: colors.text.primary,
+  },
+  board: {
+    height: 155,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 16,
+    backgroundColor: colors.white,
+    padding: 12,
+    fontFamily: fonts.primary[400],
+    fontSize: 16,
+    color: colors.text.tertiary,
+  },
+});

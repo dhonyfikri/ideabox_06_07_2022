@@ -27,12 +27,17 @@ const AddAdditionalAttachmentField = ({
   ]);
 
   const [attachment, setAttachment] = useState({
+    // desc: '',
+    // documentName: '',
+    // source: '',
+    // type: null,
+    // uploadedDate: '',
+    // uploadedBy: 'Thom Yorke',
+    type: null,
+    source: '',
     desc: '',
     documentName: '',
-    source: '',
-    type: null,
-    uploadedDate: '',
-    uploadedBy: 'Thom Yorke',
+    link: '',
   });
 
   const handleDocumentSelection = async () => {
@@ -56,6 +61,7 @@ const AddAdditionalAttachmentField = ({
       ...attachment,
       documentName: '',
       source: '',
+      link: '',
       type: valueDropdownType,
     });
   }, [valueDropdownType]);
@@ -126,10 +132,10 @@ const AddAdditionalAttachmentField = ({
             editable={valueDropdownType === null ? false : true}
             placeholder="Use http:// or https://"
             onChangeText={text => {
-              setAttachment({...attachment, source: text});
+              setAttachment({...attachment, link: text});
             }}>
             <Text style={{...styles.titleInput, lineHeight: 20}}>
-              {attachment.source}
+              {attachment.link}
             </Text>
           </TextInput>
         </View>
@@ -156,14 +162,15 @@ const AddAdditionalAttachmentField = ({
       <EditActionButton
         disableSaveButton={
           attachment.type === null ||
-          attachment.source.length === 0 ||
+          (attachment.type === 'File' && attachment.source.length === 0) ||
+          (attachment.type === 'Link' && attachment.link.length === 0) ||
           attachment.desc.length === 0
         }
         onDiscardPress={onDiscard}
         onSavePress={() => {
-          let newAttachment = {...attachment};
-          newAttachment.uploadedDate = dateToText(new Date());
-          onSave(newAttachment);
+          // let newAttachment = {...attachment};
+          // newAttachment.uploadedDate = dateToText(new Date());
+          onSave(attachment);
         }}
       />
     </>

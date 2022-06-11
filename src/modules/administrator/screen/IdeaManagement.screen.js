@@ -1,251 +1,669 @@
-import React, {useEffect, useState} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  Text,
-  View,
-  TouchableOpacity,
-  Image,
-  Modal,
-  Alert,
   FlatList,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import {SwipeListView} from 'react-native-swipe-list-view';
-import {Cross, Eye, Trash} from '../../../assets/icon';
-import CardIdeaManagement from '../../../components/CardIdeaManagement';
-import LoadingScreen from '../../../components/LoadingScreen';
-import SearchHeader from '../../../components/SearchHeader';
-import SuccesModal from '../../../components/SuccesModal';
-import DeleteIdeaManagement from '../../../config/DeleteData/DeleteIdeaManagement';
-import {
-  GetDataCategoryManagement,
-  GetDataIdeaManagement,
-} from '../../../config/GetData/GetDataAdministrator';
-import style from '../../../config/Style/style.cfg';
-import styles from '../style/Administrator.style';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import {IcFilterCalendar, IcSearch} from '../../../assets/icon';
+import CalendarRangePicker from '../../../components/CalendarRangePicker';
+import CardSubmittedIdea from '../../../components/CardSubmittedIdea';
+import Divider from '../../../components/Divider';
+import EditActionButton from '../../../components/EditActionButton';
+import Gap from '../../../components/Gap';
+import Header from '../../../components/Header';
+import ModalAction from '../../../components/ModalAction';
+import {colors} from '../../../utils/ColorsConfig/Colors';
+import {textToDate} from '../../../utils/DateConfig/DateConvert';
+import fonts from '../../../utils/FontsConfig/Fonts';
+import ModalMessage from '../../../components/ModalMessage';
+import LoadingProcessFull from '../../../components/LoadingProcessFull';
+import RefreshFull from '../../../components/RefreshFull';
+import {DeleteIdeasAPI, GetIdeasAPI} from '../../../config/RequestAPI/IdeaAPI';
+import axios from 'axios';
+import jwtDecode from 'jwt-decode';
+import {ApiGatewayBaseUrl} from '../../../config/Environment.cfg';
+import {useBackHandler} from '@react-native-community/hooks';
 
-const IdeaManagement = ({navigation}) => {
-  const [modalDeleteVisible, setModalDeleteVisible] = useState(false);
-  const [dataIdeaManagement, setDataIdeaManagement] = useState();
-  const [deleteData, setDeleteData] = useState(null);
-  const [success, setSuccess] = useState(null);
-  // search
-  const [filterData, setFilterData] = useState([]);
-  const getDataIdea = dataSearch => {
-    searchFilter(dataSearch);
-  };
-  useEffect(() => {
-    GetDataIdeaManagement().then(response => {
-      setDataIdeaManagement(response !== undefined ? response : null);
-      setFilterData(response !== undefined ? response : []);
-    });
-  }, []);
-  useEffect(() => {
-    GetDataIdeaManagement().then(response => {
-      setDataIdeaManagement(response);
-      setFilterData(response);
-    });
-  }, [success]);
-  if (dataIdeaManagement === null) {
-    return <LoadingScreen />;
-  }
-  const getDataSuccess = data => {
-    setSuccess(data);
-  };
-  const handleDelete = () => {
-    DeleteIdeaManagement(deleteData).then(val => setSuccess(val));
-  };
-  const searchFilter = text => {
-    if (text) {
-      const newData = dataIdeaManagement.filter(item => {
-        const itemData = item.desc[0].value
-          ? item.desc[0].value.toUpperCase()
-          : ''.toUpperCase();
+const IdeaManagement = ({navigation, route}) => {
+  const decodedJwt = jwtDecode(route.params?.userToken.authToken);
 
-        const textData = text.toUpperCase();
-        return itemData.indexOf(textData) > -1;
-      });
-      setFilterData(newData);
+  const refRBSheetAction = useRef();
+  const refRBSheetCalendar = useRef();
+
+  const [submittedAllIdea, setSubmittedAllIdea] = useState([]);
+  const [submittedAllIdeaToShow, setSubmittedAllIdeaToShow] = useState([]);
+  const [listUserData, setListUserData] = useState([]);
+  const [searchText, setSearchText] = useState('');
+  const [selectedIdea, setSelectedIdea] = useState(null);
+
+  const [showDateRangePicker, setShowDateRangePicker] = useState(false);
+  const [filterDate, setFilterDate] = useState({
+    start: 'Unlimited',
+    end: 'Unlimited',
+  });
+
+  const [modalDeleteIdeaVisible, setModalDeleteIdeaVisible] = useState(false);
+  const [
+    messageSuccessDeleteIdeaModalVisible,
+    setMessageSuccessDeleteIdeaModalVisible,
+  ] = useState(false);
+  const [deleteIdeaMessage, setDeleteIdeaMessage] = useState('');
+  const [loading, setLoading] = useState({
+    visible: true,
+    message: 'Please Wait',
+  });
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
+  const [showRefreshBUtton, setShowRefreshButton] = useState(false);
+  const [isChanged, setIsChanged] = useState(false);
+
+  const fetchIdeas = () => {
+    setLoading({...loading, visible: true});
+    GetIdeasAPI(route.params?.userToken?.authToken).then(res => {
+      if (res.status === 'SUCCESS') {
+        let fixResult = [];
+        let uniqueUserId = [];
+        res.data.map(item => {
+          uniqueUserId.push(item.createdBy);
+          item.like.map(item => {
+            uniqueUserId.push(item.createdBy);
+          });
+          item.comment.map(item => {
+            uniqueUserId.push(item.createdBy);
+          });
+          uniqueUserId.push(
+            jwtDecode(route.params?.userToken?.authToken).data.id,
+          );
+        });
+        if (res.data.length > 0) {
+          uniqueUserId = [...new Set(uniqueUserId)];
+        }
+        const request = userId => {
+          return axios.get(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${route.params?.userToken?.authToken}`,
+              Tenant: `https://${
+                jwtDecode(route.params?.userToken?.authToken).data
+                  .tenantSubdomain
+              }.ideaboxapp.com`,
+            },
+          });
+        };
+
+        const listUser = [];
+        const listGetUserRequest = [];
+
+        uniqueUserId.map(item => {
+          listGetUserRequest.push(request(item));
+        });
+
+        axios
+          .all(listGetUserRequest)
+          .then(
+            axios.spread((...responses) => {
+              responses.map(item => {
+                if (item.data.data.length > 0) {
+                  listUser.push(item.data.data[0]);
+                }
+              });
+              // console.log(listUser);
+              res.data.map(item => {
+                const tempItem = item;
+                listUser.map(item => {
+                  if (item.id === tempItem.createdBy) {
+                    tempItem.user = item;
+                  }
+                });
+                fixResult.push(tempItem);
+              });
+              // ini hanya berupa data singkat untuk card idea list
+              let fixSubmittedAllIdea = [];
+              fixResult.map(item => {
+                fixSubmittedAllIdea.push({
+                  ideaId: item.id,
+                  ideaName: item.desc[0].value,
+                  allowJoin: item.allowJoin,
+                  ownerId: item.createdBy,
+                  ownerName: item.user.name,
+                  createdDate: `${
+                    (item.desc[0].value.length % 29) + 1
+                  }/05/2022, 12:00:01`,
+                });
+              });
+              setSubmittedAllIdea(fixSubmittedAllIdea);
+              setListUserData(listUser);
+              setLoading({...loading, visible: false});
+            }),
+          )
+          .catch(errors => {
+            setLoading({...loading, visible: false});
+            setShowRefreshButton(true);
+            console.log(errors);
+          });
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'NOT_FOUND' ||
+        res.status === 'UNDEFINED_HEADER' ||
+        res.status === 'UNAUTHORIZED' ||
+        res.status === 'SERVER_ERROR'
+      ) {
+        setLoading({...loading, visible: false});
+        setShowRefreshButton(true);
+      }
+    });
+  };
+
+  const handleDeleteSubmittedIdea = () => {
+    setLoading({...loading, visible: true, message: 'Deleting idea'});
+    DeleteIdeasAPI(
+      route.params?.userToken.authToken,
+      parseInt(selectedIdea.ideaId),
+    ).then(res => {
+      setLoading({...loading, visible: false});
+      console.log(res);
+      if (res.status === 'SUCCESS') {
+        setModalDeleteIdeaVisible(false);
+        setSelectedIdea(null);
+        setDeleteIdeaMessage('');
+        setMessageSuccessDeleteIdeaModalVisible(true);
+        setChanged();
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'ERROR' ||
+        res.status === 'SERVER_ERROR'
+      ) {
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Failed',
+          message: res.message,
+          type: 'confused',
+        });
+      }
+    });
+  };
+
+  const matchToSearch = () => {
+    let tempSubmittedAllIdea = [];
+    if (searchText === '') {
+      tempSubmittedAllIdea = submittedAllIdea;
     } else {
-      setFilterData(dataIdeaManagement);
+      submittedAllIdea.map(item => {
+        if (item.ideaName.toLowerCase().includes(searchText.toLowerCase())) {
+          tempSubmittedAllIdea.push(item);
+        }
+      });
+    }
+    setSubmittedAllIdeaToShow(matchToFilter(tempSubmittedAllIdea));
+  };
+
+  const matchToFilter = value => {
+    let tempSubmittedAllIdea = [...value];
+    if (filterDate.start !== 'Unlimited' && filterDate.end !== 'Unlimited') {
+      const _tempSubmittedAllIdea = value.filter(item => {
+        return (
+          (item.createdDate
+            ? textToDate(item.createdDate?.split(',')[0])
+            : 0) >= textToDate(filterDate.start) &&
+          (item.createdDate
+            ? textToDate(item.createdDate?.split(',')[0])
+            : 0) <= textToDate(filterDate.end)
+        );
+      });
+      tempSubmittedAllIdea = _tempSubmittedAllIdea;
+    } else if (
+      filterDate.start !== 'Unlimited' &&
+      filterDate.end === 'Unlimited'
+    ) {
+      const _tempSubmittedAllIdea = value.filter(item => {
+        return (
+          (item.createdDate
+            ? textToDate(item.createdDate?.split(',')[0])
+            : 0) >= textToDate(filterDate.start)
+        );
+      });
+      tempSubmittedAllIdea = _tempSubmittedAllIdea;
+    } else if (
+      filterDate.start === 'Unlimited' &&
+      filterDate.end !== 'Unlimited'
+    ) {
+      const _tempSubmittedAllIdea = value.filter(item => {
+        return (
+          (item.createdDate
+            ? textToDate(item.createdDate?.split(',')[0])
+            : 0) <= textToDate(filterDate.end)
+        );
+      });
+      tempSubmittedAllIdea = _tempSubmittedAllIdea;
+    }
+
+    return tempSubmittedAllIdea;
+  };
+
+  const setChanged = () => {
+    if (!isChanged) {
+      setIsChanged(true);
     }
   };
-  console.log(success);
+
+  const backToPreviousPage = () => {
+    if (isChanged) {
+      navigation.navigate('TabNavigation', {
+        screen: 'Profile',
+        params: {
+          userToken: route.params?.userToken,
+          refresh: {status: true},
+        },
+      });
+    } else {
+      navigation.goBack();
+    }
+  };
+
+  useEffect(() => {
+    setSubmittedAllIdeaToShow(matchToFilter(submittedAllIdea));
+  }, [filterDate, submittedAllIdea]);
+
+  useEffect(() => {
+    if (route.params?.refresh?.status) {
+      setChanged();
+      fetchIdeas();
+    }
+    if (route.params?.refresh?.status) {
+      navigation.setParams({
+        ...route.params,
+        refresh: {status: false},
+      });
+    }
+  }, [route.params?.refresh]);
+
+  useEffect(() => {
+    fetchIdeas();
+  }, []);
+
+  useBackHandler(() => {
+    backToPreviousPage();
+    return true;
+  });
+
   return (
-    <SafeAreaView style={styles.container}>
-      {success === 200 ? (
-        <SuccesModal
-          desc={'Your data idea management have been deleted!'}
-          getData={getDataSuccess}
+    <View style={styles.page}>
+      <Header
+        backButton
+        onBackPress={() => backToPreviousPage()}
+        backText="Back"
+        title="Idea Management"
+        onNotificationPress={() => navigation.navigate('Notification')}
+      />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}>
+        <View style={styles.searchAndFilterWrapper}>
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search..."
+              value={searchText}
+              onChangeText={text => setSearchText(text)}
+            />
+            <TouchableOpacity
+              style={styles.searchButton}
+              onPress={() => {
+                matchToSearch();
+              }}>
+              <IcSearch />
+            </TouchableOpacity>
+          </View>
+          <Gap width={4} />
+          <TouchableOpacity onPress={() => refRBSheetCalendar.current.open()}>
+            <IcFilterCalendar />
+          </TouchableOpacity>
+        </View>
+        <Gap height={16} />
+        <FlatList
+          data={submittedAllIdeaToShow}
+          keyExtractor={(_, index) => index.toString()}
+          scrollEnabled={false}
+          showsVerticalScrollIndicator={false}
+          inverted={false}
+          renderItem={({item, index}) => {
+            return (
+              <>
+                {index !== 0 && <Gap height={16} />}
+                <CardSubmittedIdea
+                  valueLength={submittedAllIdeaToShow.length}
+                  raiseDelay={index}
+                  ideaName={item.ideaName}
+                  ownerName={item.ownerName}
+                  createdDate={item.createdDate ? item.createdDate : '-'}
+                  onDotThreePress={() => {
+                    console.log(item.ideaId, item.ideaName);
+                    setSelectedIdea(item);
+                    refRBSheetAction.current.open();
+                  }}
+                />
+              </>
+            );
+          }}
         />
-      ) : null}
-      <SearchHeader
-        onPress={() => navigation.openDrawer()}
-        notification={() => navigation.navigate('Notification')}
-        getData={getDataIdea}
-        placeholder={'Search an Idea ...'}
+      </ScrollView>
+      {/* Bottom sheet action */}
+      <RBSheet
+        ref={refRBSheetAction}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        animationType="fade"
+        height={170}
+        customStyles={{
+          container: {
+            paddingTop: 16,
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+          },
+          wrapper: {
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          },
+          draggableIcon: {
+            backgroundColor: '#9CA3AF',
+            margin: 0,
+          },
+        }}>
+        <View style={styles.bottomSheetContentContainer}>
+          <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+            <Text style={styles.bottomSheetTitle}>Action</Text>
+            <TouchableOpacity
+              style={styles.titleContainer}
+              onPress={() => refRBSheetAction.current.close()}>
+              <Text style={styles.bottomSheetCancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+          <Gap height={16} />
+          <Divider />
+          <Gap height={16} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={{padding: 16}}
+              onPress={() => {
+                refRBSheetAction.current.close();
+                setModalDeleteIdeaVisible(true);
+              }}>
+              <Text style={styles.buttonText('danger')}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </RBSheet>
+      {/* Bottom sheet calendar */}
+      <RBSheet
+        ref={refRBSheetCalendar}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        animationType="fade"
+        onClose={() => setShowDateRangePicker(false)}
+        customStyles={{
+          container: {
+            paddingTop: 16,
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+            height: showDateRangePicker ? 455 : 220,
+          },
+          wrapper: {
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          },
+          draggableIcon: {
+            backgroundColor: '#9CA3AF',
+            margin: 0,
+          },
+        }}>
+        <View style={styles.bottomSheetContentContainer}>
+          <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+            <Text style={styles.bottomSheetTitle}>Calender</Text>
+            <TouchableOpacity
+              style={styles.cancelContainer}
+              onPress={() => refRBSheetCalendar.current.close()}>
+              <Text style={styles.bottomSheetCancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+          <Gap height={16} />
+          <Divider />
+          <Gap height={16} />
+          <CalendarRangePicker
+            actualDateFilter={filterDate}
+            showRangePicker={showDateRangePicker}
+            onClick={() => setShowDateRangePicker(!showDateRangePicker)}
+            onDiscard={() => refRBSheetCalendar.current.close()}
+            onSave={newDateFilter => {
+              refRBSheetCalendar.current.close();
+              setFilterDate(newDateFilter);
+            }}
+          />
+        </View>
+      </RBSheet>
+
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
+      <RefreshFull
+        visible={showRefreshBUtton}
+        onPress={() => {
+          setShowRefreshButton(false);
+          fetchIdeas();
+        }}
+        onOffsetTouch={() => navigation.goBack()}
       />
 
-      {/* Header navigation */}
-      <View style={styles.headerContainer}>
-        <View style={styles.headerWrap}>
-          {/* <TouchableOpacity
-            style={styles.wrap}
-            onPress={() => {
-              navigation.navigate('UserManagement');
-            }}>
-            <View style={styles.tabBar}>
-              <Text style={styles.textNonActive}>User Management</Text>
-            </View>
-          </TouchableOpacity> */}
-          <TouchableOpacity
-            style={styles.wrap}
-            onPress={() => {
-              navigation.navigate('CategoryManagement');
-            }}>
-            <View style={styles.tabBar}>
-              <Text style={styles.textNonActive}>Category Management</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.wrap} onPress={() => {}}>
-            <View style={styles.tabBarActive}>
-              <Text style={styles.textActive}>Idea Management</Text>
-            </View>
-          </TouchableOpacity>
-          {/* <TouchableOpacity
-            style={styles.wrap}
-            onPress={() => navigation.navigate('RoleManagement')}>
-            <View style={styles.tabBar}>
-              <Text style={styles.textNonActive}>Role Management</Text>
-            </View>
-          </TouchableOpacity> */}
-        </View>
-      </View>
-
-      {/* content */}
-      <View style={styles.contentContainer}>
-        {/* <View style={styles.iconContainer}>
-          <TouchableOpacity style={styles.icon}>
-            <Image
-              source={require('../../../assets/icon/plusAdmin.png')}
-              style={styles.imageAdmin}
-            />
-          </TouchableOpacity>
-        </View> */}
-
-        {/* Content */}
-        <View style={styles.content}>
-          <View style={styles.titleContent}>
-            <View style={styles.title}>
-              <Text
-                style={[style.h5, {textAlign: 'center', fontWeight: 'bold'}]}>
-                No.{' '}
-              </Text>
-            </View>
-            <View style={styles.email}>
-              <Text
-                style={[style.h5, {textAlign: 'center', fontWeight: 'bold'}]}>
-                Nama Idea
-              </Text>
-            </View>
-            <View style={styles.email}>
-              <Text
-                style={[style.h5, {textAlign: 'center', fontWeight: 'bold'}]}>
-                Created By
-              </Text>
-            </View>
-          </View>
-          <SwipeListView
-            data={filterData}
-            renderItem={({item, index}) => {
-              // console.log(item)
-              return (
-                <View>
-                  <CardIdeaManagement
-                    // delete={() => setModalDeleteVisible(true)}
-                    id={index + 1}
-                    title={item.desc[0].value}
-                    create={item.createdBy}
-                  />
-                </View>
-              );
-            }}
-            renderHiddenItem={({item}) => (
-              <View style={styles.rowBack}>
-                <TouchableOpacity
-                  style={[styles.backRightBtn, styles.backRightBtnRight]}
-                  onPress={() => {
-                    setDeleteData(item.id);
-                    setModalDeleteVisible(true);
-                  }}>
-                  <Trash />
-                </TouchableOpacity>
-              </View>
-            )}
-            rightOpenValue={-75}
-            leftOpenValue={0}
-          />
-          {/* <FlatList
-            keyExtractor={(item, index) => index.toString()}
-            data={dataIdeaManagement}
-            renderItem={({item, index}) => {
-              return (
-                <ScrollView>
-                  <CardIdeaManagement
-                    delete={() => setModalDeleteVisible(true)}
-                    id={item.id}
-                    title={item.desc[0].value}
-                    create={item.createdBy}
-                  />
-                </ScrollView>
-              );
-            }}
-          /> */}
-        </View>
-      </View>
-      {/* Popup delete  */}
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={modalDeleteVisible}
+      {/* Modal delete idea action */}
+      <ModalAction
+        visible={modalDeleteIdeaVisible}
+        title="Delete Idea"
+        onCloseButtonPress={() => {
+          setModalDeleteIdeaVisible(false);
+          setDeleteIdeaMessage('');
+        }}
         onRequestClose={() => {
-          Alert.alert('Modal has been closed.');
-          setModalDeleteVisible(!modalDeleteVisible);
-        }}>
-        <View style={styles.centeredView}>
-          <View style={styles.centeredcontainer}>
-            <View style={styles.modalView}>
-              <View style={styles.titleContainer}>
-                <Text style={styles.textEdit}>Delete Idea</Text>
-                <TouchableOpacity onPress={() => setModalDeleteVisible(false)}>
-                  <Cross />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.inputContainer}>
-                <Text style={styles.h2}>Anda ingin menghapus idea ini?</Text>
-                <View style={styles.rowDelete}>
-                  <TouchableOpacity
-                    style={styles.buttondelete}
-                    onPress={() => {
-                      handleDelete();
-                      setModalDeleteVisible(false);
-                    }}>
-                    <Text style={styles.save}>Hapus</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.buttoncancel}
-                    onPress={() => setModalDeleteVisible(false)}>
-                    <Text style={styles.save}>Batal</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </View>
+          setModalDeleteIdeaVisible(false);
+          setDeleteIdeaMessage('');
+        }}
+        contentBackground={colors.secondary}
+        withTitleDivider={false}>
+        <View style={styles.noticeContainer}>
+          <Text style={styles.noticeText}>
+            Are you sure you want to{' '}
+            <Text
+              style={{
+                ...styles.noticeText,
+                fontFamily: fonts.secondary[700],
+                color: colors.reject,
+              }}>
+              delete
+            </Text>{' '}
+            this idea?{' '}
+            <Text
+              style={{
+                ...styles.noticeText,
+                fontFamily: fonts.secondary[700],
+              }}>
+              {selectedIdea?.ideaName}
+            </Text>
+          </Text>
         </View>
-      </Modal>
-      {/* EndPopup */}
-    </SafeAreaView>
+        <Gap height={28} />
+        <View
+          style={{
+            padding: 16,
+            backgroundColor: colors.white,
+            borderRadius: 32,
+          }}>
+          <Text style={styles.messageTitle}>
+            Please fill the reason in the field below
+            <Text style={{color: colors.reject}}>*</Text>
+          </Text>
+          <Gap height={8} />
+          <TextInput
+            multiline
+            autoCorrect={false}
+            textAlignVertical="top"
+            style={styles.board}
+            placeholder="Fill your reason.."
+            onChangeText={text => {
+              setDeleteIdeaMessage(text);
+            }}>
+            <Text style={{lineHeight: 20}}>{deleteIdeaMessage}</Text>
+          </TextInput>
+        </View>
+        <Gap height={16} />
+        <EditActionButton
+          disableSaveButton={deleteIdeaMessage.trim().length <= 0}
+          onDiscardPress={() => {
+            setModalDeleteIdeaVisible(false);
+            setDeleteIdeaMessage('');
+          }}
+          onSavePress={() => {
+            handleDeleteSubmittedIdea();
+          }}
+        />
+      </ModalAction>
+      {/* modal success delete idea message */}
+      <ModalMessage
+        visible={messageSuccessDeleteIdeaModalVisible}
+        withIllustration
+        illustrationType="confused"
+        title="You’re all done"
+        message={
+          <Text>
+            You have <Text style={{color: colors.reject}}>deleted</Text> your
+            Idea
+          </Text>
+        }
+        withBackButton
+        onBack={() => {
+          setMessageSuccessDeleteIdeaModalVisible(false);
+          fetchIdeas();
+        }}
+        onRequestClose={() => {
+          setMessageSuccessDeleteIdeaModalVisible(false);
+          fetchIdeas();
+        }}
+      />
+    </View>
   );
 };
 
 export default IdeaManagement;
+
+const styles = StyleSheet.create({
+  page: {flex: 1, backgroundColor: '#FFFFFF'},
+  contentContainer: {
+    padding: 16,
+  },
+  searchAndFilterWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    height: '100%',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 32,
+  },
+  searchInput: {
+    flex: 1,
+    marginHorizontal: 24,
+    padding: 0,
+    fontFamily: fonts.secondary[400],
+    fontSize: 14,
+    lineHeight: 17,
+    color: colors.text.primary,
+  },
+  searchButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 32 / 2,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bottomSheetContentContainer: {
+    height: '100%',
+    padding: 16,
+  },
+  bottomSheetTitle: {
+    fontFamily: fonts.secondary[600],
+    fontSize: 14,
+    lineHeight: 17,
+    color: colors.text.primary,
+  },
+  bottomSheetCancelButtonText: {
+    fontFamily: fonts.secondary[400],
+    fontSize: 12,
+    lineHeight: 15,
+    color: colors.text.tertiary,
+  },
+  titleContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+  },
+  buttonContainer: {
+    backgroundColor: colors.dot,
+    borderRadius: 32,
+    overflow: 'hidden',
+  },
+  buttonText: type => ({
+    textAlign: 'center',
+    fontFamily: fonts.secondary[600],
+    fontSize: 16,
+    lineHeight: 20,
+    color:
+      type === 'normal'
+        ? colors.text.primary
+        : type === 'danger'
+        ? colors.reject
+        : colors.text.secondary,
+  }),
+  cancelContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+  },
+  noticeContainer: {
+    paddingVertical: 20,
+    borderRadius: 16,
+  },
+  noticeText: {
+    fontFamily: fonts.secondary[500],
+    fontSize: 16,
+    lineHeight: 24,
+    color: colors.text.primary,
+  },
+  messageTitle: {
+    fontFamily: fonts.secondary[600],
+    fontSize: 14,
+    lineHeight: 17,
+    color: colors.text.primary,
+  },
+  board: {
+    height: 155,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 16,
+    backgroundColor: colors.white,
+    padding: 12,
+    fontFamily: fonts.primary[400],
+    fontSize: 16,
+    color: colors.text.tertiary,
+  },
+});

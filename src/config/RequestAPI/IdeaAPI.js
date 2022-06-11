@@ -85,4 +85,248 @@ const GetDetailIdeaAPI = (token, ideaId) => {
   });
 };
 
-export {GetIdeasAPI, GetDetailIdeaAPI};
+const CreateIdeaAPI = (token, ideaDataToSubmit) => {
+  return new Promise(resolve => {
+    var formData = new FormData();
+    var img = {
+      uri: ideaDataToSubmit.ideaDescription?.cover?.uri,
+      name: ideaDataToSubmit.ideaDescription?.cover?.name,
+      type: ideaDataToSubmit.ideaDescription?.cover?.mime,
+    };
+    formData.append('title', ideaDataToSubmit.ideaDescription.title);
+    formData.append(
+      'description',
+      ideaDataToSubmit.ideaDescription.description,
+    );
+    formData.append('category', ideaDataToSubmit.ideaDescription.category);
+    formData.append('cover', img);
+    formData.append('allowJoin', ideaDataToSubmit.ideaDescription.allowToJoin);
+    formData.append('why', ideaDataToSubmit.storyBehind.why);
+    formData.append('what', ideaDataToSubmit.storyBehind.what);
+    formData.append('how', ideaDataToSubmit.storyBehind.how);
+    formData.append(
+      'uniqueValues',
+      JSON.stringify(ideaDataToSubmit.leanCanvas.uniqueValue),
+    );
+    formData.append(
+      'customers',
+      JSON.stringify(ideaDataToSubmit.leanCanvas.customer),
+    );
+    formData.append(
+      'problems',
+      JSON.stringify(ideaDataToSubmit.leanCanvas.problem),
+    );
+    formData.append(
+      'earlyAdopters',
+      JSON.stringify(ideaDataToSubmit.leanCanvas.earlyAdopter),
+    );
+    formData.append(
+      'existingSolutions',
+      JSON.stringify(ideaDataToSubmit.leanCanvas.existingSolution),
+    );
+    formData.append(
+      'proposedSolutions',
+      JSON.stringify(ideaDataToSubmit.leanCanvas.proposedSolution),
+    );
+    formData.append(
+      'inviteUsers',
+      JSON.stringify(ideaDataToSubmit.inviteUsers),
+    );
+    formData.append(
+      'additionalFileLinkAttachment',
+      JSON.stringify(ideaDataToSubmit.additionalFileLinkAttachment),
+    );
+    axios
+      .post(`${ApiGatewayBaseUrl}/ideas`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Tenant: `https://${
+            jwtDecode(token).data.tenantSubdomain
+          }.ideaboxapp.com`,
+        },
+      })
+      .then(response => {
+        // console.log(response.data.data);
+        if (response.data.status === 200) {
+          resolve({
+            status: 'SUCCESS',
+            message: response.data.status.message,
+          });
+        } else {
+          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
+        }
+      })
+      .catch(error => {
+        // console.log(error.response?.data);
+        if (error.response?.status === 401) {
+          resolve({
+            status: 'UNAUTHORIZED',
+            message: error.response.data?.message,
+          });
+        } else if (error.response?.status === 422) {
+          resolve({
+            status: 'VALIDATION_ERROR',
+            message: error.response.data?.message,
+          });
+        } else if (error.response?.status === 500) {
+          resolve({
+            status: 'BACKEND_ERROR',
+            message: error.response.data?.message,
+          });
+        } else {
+          resolve({
+            status: 'SERVER_ERROR',
+            message: 'Failed to contact server',
+          });
+        }
+      });
+  });
+};
+
+const EditIdeaAPI = (token, ideaId, ideaDataToSubmit) => {
+  return new Promise(resolve => {
+    var formData = new FormData();
+    var img = {
+      uri: ideaDataToSubmit.ideaDescription?.cover?.uri,
+      name: ideaDataToSubmit.ideaDescription?.cover?.name,
+      type: ideaDataToSubmit.ideaDescription?.cover?.mime,
+    };
+    formData.append('title', ideaDataToSubmit.ideaDescription.title);
+    formData.append(
+      'description',
+      ideaDataToSubmit.ideaDescription.description,
+    );
+    formData.append('category', ideaDataToSubmit.ideaDescription.category);
+    formData.append('cover', img);
+    formData.append('allowJoin', ideaDataToSubmit.ideaDescription.allowToJoin);
+    formData.append('why', ideaDataToSubmit.storyBehind.why);
+    formData.append('what', ideaDataToSubmit.storyBehind.what);
+    formData.append('how', ideaDataToSubmit.storyBehind.how);
+    formData.append(
+      'uniqueValues',
+      JSON.stringify(ideaDataToSubmit.leanCanvas.uniqueValue),
+    );
+    formData.append(
+      'customers',
+      JSON.stringify(ideaDataToSubmit.leanCanvas.customer),
+    );
+    formData.append(
+      'problems',
+      JSON.stringify(ideaDataToSubmit.leanCanvas.problem),
+    );
+    formData.append(
+      'earlyAdopters',
+      JSON.stringify(ideaDataToSubmit.leanCanvas.earlyAdopter),
+    );
+    formData.append(
+      'existingSolutions',
+      JSON.stringify(ideaDataToSubmit.leanCanvas.existingSolution),
+    );
+    formData.append(
+      'proposedSolutions',
+      JSON.stringify(ideaDataToSubmit.leanCanvas.proposedSolution),
+    );
+    formData.append(
+      'inviteUsers',
+      JSON.stringify(ideaDataToSubmit.inviteUsers),
+    );
+    formData.append(
+      'additionalFileLinkAttachment',
+      JSON.stringify(ideaDataToSubmit.additionalFileLinkAttachment),
+    );
+    formData.append('_method', 'PUT');
+    axios
+      .post(`${ApiGatewayBaseUrl}/ideas/${ideaId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Tenant: `https://${
+            jwtDecode(token).data.tenantSubdomain
+          }.ideaboxapp.com`,
+        },
+      })
+      .then(response => {
+        // console.log(response.data.data);
+        if (response.data.status === 200) {
+          resolve({
+            status: 'SUCCESS',
+            message: response.data.status.message,
+          });
+        } else {
+          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
+        }
+      })
+      .catch(error => {
+        // console.log(error.response?.data);
+        if (error.response?.status === 401) {
+          resolve({
+            status: 'UNAUTHORIZED',
+            message: error.response.data?.message,
+          });
+        } else if (error.response?.status === 422) {
+          resolve({
+            status: 'VALIDATION_ERROR',
+            message: error.response.data?.message,
+          });
+        } else if (error.response?.status === 500) {
+          resolve({
+            status: 'BACKEND_ERROR',
+            message: error.response.data?.message,
+          });
+        } else {
+          resolve({
+            status: 'SERVER_ERROR',
+            message: 'Failed to contact server',
+          });
+        }
+      });
+  });
+};
+
+const DeleteIdeasAPI = (token, ideaId) => {
+  return new Promise(resolve => {
+    axios
+      .delete(`${ApiGatewayBaseUrl}/ideas`, {
+        data: {id: ideaId},
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Tenant: `https://${
+            jwtDecode(token).data.tenantSubdomain
+          }.ideaboxapp.com`,
+        },
+      })
+      .then(response => {
+        // console.log(response.data.data);
+        if (response.data.status === 200) {
+          resolve({
+            status: 'SUCCESS',
+            message: response.data.messages,
+            data: response.data.data,
+          });
+        } else {
+          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
+        }
+      })
+      .catch(error => {
+        // console.log(error.response?.data?.message);
+        if (error.response?.status === 500) {
+          resolve({
+            status: 'ERROR',
+            message: error.response.data?.message,
+          });
+        } else {
+          resolve({
+            status: 'SERVER_ERROR',
+            message: 'Failed to contact server',
+          });
+        }
+      });
+  });
+};
+
+export {
+  GetIdeasAPI,
+  GetDetailIdeaAPI,
+  CreateIdeaAPI,
+  EditIdeaAPI,
+  DeleteIdeasAPI,
+};

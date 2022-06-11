@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
+  ScrollView,
 } from 'react-native';
 import React, {useState, useRef} from 'react';
 import fonts from '../utils/FontsConfig/Fonts';
@@ -17,8 +18,10 @@ import ModalAction from './ModalAction';
 import EditActionButton from './EditActionButton';
 import ModalMessage from './ModalMessage';
 import EditTeamStructureField from './EditTeamStructureField';
+import jwtDecode from 'jwt-decode';
 
 const EditTeams = ({
+  userToken,
   isGuest,
   ideaName,
   teams,
@@ -27,6 +30,7 @@ const EditTeams = ({
   onProfilePress = () => {},
   onLeaveIdea = () => {},
 }) => {
+  const decodedJwt = userToken ? jwtDecode(userToken?.authToken) : null;
   const refRBSheetActionForMe = useRef();
   const refRBSheetActionForOthers = useRef();
   const refRBSheetActionForMeAsGuest = useRef();
@@ -73,14 +77,19 @@ const EditTeams = ({
             <>
               <View style={styles.container}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Text style={styles.teamName}>{item.approvalTo.name}</Text>
+                  <ScrollView
+                    contentContainerStyle={{flexGrow: 1}}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}>
+                    <Text style={styles.teamName}>{item?.name}</Text>
+                  </ScrollView>
                   <Gap width={8} />
                   <TouchableOpacity
                     style={{flexDirection: 'row', alignItems: 'center'}}
                     onPress={() => {
                       setSelectedTeams({index: index, data: item});
                       // case for me as teams
-                      if (item.approvalTo.id === '13') {
+                      if (item.id === decodedJwt?.data.id) {
                         if (isGuest) {
                           refRBSheetActionForMeAsGuest.current.open();
                         } else {
@@ -107,7 +116,7 @@ const EditTeams = ({
                         numberOfLines={2}
                         ellipsizeMode="tail"
                         style={styles.valueDetail}>
-                        {item.approvalTo.nik}
+                        {item.nik}
                       </Text>
                     </View>
                   </View>
@@ -120,7 +129,7 @@ const EditTeams = ({
                         numberOfLines={2}
                         ellipsizeMode="tail"
                         style={styles.valueDetail}>
-                        {item.approvalTo.teamStructure}
+                        {item.teamStructure}
                       </Text>
                     </View>
                   </View>
@@ -133,7 +142,7 @@ const EditTeams = ({
                         numberOfLines={2}
                         ellipsizeMode="tail"
                         style={styles.valueDetail}>
-                        {item.approvalTo.unitName}
+                        {item.unit}
                       </Text>
                     </View>
                   </View>
@@ -165,7 +174,7 @@ const EditTeams = ({
                   </View>
                   <Gap height={16} />
                   <View style={styles.detailTextWrapper}>
-                    <Text style={styles.titleDetail}>Created Date</Text>
+                    <Text style={styles.titleDetail}>Approved Date</Text>
                     <Gap width={16} />
                     <View style={styles.detailField}>
                       <Text
@@ -277,7 +286,7 @@ const EditTeams = ({
               style={{padding: 16}}
               onPress={() => {
                 refRBSheetActionForOthers.current.close();
-                onProfilePress('others', selectedTeams.data.approvalTo.id);
+                onProfilePress('others', selectedTeams.data.id);
               }}>
               <Text style={styles.buttonText('normal')}>Detail Profile</Text>
             </TouchableOpacity>
@@ -401,7 +410,7 @@ const EditTeams = ({
               style={{padding: 16}}
               onPress={() => {
                 refRBSheetActionForOthersAsGuest.current.close();
-                onProfilePress('others', selectedTeams.data.approvalTo.id);
+                onProfilePress('others', selectedTeams.data.id);
               }}>
               <Text style={styles.buttonText('normal')}>Detail Profile</Text>
             </TouchableOpacity>
@@ -447,8 +456,7 @@ const EditTeams = ({
                 ...styles.noticeText,
                 fontFamily: fonts.secondary[700],
               }}>
-              {selectedTeams.data?.approvalTo?.nik} -{' '}
-              {selectedTeams.data?.approvalTo?.name}
+              {selectedTeams.data?.nik} - {selectedTeams.data?.name}
             </Text>
           </Text>
         </View>
@@ -611,8 +619,8 @@ const EditTeams = ({
         </View>
         <Gap height={16} />
         <EditTeamStructureField
-          teamName={selectedTeams.data?.approvalTo?.name}
-          selectedTeamStructure={selectedTeams.data?.approvalTo?.teamStructure}
+          teamName={selectedTeams.data?.name}
+          selectedTeamStructure={selectedTeams.data?.teamStructure}
           teamStructureItem={[
             {label: 'Hipster', value: 'Hipster'},
             {label: 'Hustler', value: 'Hustler'},
@@ -637,7 +645,7 @@ const EditTeams = ({
             Are you sure want to remove this member?. If yes,{' '}
             {
               <Text style={{fontFamily: fonts.primary[700]}}>
-                {selectedTeams.data?.approvalTo?.name}
+                {selectedTeams.data?.name}
               </Text>
             }{' '}
             must apply to join again

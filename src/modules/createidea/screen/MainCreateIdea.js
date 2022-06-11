@@ -9,7 +9,7 @@ const MainCreateIdea = ({navigation, route}) => {
       index: 1,
       routes: [
         {name: 'TabNavigation', params: {userToken: route.params?.userToken}},
-        {name: 'CreateIdeaStep'},
+        {name: 'CreateIdeaStep', params: {userToken: route.params?.userToken}},
       ],
     });
   }

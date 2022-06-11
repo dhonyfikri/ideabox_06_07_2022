@@ -32,7 +32,7 @@ const CreateStoryBehind = ({
     if (onNextReff !== undefined) {
       onNextReff.current = () => onNextRequest(storyBehind);
     }
-  }, [storyBehind]);
+  });
 
   return (
     <CardCreateIdeaSession title="Story Behind" mandatory>

@@ -5,6 +5,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  ScrollView,
   View,
 } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -75,19 +76,34 @@ const EditAdditionalAttachment = ({
           return (
             <>
               {searchText.length === 0 ||
-              item.desc.toLowerCase().includes(searchText.toLowerCase()) ? (
+              item.value.name
+                .toLowerCase()
+                .includes(searchText.toLowerCase()) ? (
                 <>
                   <View style={styles.cardContainer}>
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                      <Text style={styles.attachmentDesc}>{item.desc}</Text>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}>
+                      <ScrollView
+                        contentContainerStyle={{flexGrow: 1}}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}>
+                        <Text numberOfLines={1} style={styles.attachmentDesc}>
+                          {item.value.name}
+                        </Text>
+                      </ScrollView>
                       <Gap width={8} />
                       <TouchableOpacity
                         style={{flexDirection: 'row', alignItems: 'center'}}
                         onPress={() => {
                           setSelectedAttachment({index: index, data: item});
-                          if (item.type === 'Link') {
+                          if (item.field === 'additionalFileLinkAttachment') {
                             refRBSheetActionLink.current.open();
-                          } else if (item.type === 'File') {
+                          } else if (
+                            item.field === 'additionalFileAttachment'
+                          ) {
                             refRBSheetActionFile.current.open();
                           }
                         }}>
@@ -100,15 +116,21 @@ const EditAdditionalAttachment = ({
                         <Text style={styles.titleDetail}>Attachment</Text>
                         <Gap width={16} />
                         <View style={styles.detailField}>
-                          <Text
-                            numberOfLines={2}
-                            ellipsizeMode="tail"
-                            style={styles.valueDetail}>
-                            {item.type === 'Link'
-                              ? item.source
-                              : item.documentName}
-                          </Text>
-                          {item.type === 'Link' && (
+                          <ScrollView
+                            contentContainerStyle={{
+                              flexGrow: 1,
+                              justifyContent: 'flex-end',
+                            }}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}>
+                            <Text
+                              numberOfLines={1}
+                              ellipsizeMode="tail"
+                              style={styles.valueDetail}>
+                              {item.value.link}
+                            </Text>
+                          </ScrollView>
+                          {item.field === 'additionalFileLinkAttachment' && (
                             <>
                               <Gap width={4} />
                               <TouchableOpacity>
@@ -127,7 +149,9 @@ const EditAdditionalAttachment = ({
                             numberOfLines={2}
                             ellipsizeMode="tail"
                             style={styles.valueDetail}>
-                            {item.type}
+                            {item.field === 'additionalFileLinkAttachment'
+                              ? 'Link'
+                              : 'File'}
                           </Text>
                         </View>
                       </View>
@@ -140,7 +164,7 @@ const EditAdditionalAttachment = ({
                             numberOfLines={2}
                             ellipsizeMode="tail"
                             style={styles.valueDetail}>
-                            {item.uploadedBy}
+                            {item.uploadedByName}
                           </Text>
                         </View>
                       </View>
@@ -168,7 +192,7 @@ const EditAdditionalAttachment = ({
           );
         }}
       />
-      {/* Modal remove team action */}
+      {/* Modal add attachment */}
       <ModalAction
         visible={modalAddAttachmentVisible}
         title="Add New Attachment"
@@ -274,7 +298,7 @@ const EditAdditionalAttachment = ({
               style={{padding: 16}}
               onPress={() => {
                 refRBSheetActionFile.current.close();
-                // setModalChangeTeamStructureVisible(true);
+                // do download file here
               }}>
               <Text style={styles.buttonText('normal')}>Download File</Text>
             </TouchableOpacity>

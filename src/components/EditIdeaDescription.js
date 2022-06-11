@@ -39,9 +39,8 @@ const CreateIdeaDescription = ({
   const [valueDropdownIdeaCategory, setValueDropdownIdeaCategory] =
     useState(ideaCategory);
   const [itemsDropdownIdeaCategory, setItemsDropdownIdeaCategory] = useState([
-    {label: 'Artificial Intelegent', value: 'Artificial Intelegent'},
-    {label: 'Robotika', value: 'Robotika'},
-    {label: 'Social Colaboration', value: 'Social Colaboration'},
+    {label: 'Lingkungan', value: '1'},
+    {label: 'Social Colaboration', value: '2'},
   ]);
 
   const takeCoverPhotoFromLibrary = () => {
@@ -52,7 +51,11 @@ const CreateIdeaDescription = ({
       cropping: true,
     }).then(image => {
       if (image.size <= 1000000000) {
-        onIdeaCoverChange(image.path);
+        onIdeaCoverChange({
+          uri: image.path,
+          mime: image.mime,
+          name: image.path?.split('/')?.slice(-1)[0],
+        });
       }
     });
   };
@@ -62,8 +65,17 @@ const CreateIdeaDescription = ({
   };
 
   useEffect(() => {
-    onIdeaCategoryChange(valueDropdownIdeaCategory);
+    onIdeaCategoryChange(
+      valueDropdownIdeaCategory,
+      itemsDropdownIdeaCategory.filter(
+        item => item.value === valueDropdownIdeaCategory,
+      )[0]?.label,
+    );
   }, [valueDropdownIdeaCategory]);
+
+  useEffect(() => {
+    setValueDropdownIdeaCategory(ideaCategory);
+  }, [ideaCategory]);
 
   return (
     <CardCreateIdeaSession>

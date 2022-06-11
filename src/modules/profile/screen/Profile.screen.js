@@ -7,6 +7,7 @@ import {
   View,
   ActivityIndicator,
   Image,
+  RefreshControl,
   Animated,
 } from 'react-native';
 import CardProfileMainContent from '../../../components/CardProfileMainContent';
@@ -44,7 +45,7 @@ const Profile = ({navigation, route}) => {
     countComment = countComment + parseInt(item.totalComment);
   });
 
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
   const handleFadeIn = () => {
     Animated.sequence([
       Animated.timing(fadeAnim, {
@@ -134,7 +135,7 @@ const Profile = ({navigation, route}) => {
   const isFocused = useIsFocused();
   useEffect(() => {
     if (isFocused) {
-      handleFadeIn();
+      // handleFadeIn();
     }
   }, [isFocused]);
 
@@ -144,9 +145,29 @@ const Profile = ({navigation, route}) => {
     }
   }, [route.params?.updatedProfileData]);
 
+  useEffect(() => {
+    if (route.params?.refresh?.status) {
+      fetchUserData();
+    }
+    if (route.params?.refresh?.status) {
+      navigation.setParams({
+        ...route.params,
+        refresh: {status: false},
+      });
+    }
+  }, [route.params?.refresh]);
+
   return (
     <Animated.View style={{...styles.container, opacity: fadeAnim}}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            progressViewOffset={50}
+            onRefresh={() => fetchUserData()}
+            colors={['#085D7A']} // add more array value to switching colors while progressing
+          />
+        }>
         <View>
           <CardProfileMainContent
             profilePhoto={profileData.pictures}
@@ -170,20 +191,6 @@ const Profile = ({navigation, route}) => {
             numberOfComments={countComment}
             onContactInfoPress={() => setModalContactInfoVisible(true)}
           />
-          {loading && (
-            <View
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <ActivityIndicator color={colors.primary} size="large" />
-            </View>
-          )}
           {showRefreshBUtton && (
             <View
               style={{
@@ -254,11 +261,17 @@ const Profile = ({navigation, route}) => {
             multiData={[
               {
                 itemTitle: 'Submitted Idea',
-                onPress: () => navigation.navigate('SubmittedIdea'),
+                onPress: () =>
+                  navigation.navigate('SubmittedIdea', {
+                    userToken: route.params?.userToken,
+                  }),
               },
               {
                 itemTitle: 'Joined Idea',
-                onPress: () => navigation.navigate('JoinedIdea'),
+                onPress: () =>
+                  navigation.navigate('JoinedIdea', {
+                    userToken: route.params?.userToken,
+                  }),
               },
             ]}
           />
@@ -270,6 +283,45 @@ const Profile = ({navigation, route}) => {
               onPress: () => navigation.navigate('TalentApproval'),
             }}
           />
+          {profileData?.roleId === '3' && (
+            <>
+              <Gap height={16} />
+              <ProfileOptionItem
+                title="My Ideas"
+                multiItems
+                multiData={[
+                  {
+                    itemTitle: 'Idea Management',
+                    onPress: () =>
+                      navigation.navigate('IdeaManagement', {
+                        userToken: route.params?.userToken,
+                      }),
+                  },
+                  {
+                    itemTitle: 'Event Management',
+                    // onPress: () =>
+                    //   navigation.navigate('SubmittedIdea', {
+                    //     userToken: route.params?.userToken,
+                    //   }),
+                  },
+                  {
+                    itemTitle: 'Talent Management',
+                    // onPress: () =>
+                    //   navigation.navigate('SubmittedIdea', {
+                    //     userToken: route.params?.userToken,
+                    //   }),
+                  },
+                  {
+                    itemTitle: 'Category Management',
+                    onPress: () =>
+                      navigation.navigate('CategoryManagement', {
+                        userToken: route.params?.userToken,
+                      }),
+                  },
+                ]}
+              />
+            </>
+          )}
           <Gap height={16} />
           <ProfileOptionItem
             title="General Info"
