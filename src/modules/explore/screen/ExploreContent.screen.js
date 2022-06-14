@@ -1,7 +1,7 @@
-import {useIsFocused} from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -14,18 +14,18 @@ import {
   View,
 } from 'react-native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
-import {RadioButton} from 'react-native-paper';
+import { RadioButton } from 'react-native-paper';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import CardContentNew from '../../../components/CardContentNew';
 import ModalMessage from '../../../components/ModalMessage';
-import {ApiGatewayBaseUrl} from '../../../config/Environment.cfg';
-import {GetIdeasAPI} from '../../../config/RequestAPI/IdeaAPI';
-import {colors} from '../../../utils/ColorsConfig/Colors';
+import { ApiGatewayBaseUrl } from '../../../config/Environment.cfg';
+import { GetIdeasAPI } from '../../../config/RequestAPI/IdeaAPI';
+import { colors } from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
 import styles from '../style/Explore.style';
 
-const ExploreContent = ({navigation, route}) => {
-  const [data, setData] = useState({isSet: false, data: []});
+const ExploreContent = ({ navigation, route }) => {
+  const [data, setData] = useState({ isSet: false, data: [] });
   const [listUserData, setListUserData] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(false);
   const [search, setSearch] = useState(false);
@@ -42,7 +42,7 @@ const ExploreContent = ({navigation, route}) => {
     message: undefined,
     title: undefined,
     type: 'smile',
-    onClose: () => {},
+    onClose: () => { },
   });
 
   //filter
@@ -59,10 +59,12 @@ const ExploreContent = ({navigation, route}) => {
     if (withIndicator) {
       setFetchLoading(true);
     }
+    console.log(route.params?.userToken?.authToken);
     GetIdeasAPI(route.params?.userToken?.authToken).then(res => {
       if (res.status === 'SUCCESS') {
         // ini untuk mensiasati API get all user yang belum bisa digunakan. jadi list user hanya diambil dari orang yang sudah pernah submit ide
         // ya Allah... masa nyusun data yang harusnya di BE malah diakalan dari FE :'(
+        console.log(res.status);
         let fixResult = [];
         let uniqueUserId = [];
         res.data.map(item => {
@@ -84,10 +86,9 @@ const ExploreContent = ({navigation, route}) => {
           return axios.get(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
             headers: {
               Authorization: `Bearer ${route.params?.userToken?.authToken}`,
-              Tenant: `https://${
-                jwtDecode(route.params?.userToken?.authToken).data
-                  .tenantSubdomain
-              }.ideaboxapp.com`,
+              Tenant: `https://${jwtDecode(route.params?.userToken?.authToken).data
+                .tenantSubdomain
+                }.ideaboxapp.com`,
             },
           });
         };
@@ -119,14 +120,14 @@ const ExploreContent = ({navigation, route}) => {
                 });
                 fixResult.push(tempItem);
               });
-              setData({isSet: true, data: fixResult});
+              setData({ isSet: true, data: fixResult });
               setListUserData(listUser);
             }),
           )
           .catch(errors => {
             setFetchLoading(false);
             console.log(errors);
-            setData({...data, isSet: true});
+            setData({ ...data, isSet: true });
           });
 
         // setData({isSet: true, data: res.data});
@@ -165,7 +166,7 @@ const ExploreContent = ({navigation, route}) => {
     if (route.params?.refresh?.status) {
       navigation.setParams({
         ...route.params,
-        refresh: {status: false},
+        refresh: { status: false },
       });
     }
   }, [route.params?.refresh]);
@@ -178,7 +179,7 @@ const ExploreContent = ({navigation, route}) => {
           justifyContent: 'space-between',
           marginBottom: 12,
         }}>
-        <Text style={{fontFamily: 'Poppins-Regular', fontSize: 14}}>
+        <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 14 }}>
           {props.name}
         </Text>
         <BouncyCheckbox
@@ -224,15 +225,15 @@ const ExploreContent = ({navigation, route}) => {
   const ContainerHistory = props => {
     return (
       <View style={styles.containerHistory}>
-        <TouchableOpacity style={{flex: 1}}>
-          <Text style={{fontFamily: 'Poppins-Medium', fontSize: 12}}>
+        <TouchableOpacity style={{ flex: 1 }}>
+          <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 12 }}>
             {props.title}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity>
           <Image
             source={require('../../../assets/icon/crossnew.png')}
-            style={{width: 12, height: 12}}
+            style={{ width: 12, height: 12 }}
           />
         </TouchableOpacity>
       </View>
@@ -242,7 +243,7 @@ const ExploreContent = ({navigation, route}) => {
   const SearchHistory = () => {
     return (
       <View>
-        <TouchableOpacity style={{alignItems: 'flex-end', padding: 16}}>
+        <TouchableOpacity style={{ alignItems: 'flex-end', padding: 16 }}>
           <Text style={styles.textClear}>Clear History</Text>
         </TouchableOpacity>
         <ContainerHistory title={'Bisnis'} />
@@ -255,7 +256,7 @@ const ExploreContent = ({navigation, route}) => {
   const ContainerLikeComment = props => {
     return (
       <View style={styles.containerMost}>
-        <Image source={props.leaderboard} style={{width: 56, height: 56}} />
+        <Image source={props.leaderboard} style={{ width: 56, height: 56 }} />
         <Image
           source={props.coveridea}
           style={{
@@ -265,8 +266,8 @@ const ExploreContent = ({navigation, route}) => {
             marginHorizontal: 16,
           }}
         />
-        <View style={{flex: 1}}>
-          <Text style={{fontFamily: 'Poppins-SemiBold', fontSize: 14}}>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>
             {props.titleidea}
           </Text>
           <View
@@ -284,7 +285,7 @@ const ExploreContent = ({navigation, route}) => {
                 borderRadius: 26,
               }}
             />
-            <Text style={{fontFamily: 'Roboto-Bold', fontSize: 12}}>
+            <Text style={{ fontFamily: 'Roboto-Bold', fontSize: 12 }}>
               {props.name}
             </Text>
           </View>
@@ -301,7 +302,7 @@ const ExploreContent = ({navigation, route}) => {
                 marginRight: 8,
               }}
             />
-            <Text style={{fontFamily: 'Roboto-Regular', fontSize: 12, flex: 1}}>
+            <Text style={{ fontFamily: 'Roboto-Regular', fontSize: 12, flex: 1 }}>
               {props.total} People {props.likecomment} this idea
             </Text>
           </View>
@@ -312,9 +313,9 @@ const ExploreContent = ({navigation, route}) => {
 
   const MostLikedIdea = () => {
     return (
-      <View style={{padding: 16}}>
+      <View style={{ padding: 16 }}>
         <Text
-          style={{fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16}}>
+          style={{ fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16 }}>
           This Week
         </Text>
         <ContainerLikeComment
@@ -373,9 +374,9 @@ const ExploreContent = ({navigation, route}) => {
 
   const MostCommentedIdea = () => {
     return (
-      <View style={{padding: 16}}>
+      <View style={{ padding: 16 }}>
         <Text
-          style={{fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16}}>
+          style={{ fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16 }}>
           This Week
         </Text>
         <ContainerLikeComment
@@ -415,7 +416,7 @@ const ExploreContent = ({navigation, route}) => {
   const ContainerProductive = props => {
     return (
       <View style={styles.containerMost}>
-        <Image source={props.leaderboard} style={{width: 56, height: 56}} />
+        <Image source={props.leaderboard} style={{ width: 56, height: 56 }} />
         <Image
           source={props.imageavatar}
           style={{
@@ -426,7 +427,7 @@ const ExploreContent = ({navigation, route}) => {
           }}
         />
         <View>
-          <Text style={{fontFamily: 'Poppins-SemiBold', fontSize: 14}}>
+          <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>
             {props.name}
           </Text>
           <View
@@ -435,7 +436,7 @@ const ExploreContent = ({navigation, route}) => {
               alignItems: 'center',
               marginVertical: 4,
             }}>
-            <Text style={{fontFamily: 'Poppins-Regular', fontSize: 12}}>
+            <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 12 }}>
               {props.division}
             </Text>
           </View>
@@ -444,7 +445,7 @@ const ExploreContent = ({navigation, route}) => {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-            <Text style={{fontFamily: 'Poppins-Bold', fontSize: 12}}>
+            <Text style={{ fontFamily: 'Poppins-Bold', fontSize: 12 }}>
               Submitted {props.total} Ideas
             </Text>
           </View>
@@ -455,9 +456,9 @@ const ExploreContent = ({navigation, route}) => {
 
   const MostProductive = () => {
     return (
-      <View style={{padding: 16}}>
+      <View style={{ padding: 16 }}>
         <Text
-          style={{fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16}}>
+          style={{ fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16 }}>
           This Week
         </Text>
         <ContainerProductive
@@ -489,7 +490,7 @@ const ExploreContent = ({navigation, route}) => {
     return (
       <View>
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-          <View style={{flexDirection: 'row'}}>
+          <View style={{ flexDirection: 'row' }}>
             <TouchableOpacity
               onPress={() => {
                 setSearchHistory(true);
@@ -499,12 +500,12 @@ const ExploreContent = ({navigation, route}) => {
               }}
               style={[
                 styles.rowSearch,
-                {borderBottomColor: searchHistory ? '#7C4BFF' : '#9CA3AF'},
+                { borderBottomColor: searchHistory ? '#7C4BFF' : '#9CA3AF' },
               ]}>
               <Text
                 style={[
                   styles.textRowSearch,
-                  {color: searchHistory ? 'black' : '#9CA3AF'},
+                  { color: searchHistory ? 'black' : '#9CA3AF' },
                 ]}>
                 Search History
               </Text>
@@ -518,12 +519,12 @@ const ExploreContent = ({navigation, route}) => {
               }}
               style={[
                 styles.rowSearch,
-                {borderBottomColor: mostLikedIdea ? '#7C4BFF' : '#9CA3AF'},
+                { borderBottomColor: mostLikedIdea ? '#7C4BFF' : '#9CA3AF' },
               ]}>
               <Text
                 style={[
                   styles.textRowSearch,
-                  {color: mostLikedIdea ? 'black' : '#9CA3AF'},
+                  { color: mostLikedIdea ? 'black' : '#9CA3AF' },
                 ]}>
                 Most Liked Idea
               </Text>
@@ -544,7 +545,7 @@ const ExploreContent = ({navigation, route}) => {
               <Text
                 style={[
                   styles.textRowSearch,
-                  {color: mostCommentedIdea ? 'black' : '#9CA3AF'},
+                  { color: mostCommentedIdea ? 'black' : '#9CA3AF' },
                 ]}>
                 Most Commented Idea
               </Text>
@@ -567,7 +568,7 @@ const ExploreContent = ({navigation, route}) => {
               <Text
                 style={[
                   styles.textRowSearch,
-                  {color: mostProductiveInovator ? 'black' : '#9CA3AF'},
+                  { color: mostProductiveInovator ? 'black' : '#9CA3AF' },
                 ]}>
                 Most Productive Inovator
               </Text>
@@ -598,7 +599,7 @@ const ExploreContent = ({navigation, route}) => {
         }}>
         <Image
           source={require('../../../assets/icon/dummyhistory.png')}
-          style={{width: 80, height: 80, borderRadius: 4, marginRight: 16}}
+          style={{ width: 80, height: 80, borderRadius: 4, marginRight: 16 }}
         />
         <View>
           <Text
@@ -609,7 +610,7 @@ const ExploreContent = ({navigation, route}) => {
             }}>
             Idea 1
           </Text>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image
               source={require('../../../assets/icon/dummyavatar.png')}
               style={{
@@ -619,7 +620,7 @@ const ExploreContent = ({navigation, route}) => {
                 marginRight: 4,
               }}
             />
-            <Text style={{fontFamily: 'Roboto-Bold', fontSize: 14}}>
+            <Text style={{ fontFamily: 'Roboto-Bold', fontSize: 14 }}>
               Vanesha Sirsilla
             </Text>
           </View>
@@ -632,7 +633,7 @@ const ExploreContent = ({navigation, route}) => {
       <SafeAreaView style={styles.container}>
         <ScrollView>
           <View
-            style={{flexDirection: 'row', alignItems: 'center', padding: 16}}>
+            style={{ flexDirection: 'row', alignItems: 'center', padding: 16 }}>
             <TouchableOpacity onPress={() => setSearch(false)}>
               <Image
                 source={require('../../../assets/icon/backnew.png')}
@@ -642,9 +643,9 @@ const ExploreContent = ({navigation, route}) => {
                 }}
               />
             </TouchableOpacity>
-            <View style={[styles.searchBar, {marginHorizontal: 5, flex: 1}]}>
+            <View style={[styles.searchBar, { marginHorizontal: 5, flex: 1 }]}>
               <TextInput
-                style={{fontSize: 12, color: 'black', padding: 0}}
+                style={{ fontSize: 12, color: 'black', padding: 0 }}
                 placeholder="Search..."
                 onChangeText={val => setSearchInput(val)}
               />
@@ -679,16 +680,16 @@ const ExploreContent = ({navigation, route}) => {
                 }}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View
-                    style={{justifyContent: 'center', alignItems: 'center'}}>
+                    style={{ justifyContent: 'center', alignItems: 'center' }}>
                     <Text
-                      style={{fontFamily: 'Poppins-SemiBold', fontSize: 14}}>
+                      style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>
                       Filter
                     </Text>
                   </View>
-                  <Text style={{fontFamily: 'Poppins-Bold', fontSize: 16}}>
+                  <Text style={{ fontFamily: 'Poppins-Bold', fontSize: 16 }}>
                     Idea Category
                   </Text>
-                  <Text style={{fontFamily: 'Poppins-Light', fontSize: 12}}>
+                  <Text style={{ fontFamily: 'Poppins-Light', fontSize: 12 }}>
                     You can select multiple options
                   </Text>
                   <View
@@ -753,18 +754,18 @@ const ExploreContent = ({navigation, route}) => {
                       marginBottom: 12,
                     }}>
                     <Text
-                      style={{fontFamily: 'Poppin-Regular', color: '#6B7280'}}>
+                      style={{ fontFamily: 'Poppin-Regular', color: '#6B7280' }}>
                       Other Category
                     </Text>
                     <Image
                       source={require('../../../assets/icon/arrowdown.png')}
-                      style={{width: 10, height: 6, marginRight: 6}}
+                      style={{ width: 10, height: 6, marginRight: 6 }}
                     />
                   </TouchableOpacity>
-                  <Text style={{fontFamily: 'Poppins-Bold', fontSize: 16}}>
+                  <Text style={{ fontFamily: 'Poppins-Bold', fontSize: 16 }}>
                     Team Member
                   </Text>
-                  <Text style={{fontFamily: 'Poppins-Light', fontSize: 12}}>
+                  <Text style={{ fontFamily: 'Poppins-Light', fontSize: 12 }}>
                     Number of members in each team
                   </Text>
                   <View
@@ -874,7 +875,7 @@ const ExploreContent = ({navigation, route}) => {
   }
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{padding: 16}}>
+      <View style={{ padding: 16 }}>
         <TouchableOpacity
           activeOpacity={1}
           style={styles.searchBar}
@@ -924,7 +925,7 @@ const ExploreContent = ({navigation, route}) => {
               scrollEnabled={false}
               showsVerticalScrollIndicator={false}
               inverted={false}
-              renderItem={({item, index}) => (
+              renderItem={({ item, index }) => (
                 <CardContentNew
                   ideaId={item.id}
                   userToken={route.params?.userToken}
@@ -974,11 +975,11 @@ const ExploreContent = ({navigation, route}) => {
         message={messageModal.message}
         withBackButton
         onBack={() => {
-          setMessageModal({...messageModal, visible: false});
+          setMessageModal({ ...messageModal, visible: false });
           messageModal.onClose();
         }}
         onRequestClose={() => {
-          setMessageModal({...messageModal, visible: false});
+          setMessageModal({ ...messageModal, visible: false });
           messageModal.onClose();
         }}
       />

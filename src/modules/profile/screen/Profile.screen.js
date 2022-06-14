@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -15,16 +15,16 @@ import ContactDetail from '../../../components/ContactDetail';
 import Gap from '../../../components/Gap';
 import ModalEditProfile from '../../../components/ModalEditProfile';
 import ProfileOptionItem from '../../../components/ProfileOptionItem';
-import {colors} from '../../../utils/ColorsConfig/Colors';
+import { colors } from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
-import {useIsFocused} from '@react-navigation/native';
-import {removeAsyncStorageItem} from '../../../utils/AsyncStorage/StoreAsyncStorage';
+import { useIsFocused } from '@react-navigation/native';
+import { removeAsyncStorageItem } from '../../../utils/AsyncStorage/StoreAsyncStorage';
 import jwtDecode from 'jwt-decode';
 import RefreshFull from '../../../components/RefreshFull';
-import {GetUserById} from '../../../config/RequestAPI/UserAPI';
-import {GetIdeasAPI} from '../../../config/RequestAPI/IdeaAPI';
+import { GetUserById } from '../../../config/RequestAPI/UserAPI';
+import { GetIdeasAPI } from '../../../config/RequestAPI/IdeaAPI';
 
-const Profile = ({navigation, route}) => {
+const Profile = ({ navigation, route }) => {
   const decodedJwt = route.params?.userToken
     ? jwtDecode(route.params.userToken.authToken)
     : {};
@@ -75,7 +75,7 @@ const Profile = ({navigation, route}) => {
         res.status === 'FAILED' ||
         res.status === 'SERVER_ERROR'
       ) {
-        setShowRefreshButton(true);
+        // setShowRefreshButton(true);
       }
     });
   };
@@ -141,7 +141,7 @@ const Profile = ({navigation, route}) => {
 
   useEffect(() => {
     if (route.params?.updatedProfileData !== undefined) {
-      setProfileData({...profileData, ...route.params?.updatedProfileData});
+      setProfileData({ ...profileData, ...route.params?.updatedProfileData });
     }
   }, [route.params?.updatedProfileData]);
 
@@ -152,13 +152,13 @@ const Profile = ({navigation, route}) => {
     if (route.params?.refresh?.status) {
       navigation.setParams({
         ...route.params,
-        refresh: {status: false},
+        refresh: { status: false },
       });
     }
   }, [route.params?.refresh]);
 
   return (
-    <Animated.View style={{...styles.container, opacity: fadeAnim}}>
+    <Animated.View style={{ ...styles.container, opacity: fadeAnim }}>
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -181,8 +181,8 @@ const Profile = ({navigation, route}) => {
             }
             location={
               profileData.workingLocation !== '' &&
-              profileData.workingLocation !== null &&
-              profileData.workingLocation !== undefined
+                profileData.workingLocation !== null &&
+                profileData.workingLocation !== undefined
                 ? profileData.workingLocation
                 : 'Location Unknown'
             }
@@ -219,7 +219,7 @@ const Profile = ({navigation, route}) => {
                   fetchUserData();
                 }}>
                 <Image
-                  style={{width: 20, height: 20}}
+                  style={{ width: 20, height: 20 }}
                   source={require('../../../assets/image/refresh.png')}
                 />
                 <Text
@@ -242,15 +242,15 @@ const Profile = ({navigation, route}) => {
               itemTitle: 'My Profile',
               onPress: () =>
                 profileData.id !== undefined &&
-                ideaData !== null &&
-                !loading.visible
+                  ideaData !== null &&
+                  !loading.visible
                   ? navigation.navigate('MyProfile', {
-                      fromPage: 'USER_SCREEN',
-                      existingProfileData: profileData,
-                      userToken: route.params?.userToken,
-                      userId: decodedJwt.data.id,
-                      ideaData: ideaData,
-                    })
+                    fromPage: 'USER_SCREEN',
+                    existingProfileData: profileData,
+                    userToken: route.params?.userToken,
+                    userId: decodedJwt.data.id,
+                    ideaData: ideaData,
+                  })
                   : {},
             }}
           />
@@ -371,7 +371,7 @@ const Profile = ({navigation, route}) => {
 export default Profile;
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: '#FFFFFF'},
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   profileOptions: {
     padding: 16,
   },

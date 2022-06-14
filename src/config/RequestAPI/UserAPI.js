@@ -1,18 +1,20 @@
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
-import {ApiGatewayBaseUrl} from '../Environment.cfg';
+import { ApiGatewayBaseUrl } from '../Environment.cfg';
 
 const GetUserById = (userToken, userId) => {
   return new Promise(resolve => {
     axios
-      .get(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${userToken.authToken}`,
-          Tenant: `https://${
-            jwtDecode(userToken.authToken).data.tenantSubdomain
-          }.ideaboxapp.com`,
-        },
-      })
+      .post(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
+        id: jwtDecode(userToken.authToken).data.id,
+      },
+        {
+          headers: {
+            Authorization: `Bearer ${userToken.authToken}`,
+            Tenant: `https://${jwtDecode(userToken.authToken).data.tenantSubdomain
+              }.ideaboxapp.app`,
+          },
+        })
       .then(response => {
         // console.log(response.data.data);
         if (response.data.status === 200) {
@@ -22,7 +24,7 @@ const GetUserById = (userToken, userId) => {
             data: response.data.data,
           });
         } else {
-          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
+          resolve({ status: 'SOMETHING_WRONG', message: 'Something went wrong' });
         }
       })
       .catch(error => {
@@ -47,13 +49,12 @@ const EditAboutAPI = (userToken, about) => {
     axios
       .patch(
         `${ApiGatewayBaseUrl}/users/about`,
-        {bio: about},
+        { bio: about },
         {
           headers: {
             Authorization: `Bearer ${userToken.authToken}`,
-            Tenant: `https://${
-              jwtDecode(userToken.authToken).data.tenantSubdomain
-            }.ideaboxapp.com`,
+            Tenant: `https://${jwtDecode(userToken.authToken).data.tenantSubdomain
+              }.ideaboxapp.app`,
           },
         },
       )
@@ -65,7 +66,7 @@ const EditAboutAPI = (userToken, about) => {
             message: 'You have edited your about',
           });
         } else {
-          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
+          resolve({ status: 'SOMETHING_WRONG', message: 'Something went wrong' });
         }
       })
       .catch(error => {
@@ -85,4 +86,4 @@ const EditAboutAPI = (userToken, about) => {
   });
 };
 
-export {GetUserById, EditAboutAPI};
+export { GetUserById, EditAboutAPI };

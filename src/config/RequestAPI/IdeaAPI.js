@@ -1,28 +1,30 @@
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
-import {ApiGatewayBaseUrl} from '../Environment.cfg';
+import { ApiGatewayBaseUrl3 } from '../Environment.cfg';
 
 const GetIdeasAPI = token => {
   return new Promise(resolve => {
-    axios
-      .get(`${ApiGatewayBaseUrl}/ideas`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Tenant: `https://${
-            jwtDecode(token).data.tenantSubdomain
-          }.ideaboxapp.com`,
-        },
-      })
+    axios({
+      crossDomain: true,
+      method: 'get',
+      url: 'http://20.211.133.33/v1/ideas?offset=0&limit=10',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Tenant: 'htpps://digitalamoeba.ideabox.app',
+      },
+    })
       .then(response => {
-        // console.log(response.data.data);
+        console.log(response.data);
         if (response.data.status === 200) {
+          console.log('ok');
           resolve({
             status: 'SUCCESS',
             message: 'Successfully fetching idea list',
             data: response.data.data,
           });
+          console.log('ok2');
         } else {
-          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
+          resolve({ status: 'SOMETHING_WRONG', message: 'Something went wrong' });
         }
       })
       .catch(error => {
@@ -55,12 +57,11 @@ const GetIdeasAPI = token => {
 const GetDetailIdeaAPI = (token, ideaId) => {
   return new Promise(resolve => {
     axios
-      .get(`${ApiGatewayBaseUrl}/ideas/${ideaId}`, {
+      .get(`${ApiGatewayBaseUrl3}/ideas/${ideaId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          Tenant: `https://${
-            jwtDecode(token).data.tenantSubdomain
-          }.ideaboxapp.com`,
+          Tenant: `https://${jwtDecode(token).data.tenantSubdomain
+            }.ideaboxapp.app`,
         },
       })
       .then(response => {
@@ -72,7 +73,7 @@ const GetDetailIdeaAPI = (token, ideaId) => {
             data: response.data.data,
           });
         } else {
-          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
+          resolve({ status: 'SOMETHING_WRONG', message: 'Something went wrong' });
         }
       })
       .catch(error => {
@@ -137,12 +138,11 @@ const CreateIdeaAPI = (token, ideaDataToSubmit) => {
       JSON.stringify(ideaDataToSubmit.additionalFileLinkAttachment),
     );
     axios
-      .post(`${ApiGatewayBaseUrl}/ideas`, formData, {
+      .post(`${ApiGatewayBaseUrl3}/ideas`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          Tenant: `https://${
-            jwtDecode(token).data.tenantSubdomain
-          }.ideaboxapp.com`,
+          Tenant: `https://${jwtDecode(token).data.tenantSubdomain
+            }.ideaboxapp.app`,
         },
       })
       .then(response => {
@@ -153,7 +153,7 @@ const CreateIdeaAPI = (token, ideaDataToSubmit) => {
             message: response.data.status.message,
           });
         } else {
-          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
+          resolve({ status: 'SOMETHING_WRONG', message: 'Something went wrong' });
         }
       })
       .catch(error => {
@@ -236,12 +236,11 @@ const EditIdeaAPI = (token, ideaId, ideaDataToSubmit) => {
     );
     formData.append('_method', 'PUT');
     axios
-      .post(`${ApiGatewayBaseUrl}/ideas/${ideaId}`, formData, {
+      .post(`${ApiGatewayBaseUrl3}/ideas/${ideaId}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          Tenant: `https://${
-            jwtDecode(token).data.tenantSubdomain
-          }.ideaboxapp.com`,
+          Tenant: `https://${jwtDecode(token).data.tenantSubdomain
+            }.ideaboxapp.app`,
         },
       })
       .then(response => {
@@ -252,7 +251,7 @@ const EditIdeaAPI = (token, ideaId, ideaDataToSubmit) => {
             message: response.data.status.message,
           });
         } else {
-          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
+          resolve({ status: 'SOMETHING_WRONG', message: 'Something went wrong' });
         }
       })
       .catch(error => {
@@ -285,13 +284,12 @@ const EditIdeaAPI = (token, ideaId, ideaDataToSubmit) => {
 const DeleteIdeasAPI = (token, ideaId) => {
   return new Promise(resolve => {
     axios
-      .delete(`${ApiGatewayBaseUrl}/ideas`, {
-        data: {id: ideaId},
+      .delete(`${ApiGatewayBaseUrl3}/ideas`, {
+        data: { id: ideaId },
         headers: {
           Authorization: `Bearer ${token}`,
-          Tenant: `https://${
-            jwtDecode(token).data.tenantSubdomain
-          }.ideaboxapp.com`,
+          Tenant: `https://${jwtDecode(token).data.tenantSubdomain
+            }.ideaboxapp.app`,
         },
       })
       .then(response => {
@@ -303,7 +301,7 @@ const DeleteIdeasAPI = (token, ideaId) => {
             data: response.data.data,
           });
         } else {
-          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
+          resolve({ status: 'SOMETHING_WRONG', message: 'Something went wrong' });
         }
       })
       .catch(error => {
