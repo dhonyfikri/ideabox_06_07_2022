@@ -4,15 +4,27 @@ import { ApiGatewayBaseUrl } from '../Environment.cfg';
 
 const GetIdeasAPI = token => {
   return new Promise(resolve => {
-    axios({
-      crossDomain: true,
-      method: 'get',
-      url: `${ApiGatewayBaseUrl}/ideas?offset=0&limit=10`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Tenant: 'htpps://digitalamoeba.ideabox.app',
-      },
-    })
+    // axios({
+    //   crossDomain: true,
+    //   method: 'get',
+    //   url: `${ApiGatewayBaseUrl}/ideas?offset=0&limit=10`,
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //     Tenant: 'htpps://digitalamoeba.ideabox.app',
+    //   },
+    // })
+    axios
+      .get(`${ApiGatewayBaseUrl}/ideas`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Tenant: `https://${jwtDecode(token).data.tenantSubdomain
+            }.ideaboxapp.app`,
+        },
+        params: {
+          offset: 0,
+          limit: 10,
+        },
+      })
       .then(response => {
         console.log(response.data);
         if (response.data.status === 200) {
@@ -57,7 +69,7 @@ const GetIdeasAPI = token => {
 const GetDetailIdeaAPI = (token, ideaId) => {
   return new Promise(resolve => {
     axios
-      .get(`${ApiGatewayBaseUrl3}/ideas/${ideaId}`, {
+      .get(`${ApiGatewayBaseUrl}/ideas/${ideaId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Tenant: `https://${jwtDecode(token).data.tenantSubdomain
@@ -138,7 +150,7 @@ const CreateIdeaAPI = (token, ideaDataToSubmit) => {
       JSON.stringify(ideaDataToSubmit.additionalFileLinkAttachment),
     );
     axios
-      .post(`${ApiGatewayBaseUrl3}/ideas`, formData, {
+      .post(`${ApiGatewayBaseUrl}/ideas`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           Tenant: `https://${jwtDecode(token).data.tenantSubdomain
@@ -236,7 +248,7 @@ const EditIdeaAPI = (token, ideaId, ideaDataToSubmit) => {
     );
     formData.append('_method', 'PUT');
     axios
-      .post(`${ApiGatewayBaseUrl3}/ideas/${ideaId}`, formData, {
+      .post(`${ApiGatewayBaseUrl}/ideas/${ideaId}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           Tenant: `https://${jwtDecode(token).data.tenantSubdomain
@@ -284,7 +296,7 @@ const EditIdeaAPI = (token, ideaId, ideaDataToSubmit) => {
 const DeleteIdeasAPI = (token, ideaId) => {
   return new Promise(resolve => {
     axios
-      .delete(`${ApiGatewayBaseUrl3}/ideas`, {
+      .delete(`${ApiGatewayBaseUrl}/ideas`, {
         data: { id: ideaId },
         headers: {
           Authorization: `Bearer ${token}`,

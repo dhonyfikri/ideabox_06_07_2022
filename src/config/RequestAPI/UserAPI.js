@@ -3,9 +3,11 @@ import jwtDecode from 'jwt-decode';
 import { ApiGatewayBaseUrl } from '../Environment.cfg';
 
 const GetUserById = (userToken, userId) => {
+  console.log(userId);
+  console.log(userToken);
   return new Promise(resolve => {
     axios
-      .post(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
+      .get(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
         id: jwtDecode(userToken.authToken).data.id,
       },
         {

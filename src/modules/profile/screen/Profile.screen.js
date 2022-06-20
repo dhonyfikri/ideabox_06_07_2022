@@ -65,6 +65,7 @@ const Profile = ({ navigation, route }) => {
     setLoading(true);
     GetUserById(route.params?.userToken, decodedJwt.data.id).then(res => {
       setLoading(false);
+      console.log(res.status);
       if (res.status === 'SUCCESS') {
         if (res.data.length > 0) {
           setProfileData(res.data[0]);
@@ -75,7 +76,7 @@ const Profile = ({ navigation, route }) => {
         res.status === 'FAILED' ||
         res.status === 'SERVER_ERROR'
       ) {
-        // setShowRefreshButton(true);
+        setShowRefreshButton(true);
       }
     });
   };
