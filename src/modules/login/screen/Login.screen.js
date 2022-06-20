@@ -47,7 +47,10 @@ const Login = ({ navigation, route }) => {
         setLoading({ ...loading, visible: false });
         if (res.status === 'SUCCESS') {
           storeAsyncStorageObject('@USER_TOKEN', res.data).then(() => {
+<<<<<<< HEAD
             console.log(res.data);
+=======
+>>>>>>> enhancement/fikri/inovation-manager
             navigation.replace('TabNavigation', { userToken: res.data });
           });
         } else if (
@@ -86,7 +89,11 @@ const Login = ({ navigation, route }) => {
         />
         <Text style={styles.header}>
           Welcome back to {`\n`}
+<<<<<<< HEAD
           <Text style={{ color: '#5F49D2' }}>Ideabox</Text> Family
+=======
+          <Text style={{ color: '#5F49D2' }}>Ideabox</Text>
+>>>>>>> enhancement/fikri/inovation-manager
         </Text>
         <Text style={styles.subHeader}>Please login to your account</Text>
       </View>
