@@ -1,5 +1,5 @@
 import CheckBox from '@react-native-community/checkbox';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Image,
   StyleSheet,
@@ -10,25 +10,25 @@ import {
 } from 'react-native';
 import LoadingProcessFull from '../../../components/LoadingProcessFull';
 import ModalMessage from '../../../components/ModalMessage';
-import {LoginAPI} from '../../../config/RequestAPI/LoginAPI';
-import {storeAsyncStorageObject} from '../../../utils/AsyncStorage/StoreAsyncStorage';
-import {colors} from '../../../utils/ColorsConfig/Colors';
+import { LoginAPI } from '../../../config/RequestAPI/LoginAPI';
+import { storeAsyncStorageObject } from '../../../utils/AsyncStorage/StoreAsyncStorage';
+import { colors } from '../../../utils/ColorsConfig/Colors';
 // import styles from '../style/Login.style';
 
-const Login = ({navigation, route}) => {
+const Login = ({ navigation, route }) => {
   let _toggleCheckBox = false;
   if (route.params !== undefined && route.params.checked !== undefined) {
     _toggleCheckBox = route.params.checked;
   }
 
   const [toggleCheckBox, setToggleCheckBox] = useState(_toggleCheckBox);
-  const [loading, setLoading] = useState({visible: false, message: undefined});
+  const [loading, setLoading] = useState({ visible: false, message: undefined });
   const [messageModal, setMessageModal] = useState({
     visible: false,
     message: undefined,
     title: undefined,
     type: 'smile',
-    onClose: () => {},
+    onClose: () => { },
   });
 
   const [email, setEmail] = useState('');
@@ -42,12 +42,12 @@ const Login = ({navigation, route}) => {
       ? setInvalidPassword(false)
       : setInvalidPassword(true);
     if (email.trim() !== '' && password.trim() !== '') {
-      setLoading({...loading, visible: true});
+      setLoading({ ...loading, visible: true });
       LoginAPI(email, password, toggleCheckBox).then(res => {
-        setLoading({...loading, visible: false});
+        setLoading({ ...loading, visible: false });
         if (res.status === 'SUCCESS') {
           storeAsyncStorageObject('@USER_TOKEN', res.data).then(() => {
-            navigation.replace('TabNavigation', {userToken: res.data});
+            navigation.replace('TabNavigation', { userToken: res.data });
           });
         } else if (
           res.status === 'SOMETHING_WRONG' ||
@@ -78,14 +78,14 @@ const Login = ({navigation, route}) => {
 
   return (
     <View style={styles.container}>
-      <View style={{alignItems: 'center'}}>
+      <View style={{ alignItems: 'center' }}>
         <Image
           source={require('../../../assets/image/logo-ideabox.png')}
           style={styles.logo}
         />
         <Text style={styles.header}>
           Welcome back to {`\n`}
-          <Text style={{color: '#5F49D2'}}>Ideabox</Text> Family
+          <Text style={{ color: '#5F49D2' }}>Ideabox</Text>
         </Text>
         <Text style={styles.subHeader}>Please login to your account</Text>
       </View>
@@ -99,7 +99,7 @@ const Login = ({navigation, route}) => {
             setEmail(text);
           }}
         />
-        <Text style={[styles.invalid, {opacity: invalidEmail ? 0 : 1}]}>
+        <Text style={[styles.invalid, { opacity: invalidEmail ? 0 : 1 }]}>
           Incorrect email
         </Text>
         <Text style={styles.titleInput}>Password</Text>
@@ -111,11 +111,11 @@ const Login = ({navigation, route}) => {
             setPassword(text);
           }}
         />
-        <Text style={[styles.invalid, {opacity: invalidPassword ? 0 : 1}]}>
+        <Text style={[styles.invalid, { opacity: invalidPassword ? 0 : 1 }]}>
           Incorrect Password{' '}
         </Text>
         <View style={styles.buttonContainer}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <CheckBox
               disabled={false}
               value={toggleCheckBox}
@@ -137,7 +137,7 @@ const Login = ({navigation, route}) => {
             <Text
               style={[
                 styles.sideButtonContainer,
-                {color: '#7C4BFF', fontFamily: 'Poppins-SemiBold'},
+                { color: '#7C4BFF', fontFamily: 'Poppins-SemiBold' },
               ]}>
               Forgot Password?
             </Text>
@@ -149,7 +149,7 @@ const Login = ({navigation, route}) => {
         <Text style={styles.bottomText}>
           Dont't have an account?
           <Text
-            style={{fontFamily: 'LeagueSpartan-SemiBold', color: '#7C4BFF'}}
+            style={{ fontFamily: 'LeagueSpartan-SemiBold', color: '#7C4BFF' }}
             onPress={handleSignUp}>
             {' '}
             Register
@@ -166,11 +166,11 @@ const Login = ({navigation, route}) => {
         message={messageModal.message}
         withBackButton
         onBack={() => {
-          setMessageModal({...messageModal, visible: false});
+          setMessageModal({ ...messageModal, visible: false });
           messageModal.onClose();
         }}
         onRequestClose={() => {
-          setMessageModal({...messageModal, visible: false});
+          setMessageModal({ ...messageModal, visible: false });
           messageModal.onClose();
         }}
       />
