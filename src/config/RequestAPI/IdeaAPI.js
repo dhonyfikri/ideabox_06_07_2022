@@ -1,13 +1,13 @@
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
-import { ApiGatewayBaseUrl3 } from '../Environment.cfg';
+import { ApiGatewayBaseUrl } from '../Environment.cfg';
 
 const GetIdeasAPI = token => {
   return new Promise(resolve => {
     axios({
       crossDomain: true,
       method: 'get',
-      url: 'http://20.211.133.33/v1/ideas?offset=0&limit=10',
+      url: `${ApiGatewayBaseUrl}/ideas?offset=0&limit=10`,
       headers: {
         Authorization: `Bearer ${token}`,
         Tenant: 'htpps://digitalamoeba.ideabox.app',
