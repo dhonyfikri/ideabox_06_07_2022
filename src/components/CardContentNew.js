@@ -1,5 +1,5 @@
 import jwtDecode from 'jwt-decode';
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -11,14 +11,14 @@ import {
   View,
 } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import {IcLikeActive, IcLikeInactive, IcSmileEmote} from '../assets/icon';
-import {AddCommentAPI} from '../config/RequestAPI/CommentAPI';
-import {AddLikeAPI} from '../config/RequestAPI/LikeAPI';
-import {colors} from '../utils/ColorsConfig/Colors';
+import { IcLikeActive, IcLikeInactive, IcSmileEmote } from '../assets/icon';
+import { AddCommentAPI } from '../config/RequestAPI/CommentAPI';
+import { AddLikeAPI } from '../config/RequestAPI/LikeAPI';
+import { colors } from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import CardComment from './CardCommentSementara';
 import Gap from './Gap';
-import {InitialIcon, InitialNumberIcon} from './InitialIcon';
+import { InitialIcon, InitialNumberIcon } from './InitialIcon';
 import LoadingProcessFull from './LoadingProcessFull';
 import ModalMessage from './ModalMessage';
 import Divider from './Divider';
@@ -34,8 +34,8 @@ const CardContentNew = ({
   likes,
   comments,
   listUser,
-  onCreatorPress = () => {},
-  onIdeaPress = () => {},
+  onCreatorPress = () => { },
+  onIdeaPress = () => { },
 }) => {
   const refRBSheetComment = useRef();
   const decodedJwt = jwtDecode(userToken.authToken);
@@ -43,13 +43,13 @@ const CardContentNew = ({
   const [commentList, setCommentList] = useState([]);
   const [classicCommentText, setClassicCommentText] = useState('');
   const [advanceCommentText, setAdvanceCommentText] = useState('');
-  const [loading, setLoading] = useState({visible: false, message: undefined});
+  const [loading, setLoading] = useState({ visible: false, message: undefined });
   const [messageModal, setMessageModal] = useState({
     visible: false,
     message: undefined,
     title: undefined,
     type: 'smile',
-    onClose: () => {},
+    onClose: () => { },
   });
   const [replyData, setReplyData] = useState({
     replying: false,
@@ -117,13 +117,13 @@ const CardContentNew = ({
 
   const handleComment = (type = 'CLASSIC') => {
     if (type) {
-      setLoading({...loading, visible: true, message: 'Adding your comment'});
+      setLoading({ ...loading, visible: true, message: 'Adding your comment' });
       AddCommentAPI(
         userToken.authToken,
         parseInt(ideaId),
         type === 'CLASSIC' ? classicCommentText : advanceCommentText,
       ).then(res => {
-        setLoading({...loading, visible: false});
+        setLoading({ ...loading, visible: false });
         console.log(res);
         if (res.status === 'SUCCESS' || res.status === 'UNDEFINED_HEADER') {
           const tempCommentList = [...commentList];
@@ -186,7 +186,7 @@ const CardContentNew = ({
           <Gap width={8} />
           <Text
             numberOfLines={1}
-            style={{fontFamily: 'Poppins-SemiBold', fontSize: 12, flex: 1}}>
+            style={{ fontFamily: 'Poppins-SemiBold', fontSize: 12, flex: 1 }}>
             {creatorName}
           </Text>
         </TouchableOpacity>
@@ -207,7 +207,7 @@ const CardContentNew = ({
           {creatorId !== decodedJwt.data?.id ? (
             <Image
               source={require('../assets/icon/joinidea.png')}
-              style={{width: 20, height: 20}}
+              style={{ width: 20, height: 20 }}
             />
           ) : (
             <Gap height={20} />
@@ -226,7 +226,7 @@ const CardContentNew = ({
         </TouchableOpacity>
       </View>
       <TouchableOpacity
-        style={{marginVertical: 17, flexDirection: 'row'}}
+        style={{ marginVertical: 17, flexDirection: 'row' }}
         onPress={() => onIdeaPress(ideaId)}>
         <Image
           source={require('../assets/icon/dummyhistory.png')}
@@ -237,10 +237,10 @@ const CardContentNew = ({
             marginRight: 16,
           }}
         />
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <Text
             numberOfLines={2}
-            style={{fontFamily: 'Poppins-Bold', fontSize: 16}}>
+            style={{ fontFamily: 'Poppins-Bold', fontSize: 16 }}>
             {title}
           </Text>
           <Text
@@ -255,7 +255,7 @@ const CardContentNew = ({
           </Text>
         </View>
       </TouchableOpacity>
-      <View style={{height: 1, backgroundColor: '#D3D2D2'}} />
+      <View style={{ height: 1, backgroundColor: '#D3D2D2' }} />
       <View
         style={{
           flexDirection: 'row',
@@ -263,7 +263,7 @@ const CardContentNew = ({
           marginVertical: 21,
         }}>
         <TouchableOpacity
-          style={{width: 26, height: 26, justifyContent: 'center'}}
+          style={{ width: 26, height: 26, justifyContent: 'center' }}
           onPress={() => {
             if (!disableLikeButton) {
               handleLike();
@@ -315,36 +315,36 @@ const CardContentNew = ({
                   fontSize: 12,
                 }}>
                 Liked by{' '}
-                <Text style={{fontWeight: 'bold'}}>
+                <Text style={{ fontWeight: 'bold' }}>
                   {lastLikeUser
                     ? lastLikeUser.length === 0
                       ? '-'
                       : lastLikeUser.length < 9
-                      ? lastLikeUser
-                      : lastLikeUser.slice(0, 9 - 3) + '...'
+                        ? lastLikeUser
+                        : lastLikeUser.slice(0, 9 - 3) + '...'
                     : '-'}
                 </Text>
               </Text>
             </View>
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
               {likeList.length > 1 && (
                 <Text
                   numberOfLines={1}
-                  style={{fontFamily: 'Roboto-Regular', fontSize: 12}}>
+                  style={{ fontFamily: 'Roboto-Regular', fontSize: 12 }}>
                   {' and '}
                   {likeList.length - 1 <= 999
                     ? likeList.length - 1
                     : '+999'}{' '}
-                  <Text style={{fontWeight: 'bold'}}>Others</Text>
+                  <Text style={{ fontWeight: 'bold' }}>Others</Text>
                 </Text>
               )}
             </View>
           </>
         ) : (
-          <View numberOfLines={1} style={{flex: 1, marginLeft: 8}}>
+          <View numberOfLines={1} style={{ flex: 1, marginLeft: 8 }}>
             <Text
               numberOfLines={1}
-              style={{fontFamily: 'Roboto-Regular', fontSize: 12}}>
+              style={{ fontFamily: 'Roboto-Regular', fontSize: 12 }}>
               {' '}
               No likes yet
             </Text>
@@ -363,7 +363,7 @@ const CardContentNew = ({
               View all {commentList ? commentList.length : 0} comment
             </Text>
           </TouchableOpacity>
-          <View style={{marginVertical: 16}}>
+          <View style={{ marginVertical: 16 }}>
             {commentList.slice(-2).map((itemComment, index) => (
               <Text
                 key={index.toString()}
@@ -372,7 +372,7 @@ const CardContentNew = ({
                   fontSize: 12,
                   marginBottom: 8,
                 }}>
-                <Text numberOfLines={1} style={{fontWeight: 'bold'}}>
+                <Text numberOfLines={1} style={{ fontWeight: 'bold' }}>
                   {listUser.map(
                     itemUser =>
                       itemComment.createdBy === itemUser.id &&
@@ -380,7 +380,8 @@ const CardContentNew = ({
                         return a.toUpperCase();
                       }),
                   )}
-                </Text>{' '}
+                </Text>
+                <Text style={{ fontWeight: 'bold' }}>{itemComment.createdBy.name}{' '}</Text>{itemComment.createdBy.name}
                 {itemComment.comment}
               </Text>
             ))}
@@ -459,9 +460,9 @@ const CardContentNew = ({
           },
         }}>
         <View style={styles.bottomSheetContentContainer}>
-          <View style={{flexDirection: 'row'}}>
+          <View style={{ flexDirection: 'row' }}>
             <Text style={styles.bottomSheetTitle}>
-              {commentList.length > 100 ? '100+' : commentList.length} Comment
+              {commentList.length > 100 ? '100+' : commentList.length}
               {commentList.length > 1 && 's'}
             </Text>
             <TouchableOpacity
@@ -471,7 +472,7 @@ const CardContentNew = ({
             </TouchableOpacity>
           </View>
           <Gap height={32} />
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <ScrollView showsVerticalScrollIndicator={false}>
               <FlatList
                 data={commentList}
@@ -479,7 +480,7 @@ const CardContentNew = ({
                 scrollEnabled={false}
                 showsVerticalScrollIndicator={false}
                 inverted={false}
-                renderItem={({item, index}) => {
+                renderItem={({ item, index }) => {
                   return (
                     <>
                       <CardComment
@@ -506,7 +507,7 @@ const CardContentNew = ({
                 <CardReply
                   name={replyData.nameToReply}
                   onClosePress={() =>
-                    setReplyData({...replyData, status: false})
+                    setReplyData({ ...replyData, status: false })
                   }
                 />
                 <Gap height={12} />
@@ -523,7 +524,7 @@ const CardContentNew = ({
                 borderColor: colors.text.primary,
                 overflow: 'hidden',
               }}>
-              <View style={{flex: 1, justifyContent: 'center'}}>
+              <View style={{ flex: 1, justifyContent: 'center' }}>
                 <TextInput
                   autoCorrect={false}
                   placeholder="Leave a comment"
@@ -536,12 +537,12 @@ const CardContentNew = ({
                     color: colors.text.primary,
                     padding: 0,
                   }}>
-                  <Text style={{lineHeight: 22}}>{advanceCommentText}</Text>
+                  <Text style={{ lineHeight: 22 }}>{advanceCommentText}</Text>
                 </TextInput>
               </View>
               <Gap width={16} />
-              <View style={{justifyContent: 'flex-end'}}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <View style={{ justifyContent: 'flex-end' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <TouchableOpacity>
                     <IcSmileEmote />
                   </TouchableOpacity>
@@ -585,11 +586,11 @@ const CardContentNew = ({
         message={messageModal.message}
         withBackButton
         onBack={() => {
-          setMessageModal({...messageModal, visible: false});
+          setMessageModal({ ...messageModal, visible: false });
           messageModal.onClose();
         }}
         onRequestClose={() => {
-          setMessageModal({...messageModal, visible: false});
+          setMessageModal({ ...messageModal, visible: false });
           messageModal.onClose();
         }}
       />

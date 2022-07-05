@@ -288,7 +288,7 @@ const Profile = ({ navigation, route }) => {
             <>
               <Gap height={16} />
               <ProfileOptionItem
-                title="My Ideas"
+                title="Administrator"
                 multiItems
                 multiData={[
                   {

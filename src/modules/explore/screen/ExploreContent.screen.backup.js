@@ -62,8 +62,90 @@ const ExploreContent = ({ navigation, route }) => {
     console.log(route.params?.userToken?.authToken);
     GetIdeasAPI(route.params?.userToken?.authToken).then(res => {
       if (res.status === 'SUCCESS') {
-        setData({ isSet: true, data: res.data });
+        // ini untuk mensiasati API get all user yang belum bisa digunakan. jadi list user hanya diambil dari orang yang sudah pernah submit ide
+        // ya Allah... masa nyusun data yang harusnya di BE malah diakalan dari FE :'(
+        console.log(res.status);
+        let fixResult = [];
+        let uniqueUserId = [];
+        res.data.map(item => {
+          uniqueUserId.push(item.createdBy);
+          item.like.map(item => {
+            uniqueUserId.push(item.createdBy);
+          });
+          item.comment.map(item => {
+            uniqueUserId.push(item.createdBy);
+          });
+          uniqueUserId.push(
+            jwtDecode(route.params?.userToken?.authToken).data.id,
+          );
+        });
+        if (res.data.length > 0) {
+          uniqueUserId = [...new Set(uniqueUserId)];
+        }
+        const request = userId => {
+          return axios.get(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${route.params?.userToken?.authToken}`,
+              Tenant: `https://${jwtDecode(route.params?.userToken?.authToken).data
+                .tenantSubdomain
+                }.ideaboxapp.com`,
+            },
+          });
+        };
+
+        const listUser = [];
+        const listGetUserRequest = [];
+
+        uniqueUserId.map(item => {
+          listGetUserRequest.push(request(item));
+        });
+
+        axios
+          .all(listGetUserRequest)
+          .then(
+            axios.spread((...responses) => {
+              setFetchLoading(false);
+              responses.map(item => {
+                if (item.data.data.length > 0) {
+                  listUser.push(item.data.data[0]);
+                }
+              });
+              // console.log(listUser);
+              res.data.map(item => {
+                const tempItem = item;
+                listUser.map(item => {
+                  if (item.id === tempItem.createdBy) {
+                    tempItem.user = item;
+                  }
+                });
+                fixResult.push(tempItem);
+              });
+              setData({ isSet: true, data: fixResult });
+              setListUserData(listUser);
+            }),
+          )
+          .catch(errors => {
+            setFetchLoading(false);
+            console.log(errors);
+            setData({ ...data, isSet: true });
+          });
+
+        // setData({isSet: true, data: res.data});
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'NOT_FOUND' ||
+        res.status === 'UNDEFINED_HEADER' ||
+        res.status === 'UNAUTHORIZED' ||
+        res.status === 'SERVER_ERROR'
+      ) {
         setFetchLoading(false);
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Failed',
+          message: res.message,
+          type: 'confused',
+        });
       }
     });
   };
