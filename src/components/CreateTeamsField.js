@@ -1,5 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  FlatList,
   StyleSheet,
   Text,
   TextInput,
@@ -7,18 +8,30 @@ import {
   View,
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
-import {IcActiveTrash, IcChevronDown, IcOutlinedClose} from '../assets/icon';
+import {useSelector} from 'react-redux';
+import {
+  IcActiveTrash,
+  IcChevronDown,
+  IcOutlinedClose,
+  IcTickGreen,
+} from '../assets/icon';
+import {GetUserByEmail} from '../config/RequestAPI/UserAPI';
 import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import Divider from './Divider';
 import Gap from './Gap';
+import LoadingProcessFull from './LoadingProcessFull';
+import ModalMessage from './ModalMessage';
+import ModalUserSearchPreview from './ModalUserSearchPreview';
 
 const CreateTeamsField = ({
   disableEmailField = false,
   title,
   withSelfDelete,
   onSelfDelete,
+  allUserData,
   emailValue,
+  onVerifiedEmail = () => {},
   onEmailChange = () => {},
   nameValue,
   onNameChange = () => {},
@@ -30,6 +43,21 @@ const CreateTeamsField = ({
   unitValue,
   onUnitChange = () => {},
 }) => {
+  const stateGlobal = useSelector(state => state);
+  const [userSearchResult, setUserSearchResult] = useState(null);
+  const [modalUserPreview, setModalUserPreview] = useState(false);
+  const [showEmailSugestion, setShowEmailSugestion] = useState(false);
+  const [loading, setLoading] = useState({
+    visible: false,
+    message: 'Please Wait',
+  });
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
   const [openDropdownTeamStructure, setOpenDropdownTeamStructure] =
     useState(false);
   const [valueDropdownTeamStructure, setValueDropdownTeamStructure] = useState(
@@ -37,6 +65,29 @@ const CreateTeamsField = ({
   );
   const [itemsDropdownTeamStructure, setItemsDropdownTeamStructure] =
     useState(teamStructureItem);
+
+  const emailCheck = () => {
+    setLoading({...loading, visible: true});
+    GetUserByEmail(stateGlobal.userToken, emailValue).then(res => {
+      setLoading({...loading, visible: false});
+      if (res.status === 'SUCCESS') {
+        setUserSearchResult(res.data);
+        setModalUserPreview(true);
+      } else if (
+        res.status === 'SOMETHING_WRONG' ||
+        res.status === 'FAILED' ||
+        res.status === 'SERVER_ERROR'
+      ) {
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Failed',
+          message: res.message,
+          type: 'confused',
+        });
+      }
+    });
+  };
 
   useEffect(() => {
     onTeamStructureChange(valueDropdownTeamStructure);
@@ -69,22 +120,113 @@ const CreateTeamsField = ({
       <Divider />
       <Gap height={16} />
       <Text style={styles.fieldTitle}>Email</Text>
-      <View style={styles.field(disableEmailField)}>
-        <TextInput
-          style={styles.titleInput}
-          editable={true}
-          keyboardType="email-address"
-          maxLength={25}
-          placeholder="Email"
-          onChangeText={text => {
-            onEmailChange(text);
-          }}>
-          <Text style={{...styles.titleInput, lineHeight: 20}}>
-            {emailValue}
-          </Text>
-        </TextInput>
+      <View style={{flexDirection: 'row'}}>
+        <View style={styles.field(disableEmailField)}>
+          <TextInput
+            style={styles.titleInput}
+            editable={!disableEmailField}
+            keyboardType="email-address"
+            maxLength={100}
+            placeholder="Email"
+            onChangeText={text => {
+              onEmailChange(text);
+            }}
+            onFocus={() => setShowEmailSugestion(true)}>
+            <Text style={{...styles.titleInput, lineHeight: 20}}>
+              {emailValue}
+            </Text>
+          </TextInput>
+        </View>
+        <Gap width={8} />
+        {(!nameValue || !nameValue?.length > 0) && (
+          <TouchableOpacity
+            disabled={emailValue.trim().length === 0}
+            style={{
+              backgroundColor:
+                emailValue.trim().length > 0 ? colors.primary : colors.divider,
+              paddingHorizontal: 12,
+              justifyContent: 'center',
+              borderRadius: 8,
+            }}
+            onPress={emailCheck}>
+            <Text
+              style={{
+                color: colors.white,
+                fontFamily: fonts.secondary[600],
+                fontSize: 12,
+              }}>
+              Check
+            </Text>
+          </TouchableOpacity>
+        )}
+        {nameValue && nameValue?.length > 0 ? (
+          <View
+            style={{
+              justifyContent: 'center',
+            }}>
+            <IcTickGreen />
+          </View>
+        ) : (
+          <></>
+        )}
       </View>
       <Gap height={16} />
+      {showEmailSugestion && (
+        <>
+          <View
+            style={{
+              height: 200,
+              borderWidth: 1,
+              borderRadius: 8,
+              borderColor: colors.border,
+            }}>
+            <FlatList
+              data={
+                emailValue.trim().length === 0
+                  ? allUserData
+                  : allUserData.filter(item =>
+                      item.email.includes(emailValue.trim()),
+                    )
+              }
+              contentContainerStyle={{padding: 8}}
+              nestedScrollEnabled={true}
+              keyExtractor={(_, index) => index.toString()}
+              scrollEnabled={true}
+              showsVerticalScrollIndicator={false}
+              inverted={false}
+              renderItem={({item, index}) => {
+                return (
+                  <>
+                    <TouchableOpacity
+                      style={{
+                        backgroundColor: colors.dot,
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        borderRadius: 8,
+                      }}
+                      onPress={() => {
+                        onEmailChange(item.email);
+                        setShowEmailSugestion(false);
+                      }}>
+                      <Text
+                        numberOfLines={1}
+                        style={{
+                          fontFamily: fonts.secondary[400],
+                          fontSize: 12,
+                        }}>
+                        {item.email}
+                      </Text>
+                    </TouchableOpacity>
+                    {index !== allUserData.length - 1 && <Gap height={8} />}
+                  </>
+                );
+              }}
+            />
+          </View>
+          <Gap height={16} />
+        </>
+      )}
+
       <Text style={styles.fieldTitle}>Name</Text>
       <View style={styles.field(true)}>
         <TextInput
@@ -165,6 +307,39 @@ const CreateTeamsField = ({
           </Text>
         </TextInput>
       </View>
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
+      {/* modal user search preview */}
+      <ModalUserSearchPreview
+        visible={modalUserPreview}
+        picture={userSearchResult?.pictures}
+        unit={userSearchResult?.unit}
+        name={userSearchResult?.name}
+        onCloseButtonPress={() => setModalUserPreview(false)}
+        onRequestClose={() => setModalUserPreview(false)}
+        onCancel={() => setModalUserPreview(false)}
+        onConfirm={() => {
+          setModalUserPreview(false);
+          setShowEmailSugestion(false);
+          onVerifiedEmail(userSearchResult);
+        }}
+      />
+      {/* modal message */}
+      <ModalMessage
+        visible={messageModal.visible}
+        withIllustration
+        illustrationType={messageModal.type}
+        title={messageModal.title}
+        message={messageModal.message}
+        withBackButton
+        onBack={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+        onRequestClose={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+      />
     </>
   );
 };
@@ -179,6 +354,7 @@ const styles = StyleSheet.create({
     lineHeight: 17,
   },
   field: (disabled = false) => ({
+    flex: 1,
     paddingHorizontal: 12,
     paddingVertical: 1.5,
     borderWidth: 1,

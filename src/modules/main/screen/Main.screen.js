@@ -20,8 +20,11 @@ import Paginator from '../components/Paginator';
 import slides from '../components/slides';
 import styles from '../style/Main.style';
 import LoadingProcessFull from '../../../components/LoadingProcessFull';
+import {useDispatch} from 'react-redux';
 
 const Main = ({navigation}) => {
+  const dispatch = useDispatch();
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userToken, setUserToken] = useState(undefined);
   const [loading, setLoading] = useState({visible: false, message: undefined});
@@ -83,7 +86,15 @@ const Main = ({navigation}) => {
             setLoading({...loading, visible: false});
             if (res.status === 'SUCCESS') {
               storeAsyncStorageObject('@USER_TOKEN', res.data).then(() => {
-                navigation.replace('TabNavigation', {userToken: res.data});
+                dispatch({
+                  type: 'SET_USER_TOKEN',
+                  value: res.data,
+                });
+                dispatch({
+                  type: 'SET_DECODED_TOKEN',
+                  value: jwt_decode(res.data.authToken),
+                });
+                navigation.replace('TabNavigation');
               });
             } else {
               navigation.replace('Login', {checked: false});

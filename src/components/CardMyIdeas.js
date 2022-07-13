@@ -1,5 +1,6 @@
 import React from 'react';
 import {Image, StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {MediaAddress} from '../config/Environment.cfg';
 import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import Divider from './Divider';
@@ -18,18 +19,27 @@ const CardMyIdeas = ({myIdeas = [], showAll = false, showLimit = 2}) => {
             }}>
             <View style={styles.main}>
               {/* <Image style={styles.picture} source={item.picture} /> */}
-              <Image
-                style={styles.picture}
-                source={require('../assets/image/img_dummy_my_idea_1.png')}
-              />
+              <View
+                style={{
+                  backgroundColor: colors.dot,
+                  width: 100,
+                  height: 100,
+                  borderRadius: 6,
+                  overflow: 'hidden',
+                }}>
+                <Image
+                  style={styles.picture}
+                  source={{uri: `${MediaAddress}/${item.desc[2]?.value}`}}
+                />
+              </View>
               <Gap width={12} />
               <Text numberOfLines={4} style={styles.title}>
-                {item.desc[0].value}
+                {item.desc[0]?.value}
               </Text>
             </View>
             <Gap height={8} />
             <Text numberOfLines={2} style={styles.desc}>
-              {item.desc[1].value}
+              {item.desc[1]?.value}
             </Text>
             {index + 1 !== ideas.length && (
               <>
@@ -49,7 +59,7 @@ export default CardMyIdeas;
 
 const styles = StyleSheet.create({
   main: {flexDirection: 'row', width: '83.5%', alignItems: 'center'},
-  picture: {width: 100, height: 100, borderRadius: 6, resizeMode: 'cover'},
+  picture: {width: '100%', height: '100%', resizeMode: 'cover'},
   title: {
     flex: 1,
     fontFamily: fonts.secondary[600],

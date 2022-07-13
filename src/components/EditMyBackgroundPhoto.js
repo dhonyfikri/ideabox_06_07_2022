@@ -1,13 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import ImageCropPicker from 'react-native-image-crop-picker';
-import {height} from 'styled-system';
 import {IcCamera} from '../assets/icon';
 import EditActionButton from '../components/EditActionButton';
+import {EditBackgroundAPI} from '../config/RequestAPI/UserAPI';
 import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import Gap from './Gap';
 import ModalMessage from './ModalMessage';
+import {useSelector} from 'react-redux';
+import LoadingProcessFull from './LoadingProcessFull';
 
 const EditMyBackgroundPhoto = ({
   openModalDiscardReff,
@@ -15,24 +17,52 @@ const EditMyBackgroundPhoto = ({
   onSavePress = () => {},
   onDiscardPress = () => {},
 }) => {
+  const stateGlobal = useSelector(state => state);
   const [currentBackgroundPhoto, setCurrentBackgroundPhoto] = useState(
-    backgroundPhoto !== undefined &&
-      backgroundPhoto !== null &&
-      backgroundPhoto !== ''
-      ? backgroundPhoto
-      : require('../assets/image/img_default_photo_background.png'),
+    backgroundPhoto === '' ? null : backgroundPhoto,
   );
   const [messageDiscardEditModalVisible, setMessageDiscardEditModalVisible] =
     useState(false);
   const [messageSuccessModalVisible, setMessageSuccessModalVisible] =
     useState(false);
   const [edited, setEdited] = useState(false);
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
+  const [loading, setLoading] = useState({
+    visible: false,
+    message: 'Please Wait',
+  });
 
   useEffect(() => {
     if (openModalDiscardReff !== undefined) {
       openModalDiscardReff.current = () => discard();
     }
   }, [edited]);
+
+  const saveEditBackground = () => {
+    setLoading({...loading, visible: true});
+    EditBackgroundAPI(stateGlobal.userToken, currentBackgroundPhoto).then(
+      res => {
+        setLoading({...loading, visible: false});
+        if (res.status === 'SUCCESS') {
+          setMessageSuccessModalVisible(true);
+        } else {
+          setMessageModal({
+            ...messageModal,
+            visible: true,
+            title: 'Failed',
+            message: 'Server Error!',
+            type: 'confused',
+          });
+        }
+      },
+    );
+  };
 
   const discard = () => {
     if (edited) {
@@ -57,7 +87,11 @@ const EditMyBackgroundPhoto = ({
       cropping: true,
     }).then(image => {
       if (image.size <= 1000000000) {
-        setCurrentBackgroundPhoto({uri: image.path});
+        setCurrentBackgroundPhoto({
+          uri: image.path,
+          mime: image.mime,
+          name: image.path?.split('/')?.slice(-1)[0],
+        });
         stateEdited();
       }
     });
@@ -119,8 +153,10 @@ const EditMyBackgroundPhoto = ({
       <EditActionButton
         disableSaveButton={!edited}
         onDiscardPress={() => discard()}
-        onSavePress={() => setMessageSuccessModalVisible(true)}
+        onSavePress={() => saveEditBackground()}
       />
+
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
 
       {/* modal discard confirmation message */}
       <ModalMessage
@@ -159,6 +195,24 @@ const EditMyBackgroundPhoto = ({
         onRequestClose={() => {
           setMessageSuccessModalVisible(false);
           onSavePress(currentBackgroundPhoto);
+        }}
+      />
+
+      {/* modal message */}
+      <ModalMessage
+        visible={messageModal.visible}
+        withIllustration
+        illustrationType={messageModal.type}
+        title={messageModal.title}
+        message={messageModal.message}
+        withBackButton
+        onBack={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+        onRequestClose={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
         }}
       />
     </>

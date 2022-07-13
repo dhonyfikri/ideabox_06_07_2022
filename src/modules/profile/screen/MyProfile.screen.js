@@ -1,7 +1,14 @@
 import {useBackHandler} from '@react-native-community/hooks';
 import {useNavigationState} from '@react-navigation/native';
 import React, {useEffect, useRef, useState} from 'react';
-import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import ActionMyAchievements from '../../../components/ActionMyAchievements';
 import AddMyAchievements from '../../../components/AddMyAchievements';
 import AddMySkills from '../../../components/AddMySkills';
@@ -22,11 +29,17 @@ import LoadingProcessFull from '../../../components/LoadingProcessFull';
 import ModalEditProfile from '../../../components/ModalEditProfile';
 import ModalMessage from '../../../components/ModalMessage';
 import RefreshFull from '../../../components/RefreshFull';
-import {GetUserById} from '../../../config/RequestAPI/UserAPI';
+import {
+  GetMySkillSetAPI,
+  GetUserById,
+} from '../../../config/RequestAPI/UserAPI';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
+import {useSelector} from 'react-redux';
+import {MediaAddress} from '../../../config/Environment.cfg';
 
 const MyProfile = ({navigation, route}) => {
+  const stateGlobal = useSelector(state => state);
   const editableProfile =
     route.params.editable !== undefined ? route.params.editable : true;
   const openModalDiscardEditBackgroundPhotoReff = useRef(null);
@@ -62,6 +75,9 @@ const MyProfile = ({navigation, route}) => {
 
   const [achievementIndexToEdit, setAchievementIndexToEdit] = useState(null);
 
+  const [showSkillLoading, setShowSkillLoading] = useState(true);
+  const [showRefreshFetchSkill, setShowRefreshFetchSkill] = useState(false);
+
   const [showRefreshBUtton, setShowRefreshButton] = useState(false);
   const [loading, setLoading] = useState({
     visible: route.params?.existingProfileData !== undefined ? false : true,
@@ -85,7 +101,7 @@ const MyProfile = ({navigation, route}) => {
 
   const fetchUserData = () => {
     setLoading({...loading, visible: true});
-    GetUserById(route.params?.userToken, route.params?.userId).then(res => {
+    GetUserById(stateGlobal.userToken, route.params?.userId).then(res => {
       setLoading({...loading, visible: false});
       if (res.status === 'SUCCESS') {
         if (res.data.length > 0) {
@@ -97,6 +113,21 @@ const MyProfile = ({navigation, route}) => {
         res.status === 'SERVER_ERROR'
       ) {
         setShowRefreshButton(true);
+      }
+    });
+  };
+
+  const getMySkills = (withIndicator = true) => {
+    if (withIndicator) {
+      setShowSkillLoading(true);
+    }
+    setShowRefreshFetchSkill(false);
+    GetMySkillSetAPI(stateGlobal.userToken, route.params?.userId).then(res => {
+      setShowSkillLoading(false);
+      if (res.status === 'SUCCESS') {
+        setMySkills(res.data);
+      } else {
+        setShowRefreshFetchSkill(true);
       }
     });
   };
@@ -131,12 +162,6 @@ const MyProfile = ({navigation, route}) => {
   };
 
   useEffect(() => {
-    setMySkills([
-      'UI/UX Designer',
-      'Product Owner',
-      'Digital Marketing',
-      'System Analyst',
-    ]);
     setMyAchivements([
       {
         title: 'Sistem Keuangan Berbasis Web untuk UMKM',
@@ -155,6 +180,7 @@ const MyProfile = ({navigation, route}) => {
     if (profileData.id === undefined) {
       fetchUserData();
     }
+    getMySkills();
   }, []);
 
   useBackHandler(() => {
@@ -222,7 +248,48 @@ const MyProfile = ({navigation, route}) => {
             withEditButton={mySkills.length > 0}
             onAddPress={() => setModalAddSkillsVisible(true)}
             onEditPress={() => setModalEditSkillsVisible(true)}>
-            <CardMySkills skills={mySkills} />
+            <>
+              {!showRefreshFetchSkill &&
+                !showSkillLoading &&
+                (mySkills && mySkills.length > 0 ? (
+                  <CardMySkills skills={mySkills} />
+                ) : (
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      fontFamily: fonts.secondary[400],
+                      fontSize: 12,
+                    }}>
+                    No skills yet
+                  </Text>
+                ))}
+              {showRefreshFetchSkill && (
+                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: colors.primary,
+                      borderRadius: 8,
+                      paddingVertical: 8,
+                      paddingHorizontal: 12,
+                    }}
+                    onPress={() => getMySkills()}>
+                    <Text
+                      style={{
+                        color: colors.white,
+                        fontFamily: fonts.secondary[400],
+                        fontSize: 12,
+                      }}>
+                      Refresh
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              {showSkillLoading && (
+                <View style={{alignItems: 'center'}}>
+                  <ActivityIndicator color={colors.primary} size="large" />
+                </View>
+              )}
+            </>
           </CardDetailProfileContent>
           <Gap height={16} />
           <CardDetailProfileContent
@@ -255,13 +322,10 @@ const MyProfile = ({navigation, route}) => {
         }>
         <EditMyBackgroundPhoto
           openModalDiscardReff={openModalDiscardEditBackgroundPhotoReff}
-          backgroundPhoto={profileData.background}
-          onSavePress={newBackgroundPhoto => {
+          backgroundPhoto={{uri: `${MediaAddress}/${profileData.background}`}}
+          onSavePress={() => {
             setModalEditBackgroundPhotoVisible(false);
-            setProfileData({
-              ...profileData,
-              background: newBackgroundPhoto,
-            });
+            fetchUserData();
             setChanged();
           }}
           onDiscardPress={() => setModalEditBackgroundPhotoVisible(false)}
@@ -277,21 +341,22 @@ const MyProfile = ({navigation, route}) => {
         <EditMyProfile
           openModalDiscardReff={openModalDiscardEditProfileReff}
           profileData={profileData}
-          onSavePress={(newProfileData, photoProfileChanged) => {
-            if (photoProfileChanged) {
-              //with update photo
-              console.log('with update photo');
-              setProfileData(newProfileData);
-            } else {
-              //without update photo
-              console.log('without update photo');
-              setProfileData({
-                ...profileData,
-                ...newProfileData,
-                pictures: profileData.profilePhoto,
-              });
-            }
+          onSavePress={() => {
+            // if (photoProfileChanged) {
+            //   //with update photo
+            //   console.log('with update photo');
+            //   setProfileData(newProfileData);
+            // } else {
+            //   //without update photo
+            //   console.log('without update photo');
+            //   setProfileData({
+            //     ...profileData,
+            //     ...newProfileData,
+            //     pictures: profileData.profilePhoto,
+            //   });
+            // }
             setModalEditProfileVisible(false);
+            fetchUserData();
             setChanged();
           }}
           onDiscardPress={() => setModalEditProfileVisible(false)}
@@ -337,17 +402,10 @@ const MyProfile = ({navigation, route}) => {
         onCloseButtonPress={() => openModalDiscardAddSkillReff.current()}>
         <AddMySkills
           openModalDiscardReff={openModalDiscardAddSkillReff}
-          recomendationSkills={[
-            'Web Design',
-            'Data Representation',
-            'Prototyping',
-            'Control Systems Design',
-          ]}
           mySkills={mySkills}
-          onSavePress={newSkills => {
-            const oldSkills = [...mySkills];
-            setMySkills([...new Set([...oldSkills, ...newSkills])]);
+          onSavePress={() => {
             setModalAddSkillsVisible(false);
+            getMySkills(false);
           }}
           onDiscardPress={() => setModalAddSkillsVisible(false)}
         />
@@ -362,9 +420,9 @@ const MyProfile = ({navigation, route}) => {
         <EditMySkills
           openModalDiscardReff={openModalDiscardEditSkillReff}
           skills={mySkills}
-          onSavePress={newSkills => {
+          onSavePress={() => {
             setModalEditSkillsVisible(false);
-            setMySkills(newSkills);
+            getMySkills(false);
           }}
           onDiscardPress={() => setModalEditSkillsVisible(false)}
         />

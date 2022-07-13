@@ -23,6 +23,11 @@ import Gap from './Gap';
 import ModalMessage from './ModalMessage';
 import EditActionButton from './EditActionButton';
 import {InitialIcon} from './InitialIcon';
+import {useSelector} from 'react-redux';
+import {EditProfileDataAPI} from '../config/RequestAPI/UserAPI';
+import LoadingProcessFull from './LoadingProcessFull';
+import {MediaAddress} from '../config/Environment.cfg';
+import {EditProfileWithPictureAPI} from '../config/RequestAPI/MultipleAPI';
 
 const EditMyProfile = ({
   openModalDiscardReff,
@@ -30,7 +35,11 @@ const EditMyProfile = ({
   onSavePress = () => {},
   onDiscardPress = () => {},
 }) => {
-  const [currentProfileData, setCurrentProfileData] = useState(profileData);
+  const stateGlobal = useSelector(state => state);
+  const [currentProfileData, setCurrentProfileData] = useState({
+    ...profileData,
+    pictures: {uri: `${MediaAddress}/${profileData.pictures}`},
+  });
   const [photoProfileChanged, setPhotoProfileChanged] = useState(false);
   const [disableSaveButton, setDisableSaveButton] = useState(true);
   const [messageDiscardEditModalVisible, setMessageDiscardEditModalVisible] =
@@ -53,15 +62,27 @@ const EditMyProfile = ({
       {label: 'Bekasi', value: 'Bekasi'},
     ]);
 
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
+  const [loading, setLoading] = useState({
+    visible: false,
+    message: 'Please Wait',
+  });
+
   const [openDropdownTeamStructure, setOpenDropdownTeamStructure] =
     useState(false);
   const [valueDropdownTeamStructure, setValueDropdownTeamStructure] = useState(
     profileData.teamStructure,
   );
   const [itemsDropdownTeamStructure, setItemsDropdownTeamStructure] = useState([
-    {label: 'Hipster', value: 'Hipster'},
-    {label: 'Hustler', value: 'Hustler'},
-    {label: 'Hacker', value: 'Hacker'},
+    {label: 'Hipster', value: 'HIPSTER'},
+    {label: 'Hustler', value: 'HUSTLER'},
+    {label: 'Hacker', value: 'HACKER'},
   ]);
 
   const [openDropdownUnit, setOpenDropdownUnit] = useState(false);
@@ -84,7 +105,11 @@ const EditMyProfile = ({
       if (image.size <= 1000000000) {
         setCurrentProfileData({
           ...currentProfileData,
-          pictures: {uri: image.path},
+          pictures: {
+            uri: image.path,
+            mime: image.mime,
+            name: image.path?.split('/')?.slice(-1)[0],
+          },
         });
         setPhotoProfileChanged(true);
         stateEdited();
@@ -98,7 +123,7 @@ const EditMyProfile = ({
       const currentDate = selectedDate || new Date();
 
       const tempDate = new Date(currentDate);
-      const fullDate = dateToText(tempDate);
+      const fullDate = dateToText(tempDate, 'dash');
 
       setCurrentProfileData({...currentProfileData, tglLahir: fullDate});
       stateEdited();
@@ -106,13 +131,54 @@ const EditMyProfile = ({
   };
 
   const save = () => {
-    const newProfileData = {
-      ...currentProfileData,
-      workingLocation: valueDropdownWorkingLocation,
-      teamStructure: valueDropdownTeamStructure,
-      unit: valueDropdownUnit,
-    };
-    onSavePress(newProfileData, photoProfileChanged);
+    if (photoProfileChanged) {
+      setLoading({...loading, visible: true});
+      EditProfileWithPictureAPI(
+        stateGlobal.userToken.authToken,
+        stateGlobal.decodedToken?.data.id,
+        {
+          ...currentProfileData,
+          teamStructure: valueDropdownTeamStructure,
+        },
+        currentProfileData.pictures,
+      ).then(res => {
+        setLoading({...loading, visible: false});
+        if (res.status === 'SUCCESS') {
+          setMessageSuccessModalVisible(true);
+        } else {
+          setMessageModal({
+            ...messageModal,
+            visible: true,
+            title: 'Failed',
+            message: 'Server Error!',
+            type: 'confused',
+          });
+        }
+      });
+    } else {
+      setLoading({...loading, visible: true});
+      EditProfileDataAPI(
+        stateGlobal.userToken,
+        stateGlobal.decodedToken?.data.id,
+        {
+          ...currentProfileData,
+          teamStructure: valueDropdownTeamStructure,
+        },
+      ).then(res => {
+        setLoading({...loading, visible: false});
+        if (res.status === 'SUCCESS') {
+          setMessageSuccessModalVisible(true);
+        } else {
+          setMessageModal({
+            ...messageModal,
+            visible: true,
+            title: 'Failed',
+            message: 'Server Error!',
+            type: 'confused',
+          });
+        }
+      });
+    }
   };
 
   useEffect(() => {
@@ -122,7 +188,8 @@ const EditMyProfile = ({
       currentProfileData.nik?.trim().length === 0 ||
       currentProfileData.noTelp?.trim().length === 0 ||
       currentProfileData.tglLahir?.trim().length === 0 ||
-      currentProfileData.pekerjaan?.trim().length === 0
+      currentProfileData.pekerjaan?.trim().length === 0 ||
+      valueDropdownTeamStructure === null
     ) {
       disableSave = true;
     }
@@ -448,7 +515,7 @@ const EditMyProfile = ({
       <EditActionButton
         disableSaveButton={disableSaveButton || !edited}
         onDiscardPress={() => discard()}
-        onSavePress={() => setMessageSuccessModalVisible(true)}
+        onSavePress={() => save()}
       />
       {showDatePicker && (
         <DateTimePicker
@@ -466,6 +533,8 @@ const EditMyProfile = ({
           onChange={_onDateChange}
         />
       )}
+
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
 
       {/* modal discard confirmation message */}
       <ModalMessage
@@ -499,11 +568,29 @@ const EditMyProfile = ({
         withBackButton
         onBack={() => {
           setMessageSuccessModalVisible(false);
-          save();
+          onSavePress();
         }}
         onRequestClose={() => {
           setMessageSuccessModalVisible(false);
-          save();
+          onSavePress();
+        }}
+      />
+
+      {/* modal message */}
+      <ModalMessage
+        visible={messageModal.visible}
+        withIllustration
+        illustrationType={messageModal.type}
+        title={messageModal.title}
+        message={messageModal.message}
+        withBackButton
+        onBack={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+        onRequestClose={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
         }}
       />
     </View>

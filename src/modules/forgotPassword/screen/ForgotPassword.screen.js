@@ -5,6 +5,7 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native';
 import React, {useState} from 'react';
 import Header from '../../../components/Header';
@@ -22,6 +23,11 @@ const ForgorPassword = ({navigation, route}) => {
   };
   return (
     <View style={{flex: 1, backgroundColor: colors.white}}>
+      <StatusBar
+        barStyle={'dark-content'}
+        backgroundColor={colors.secondary}
+        animated
+      />
       <Header
         backButton
         onBackPress={() => navigation.goBack()}

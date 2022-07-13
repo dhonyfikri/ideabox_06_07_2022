@@ -5,6 +5,8 @@ import {IcButtonJoin} from '../assets/icon';
 import Gap from '../components/Gap';
 import fonts from '../utils/FontsConfig/Fonts';
 import {InitialIcon} from './InitialIcon';
+import {MediaAddress} from '../config/Environment.cfg';
+import {useSelector} from 'react-redux';
 
 const CardProfile = ({
   withJoinButton = true,
@@ -12,6 +14,8 @@ const CardProfile = ({
   userData,
   onCreatorPress,
 }) => {
+  const stateGlobal = useSelector(state => state);
+  const itsMe = userData?.id === stateGlobal.decodedToken?.data.id;
   const name = userData?.name
     ? userData?.name?.replace(/(?:^|\s)\S/g, function (a) {
         return a.toUpperCase();
@@ -26,29 +30,60 @@ const CardProfile = ({
           alignItems: 'center',
         }}
         onPress={onCreatorPress}>
-        <InitialIcon
-          width={50}
-          height={50}
-          name={userData?.name}
-          fontSize={20}
-        />
+        <View
+          style={{
+            width: 50,
+            height: 50,
+            borderRadius: 50 / 2,
+            overflow: 'hidden',
+          }}>
+          <View style={{position: 'absolute', left: 0, top: 0}}>
+            <InitialIcon
+              width={50}
+              height={50}
+              name={userData?.name}
+              fontSize={20}
+            />
+          </View>
+          <Image
+            style={{width: '100%', height: '100%', resizeMode: 'cover'}}
+            source={{uri: `${MediaAddress}/${userData?.pictures}`}}
+          />
+        </View>
         <Gap width={10} />
         <View style={styles.detailWrapper}>
           <Text numberOfLines={2} ellipsizeMode="tail" style={styles.nameText}>
             {name}
           </Text>
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.zipText}>
-            {userData?.nik !== '' ? userData?.nik : '-'}
+            {userData?.nik ? userData?.nik : '-'}
           </Text>
         </View>
       </TouchableOpacity>
       {withJoinButton && (
         <>
           <Gap width={10} />
-          <TouchableOpacity style={styles.button} onPress={onJoinButtonPress}>
-            <IcButtonJoin />
-            <Gap width={8} />
-            <Text style={styles.textButton}>Join Idea</Text>
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+              backgroundColor: itsMe ? colors.success : colors.primary,
+              borderRadius: 32,
+              alignItems: 'center',
+            }}
+            disabled={itsMe}
+            onPress={onJoinButtonPress}>
+            {itsMe && <Gap height={15} />}
+            {!itsMe && (
+              <>
+                <IcButtonJoin />
+                <Gap width={8} />
+              </>
+            )}
+            <Text style={styles.textButton}>
+              {itsMe ? 'Joined' : 'Join Idea'}
+            </Text>
           </TouchableOpacity>
         </>
       )}

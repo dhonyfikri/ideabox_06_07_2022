@@ -1,4 +1,6 @@
-import React, {useRef, useState, useEffect} from 'react';
+import {useBackHandler} from '@react-native-community/hooks';
+import jwtDecode from 'jwt-decode';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   FlatList,
   ScrollView,
@@ -16,18 +18,17 @@ import Divider from '../../../components/Divider';
 import EditActionButton from '../../../components/EditActionButton';
 import Gap from '../../../components/Gap';
 import Header from '../../../components/Header';
+import LoadingProcessFull from '../../../components/LoadingProcessFull';
 import ModalAction from '../../../components/ModalAction';
+import ModalMessage from '../../../components/ModalMessage';
+import RefreshFull from '../../../components/RefreshFull';
+import {
+  DeleteIdeasAPI,
+  GetSubmittedIdeasAPI,
+} from '../../../config/RequestAPI/IdeaAPI';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import {textToDate} from '../../../utils/DateConfig/DateConvert';
 import fonts from '../../../utils/FontsConfig/Fonts';
-import ModalMessage from '../../../components/ModalMessage';
-import LoadingProcessFull from '../../../components/LoadingProcessFull';
-import RefreshFull from '../../../components/RefreshFull';
-import {DeleteIdeasAPI, GetIdeasAPI} from '../../../config/RequestAPI/IdeaAPI';
-import axios from 'axios';
-import jwtDecode from 'jwt-decode';
-import {ApiGatewayBaseUrl} from '../../../config/Environment.cfg';
-import {useBackHandler} from '@react-native-community/hooks';
 
 const SubmittedIdea = ({navigation, route}) => {
   const decodedJwt = jwtDecode(route.params?.userToken.authToken);
@@ -68,99 +69,13 @@ const SubmittedIdea = ({navigation, route}) => {
   const [showRefreshBUtton, setShowRefreshButton] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
 
-  const fetchIdeas = () => {
+  const fetchSubmittedIdea = () => {
     setLoading({...loading, visible: true});
-    GetIdeasAPI(route.params?.userToken?.authToken).then(res => {
+    GetSubmittedIdeasAPI(route.params?.userToken?.authToken).then(res => {
+      setLoading({...loading, visible: false});
       if (res.status === 'SUCCESS') {
-        let fixResult = [];
-        let uniqueUserId = [];
-        res.data.map(item => {
-          uniqueUserId.push(item.createdBy);
-          item.like.map(item => {
-            uniqueUserId.push(item.createdBy);
-          });
-          item.comment.map(item => {
-            uniqueUserId.push(item.createdBy);
-          });
-          uniqueUserId.push(
-            jwtDecode(route.params?.userToken?.authToken).data.id,
-          );
-        });
-        if (res.data.length > 0) {
-          uniqueUserId = [...new Set(uniqueUserId)];
-        }
-        const request = userId => {
-          return axios.get(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
-            headers: {
-              Authorization: `Bearer ${route.params?.userToken?.authToken}`,
-              Tenant: `https://${
-                jwtDecode(route.params?.userToken?.authToken).data
-                  .tenantSubdomain
-              }.ideaboxapp.com`,
-            },
-          });
-        };
-
-        const listUser = [];
-        const listGetUserRequest = [];
-
-        uniqueUserId.map(item => {
-          listGetUserRequest.push(request(item));
-        });
-
-        axios
-          .all(listGetUserRequest)
-          .then(
-            axios.spread((...responses) => {
-              responses.map(item => {
-                if (item.data.data.length > 0) {
-                  listUser.push(item.data.data[0]);
-                }
-              });
-              // console.log(listUser);
-              res.data.map(item => {
-                const tempItem = item;
-                listUser.map(item => {
-                  if (item.id === tempItem.createdBy) {
-                    tempItem.user = item;
-                  }
-                });
-                fixResult.push(tempItem);
-              });
-              setIdeaDataList(fixResult);
-              let fixSubmittedIdea = [];
-              fixResult
-                .filter(item => item.createdBy === decodedJwt.data.id)
-                .map(item => {
-                  fixSubmittedIdea.push({
-                    ideaId: item.id,
-                    ideaName: item.desc[0].value,
-                    allowJoin: item.allowJoin,
-                    ownerId: item.createdBy,
-                    ownerName: item.user.name,
-                    createdDate: `${
-                      (item.desc[0].value.length % 29) + 1
-                    }/05/2022, 12:00:01`,
-                  });
-                });
-              setSubmittedIdea(fixSubmittedIdea);
-              setListUserData(listUser);
-              setLoading({...loading, visible: false});
-            }),
-          )
-          .catch(errors => {
-            setLoading({...loading, visible: false});
-            setShowRefreshButton(true);
-            console.log(errors);
-          });
-      } else if (
-        res.status === 'SOMETHING_WRONG' ||
-        res.status === 'NOT_FOUND' ||
-        res.status === 'UNDEFINED_HEADER' ||
-        res.status === 'UNAUTHORIZED' ||
-        res.status === 'SERVER_ERROR'
-      ) {
-        setLoading({...loading, visible: false});
+        setSubmittedIdea(res.data);
+      } else {
         setShowRefreshButton(true);
       }
     });
@@ -170,7 +85,7 @@ const SubmittedIdea = ({navigation, route}) => {
     setLoading({...loading, visible: true, message: 'Deleting idea'});
     DeleteIdeasAPI(
       route.params?.userToken.authToken,
-      parseInt(selectedIdea.ideaId),
+      parseInt(selectedIdea.id),
     ).then(res => {
       setLoading({...loading, visible: false});
       console.log(res);
@@ -202,7 +117,9 @@ const SubmittedIdea = ({navigation, route}) => {
       tempSubmittedIdea = submittedIdea;
     } else {
       submittedIdea.map(item => {
-        if (item.ideaName.toLowerCase().includes(searchText.toLowerCase())) {
+        if (
+          item.desc[0]?.value.toLowerCase().includes(searchText.toLowerCase())
+        ) {
           tempSubmittedIdea.push(item);
         }
       });
@@ -280,7 +197,7 @@ const SubmittedIdea = ({navigation, route}) => {
   useEffect(() => {
     if (route.params?.refresh?.status) {
       setChanged();
-      fetchIdeas();
+      fetchSubmittedIdea();
     }
     if (route.params?.refresh?.status) {
       navigation.setParams({
@@ -291,7 +208,7 @@ const SubmittedIdea = ({navigation, route}) => {
   }, [route.params?.refresh]);
 
   useEffect(() => {
-    fetchIdeas();
+    fetchSubmittedIdea();
   }, []);
 
   useBackHandler(() => {
@@ -346,11 +263,11 @@ const SubmittedIdea = ({navigation, route}) => {
                 <CardSubmittedIdea
                   valueLength={submittedIdeaToShow.length}
                   raiseDelay={index}
-                  ideaName={item.ideaName}
-                  ownerName={item.ownerName}
+                  ideaName={item.desc[0]?.value}
+                  ownerName={item.createdBy.name}
                   createdDate={item.createdDate ? item.createdDate : '-'}
                   onDotThreePress={() => {
-                    console.log(item.ideaId, item.ideaName);
+                    console.log(item.id, item.desc[0]?.value);
                     setSelectedIdea(item);
                     refRBSheetAction.current.open();
                   }}
@@ -403,7 +320,7 @@ const SubmittedIdea = ({navigation, route}) => {
               onPress={() => {
                 refRBSheetAction.current.close();
                 navigation.navigate('EditIdea', {
-                  ideaId: selectedIdea.ideaId,
+                  ideaId: selectedIdea.id,
                   allowJoin: selectedIdea.allowJoin,
                   userToken: route.params?.userToken,
                   ideaDataList: ideaDataList,
@@ -417,7 +334,7 @@ const SubmittedIdea = ({navigation, route}) => {
               onPress={() => {
                 refRBSheetAction.current.close();
                 navigation.navigate('EditIdea', {
-                  ideaId: selectedIdea.ideaId,
+                  ideaId: selectedIdea.id,
                   allowJoin: selectedIdea.allowJoin,
                   userToken: route.params?.userToken,
                   ideaDataList: ideaDataList,
@@ -492,7 +409,7 @@ const SubmittedIdea = ({navigation, route}) => {
         visible={showRefreshBUtton}
         onPress={() => {
           setShowRefreshButton(false);
-          fetchIdeas();
+          fetchSubmittedIdea();
         }}
         onOffsetTouch={() => navigation.goBack()}
       />
@@ -528,7 +445,7 @@ const SubmittedIdea = ({navigation, route}) => {
                 ...styles.noticeText,
                 fontFamily: fonts.secondary[700],
               }}>
-              {selectedIdea?.ideaName}
+              {selectedIdea?.desc[0].value}
             </Text>
           </Text>
         </View>
@@ -583,11 +500,11 @@ const SubmittedIdea = ({navigation, route}) => {
         withBackButton
         onBack={() => {
           setMessageSuccessDeleteIdeaModalVisible(false);
-          fetchIdeas();
+          fetchSubmittedIdea();
         }}
         onRequestClose={() => {
           setMessageSuccessDeleteIdeaModalVisible(false);
-          fetchIdeas();
+          fetchSubmittedIdea();
         }}
       />
     </View>

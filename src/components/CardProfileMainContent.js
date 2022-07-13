@@ -8,6 +8,7 @@ import {
   IcPencilEdit,
   IcUnactiveLike,
 } from '../assets/icon';
+import {MediaAddress} from '../config/Environment.cfg';
 import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import Dot from './Dot';
@@ -52,7 +53,7 @@ const CardProfileMainContent = ({
               backgroundPhoto !== undefined &&
               backgroundPhoto !== '' &&
               backgroundPhoto !== null
-                ? backgroundPhoto
+                ? {uri: `${MediaAddress}/${backgroundPhoto}`}
                 : require('../assets/image/img_default_photo_background.png')
             }
           />
@@ -81,7 +82,7 @@ const CardProfileMainContent = ({
           <Image
             style={styles.imageProfile}
             resizeMode="cover"
-            source={profilePhoto}
+            source={{uri: `${MediaAddress}/${profilePhoto}`}}
           />
         </View>
         {editable && (

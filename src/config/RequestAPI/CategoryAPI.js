@@ -2,27 +2,24 @@ import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import {ApiGatewayBaseUrl} from '../Environment.cfg';
 
-const AddCommentAPI = (token, ideaId, comment) => {
+const GetAllCategoriesAPI = (token, type = 'idea') => {
   return new Promise(resolve => {
     axios
-      .post(
-        `${ApiGatewayBaseUrl}/comments/${ideaId}`,
-        {comment: comment, commentId: 0},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Tenant: `https://${
-              jwtDecode(token).data.tenantSubdomain
-            }.ideaboxapp.com`,
-          },
+      .get(`${ApiGatewayBaseUrl}/categories?type=${type}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Tenant: `https://${
+            jwtDecode(token).data.tenantSubdomain
+          }.ideaboxapp.com`,
         },
-      )
+      })
       .then(response => {
         // console.log(response.data.data);
         if (response.data.status === 200) {
           resolve({
             status: 'SUCCESS',
-            message: 'You have successfully added a comment',
+            data: response.data.data,
+            message: 'Success',
           });
         } else {
           resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
@@ -55,4 +52,4 @@ const AddCommentAPI = (token, ideaId, comment) => {
   });
 };
 
-export {AddCommentAPI};
+export {GetAllCategoriesAPI};

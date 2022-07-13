@@ -1,38 +1,40 @@
-import React, { useState, useEffect, useRef } from 'react';
+import {useIsFocused} from '@react-navigation/native';
+import jwtDecode from 'jwt-decode';
+import React, {useEffect, useRef, useState} from 'react';
 import {
+  Animated,
+  Image,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  ActivityIndicator,
-  Image,
-  RefreshControl,
-  Animated,
 } from 'react-native';
 import CardProfileMainContent from '../../../components/CardProfileMainContent';
 import ContactDetail from '../../../components/ContactDetail';
 import Gap from '../../../components/Gap';
 import ModalEditProfile from '../../../components/ModalEditProfile';
 import ProfileOptionItem from '../../../components/ProfileOptionItem';
-import { colors } from '../../../utils/ColorsConfig/Colors';
-import fonts from '../../../utils/FontsConfig/Fonts';
-import { useIsFocused } from '@react-navigation/native';
-import { removeAsyncStorageItem } from '../../../utils/AsyncStorage/StoreAsyncStorage';
-import jwtDecode from 'jwt-decode';
 import RefreshFull from '../../../components/RefreshFull';
-import { GetUserById } from '../../../config/RequestAPI/UserAPI';
-import { GetIdeasAPI } from '../../../config/RequestAPI/IdeaAPI';
+import {GetIdeasAPI} from '../../../config/RequestAPI/IdeaAPI';
+import {GetUserById} from '../../../config/RequestAPI/UserAPI';
+import {removeAsyncStorageItem} from '../../../utils/AsyncStorage/StoreAsyncStorage';
+import {colors} from '../../../utils/ColorsConfig/Colors';
+import fonts from '../../../utils/FontsConfig/Fonts';
+import {useDispatch, useSelector} from 'react-redux';
 
-const Profile = ({ navigation, route }) => {
+const Profile = ({navigation, route}) => {
+  const dispatch = useDispatch();
+  const stateGlobal = useSelector(state => state);
   const decodedJwt = route.params?.userToken
     ? jwtDecode(route.params.userToken.authToken)
     : {};
-  const [profileData, setProfileData] = useState({});
+  const [profileData, setProfileData] = useState(stateGlobal.userData);
   const [ideaData, setIdeaData] = useState(null);
   const [modalContactInfoVisible, setModalContactInfoVisible] = useState(false);
   const [showRefreshBUtton, setShowRefreshButton] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const myIdeaList = ideaData?.filter(
     item => item.createdBy === decodedJwt.data?.id,
@@ -63,29 +65,34 @@ const Profile = ({ navigation, route }) => {
 
   const fetchUserData = () => {
     setLoading(true);
-    GetUserById(route.params?.userToken, decodedJwt.data.id).then(res => {
-      setLoading(false);
-      console.log(res.status);
-      if (res.status === 'SUCCESS') {
-        if (res.data.length > 0) {
-          setProfileData(res.data[0]);
-          fetchIdeas(true);
+    GetUserById(stateGlobal.userToken, stateGlobal.decodedToken?.data.id).then(
+      res => {
+        setLoading(false);
+        if (res.status === 'SUCCESS') {
+          if (res.data.length > 0) {
+            dispatch({
+              type: 'SET_USER_DATA',
+              value: res.data[0],
+            });
+            setProfileData(res.data[0]);
+            fetchIdeas(true);
+          }
+        } else if (
+          res.status === 'SOMETHING_WRONG' ||
+          res.status === 'FAILED' ||
+          res.status === 'SERVER_ERROR'
+        ) {
+          setShowRefreshButton(true);
         }
-      } else if (
-        res.status === 'SOMETHING_WRONG' ||
-        res.status === 'FAILED' ||
-        res.status === 'SERVER_ERROR'
-      ) {
-        setShowRefreshButton(true);
-      }
-    });
+      },
+    );
   };
 
   const fetchIdeas = withIndicator => {
     if (withIndicator) {
       setLoading(true);
     }
-    GetIdeasAPI(route.params?.userToken?.authToken).then(res => {
+    GetIdeasAPI(stateGlobal.userToken?.authToken).then(res => {
       if (res.status === 'SUCCESS') {
         setIdeaData(res.data);
       } else if (
@@ -128,8 +135,10 @@ const Profile = ({ navigation, route }) => {
   // }, []);
 
   useEffect(() => {
-    if (route.params?.userToken) {
+    if (!stateGlobal.userData) {
       fetchUserData();
+    } else {
+      fetchIdeas(true);
     }
   }, []);
 
@@ -142,7 +151,11 @@ const Profile = ({ navigation, route }) => {
 
   useEffect(() => {
     if (route.params?.updatedProfileData !== undefined) {
-      setProfileData({ ...profileData, ...route.params?.updatedProfileData });
+      setProfileData({...profileData, ...route.params?.updatedProfileData});
+      dispatch({
+        type: 'SET_USER_DATA',
+        value: {...profileData, ...route.params?.updatedProfileData},
+      });
     }
   }, [route.params?.updatedProfileData]);
 
@@ -153,13 +166,13 @@ const Profile = ({ navigation, route }) => {
     if (route.params?.refresh?.status) {
       navigation.setParams({
         ...route.params,
-        refresh: { status: false },
+        refresh: {status: false},
       });
     }
   }, [route.params?.refresh]);
 
   return (
-    <Animated.View style={{ ...styles.container, opacity: fadeAnim }}>
+    <Animated.View style={{...styles.container, opacity: fadeAnim}}>
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -182,8 +195,8 @@ const Profile = ({ navigation, route }) => {
             }
             location={
               profileData.workingLocation !== '' &&
-                profileData.workingLocation !== null &&
-                profileData.workingLocation !== undefined
+              profileData.workingLocation !== null &&
+              profileData.workingLocation !== undefined
                 ? profileData.workingLocation
                 : 'Location Unknown'
             }
@@ -220,7 +233,7 @@ const Profile = ({ navigation, route }) => {
                   fetchUserData();
                 }}>
                 <Image
-                  style={{ width: 20, height: 20 }}
+                  style={{width: 20, height: 20}}
                   source={require('../../../assets/image/refresh.png')}
                 />
                 <Text
@@ -243,15 +256,15 @@ const Profile = ({ navigation, route }) => {
               itemTitle: 'My Profile',
               onPress: () =>
                 profileData.id !== undefined &&
-                  ideaData !== null &&
-                  !loading.visible
+                ideaData !== null &&
+                !loading.visible
                   ? navigation.navigate('MyProfile', {
-                    fromPage: 'USER_SCREEN',
-                    existingProfileData: profileData,
-                    userToken: route.params?.userToken,
-                    userId: decodedJwt.data.id,
-                    ideaData: ideaData,
-                  })
+                      fromPage: 'USER_SCREEN',
+                      existingProfileData: profileData,
+                      userToken: route.params?.userToken,
+                      userId: stateGlobal.decodedToken?.data.id,
+                      ideaData: ideaData,
+                    })
                   : {},
             }}
           />
@@ -328,7 +341,10 @@ const Profile = ({ navigation, route }) => {
             title="General Info"
             singleData={{
               itemTitle: 'FAQ',
-              onPress: () => console.log('FAQ Clicked'),
+              onPress: () => {
+                // console.log('FAQ Clicked');
+                console.log(stateGlobal.decodedToken);
+              },
             }}
           />
           <Gap height={32} />
@@ -372,7 +388,7 @@ const Profile = ({ navigation, route }) => {
 export default Profile;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  container: {flex: 1, backgroundColor: '#FFFFFF'},
   profileOptions: {
     padding: 16,
   },

@@ -4,6 +4,7 @@ import {
   Image,
   SafeAreaView,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -109,6 +110,11 @@ export default function RegisterScreen({navigation, route}) {
 
   return (
     <SafeAreaView style={styles.containerSafe}>
+      <StatusBar
+        barStyle={'dark-content'}
+        backgroundColor={colors.secondary}
+        animated
+      />
       <Header
         backButton
         onBackPress={() => navigation.goBack()}

@@ -22,6 +22,7 @@ import Gap from './Gap';
 
 const CreateIdeaDescription = ({
   onNextReff,
+  categoryList,
   onEdited = () => {},
   onUpdate = () => {},
   onNextRequest = () => {},
@@ -39,10 +40,9 @@ const CreateIdeaDescription = ({
   const [valueDropdownIdeaCategory, setValueDropdownIdeaCategory] = useState(
     ideaDescription.category,
   );
-  const [itemsDropdownIdeaCategory, setItemsDropdownIdeaCategory] = useState([
-    {label: 'Lingkungan', value: '1'},
-    {label: 'Social Colaboration', value: '2'},
-  ]);
+  const [itemsDropdownIdeaCategory, setItemsDropdownIdeaCategory] = useState(
+    [],
+  );
 
   const takeCoverPhotoFromLibrary = () => {
     ImageCropPicker.openPicker({
@@ -69,6 +69,10 @@ const CreateIdeaDescription = ({
     setIdeaDescription({...ideaDescription, allowToJoin: value});
     onEdited();
   };
+
+  useEffect(() => {
+    setItemsDropdownIdeaCategory(categoryList ? JSON.parse(categoryList) : []);
+  }, [categoryList]);
 
   useEffect(() => {
     setIdeaDescription({

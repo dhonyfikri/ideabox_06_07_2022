@@ -1,8 +1,8 @@
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
-import { ApiGatewayBaseUrl } from '../Environment.cfg';
+import {ApiGatewayBaseUrl} from '../Environment.cfg';
 
-const GetIdeasAPI = token => {
+const GetIdeasAPI = (token, limit = 10) => {
   return new Promise(resolve => {
     // axios({
     //   crossDomain: true,
@@ -17,26 +17,25 @@ const GetIdeasAPI = token => {
       .get(`${ApiGatewayBaseUrl}/ideas`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          Tenant: `https://${jwtDecode(token).data.tenantSubdomain
-            }.ideaboxapp.app`,
+          Tenant: `https://${
+            jwtDecode(token).data.tenantSubdomain
+          }.ideaboxapp.app`,
         },
         params: {
           offset: 0,
-          limit: 10,
+          limit: limit,
         },
       })
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
         if (response.data.status === 200) {
-          console.log('ok');
           resolve({
             status: 'SUCCESS',
             message: 'Successfully fetching idea list',
             data: response.data.data,
           });
-          console.log('ok2');
         } else {
-          resolve({ status: 'SOMETHING_WRONG', message: 'Something went wrong' });
+          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
         }
       })
       .catch(error => {
@@ -72,8 +71,9 @@ const GetDetailIdeaAPI = (token, ideaId) => {
       .get(`${ApiGatewayBaseUrl}/ideas/${ideaId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          Tenant: `https://${jwtDecode(token).data.tenantSubdomain
-            }.ideaboxapp.app`,
+          Tenant: `https://${
+            jwtDecode(token).data.tenantSubdomain
+          }.ideaboxapp.app`,
         },
       })
       .then(response => {
@@ -85,7 +85,7 @@ const GetDetailIdeaAPI = (token, ideaId) => {
             data: response.data.data,
           });
         } else {
-          resolve({ status: 'SOMETHING_WRONG', message: 'Something went wrong' });
+          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
         }
       })
       .catch(error => {
@@ -149,12 +149,21 @@ const CreateIdeaAPI = (token, ideaDataToSubmit) => {
       'additionalFileLinkAttachment',
       JSON.stringify(ideaDataToSubmit.additionalFileLinkAttachment),
     );
+    ideaDataToSubmit.additionalFileAttachment.map(item => {
+      formData.append('additionalFileAttachment[]', {
+        uri: item.source,
+        name: item.name,
+        type: item.documentType,
+      });
+      formData.append('additionalFileAttachmentDescription[]', item.name);
+    });
     axios
       .post(`${ApiGatewayBaseUrl}/ideas`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          Tenant: `https://${jwtDecode(token).data.tenantSubdomain
-            }.ideaboxapp.app`,
+          Tenant: `https://${
+            jwtDecode(token).data.tenantSubdomain
+          }.ideaboxapp.app`,
         },
       })
       .then(response => {
@@ -165,7 +174,7 @@ const CreateIdeaAPI = (token, ideaDataToSubmit) => {
             message: response.data.status.message,
           });
         } else {
-          resolve({ status: 'SOMETHING_WRONG', message: 'Something went wrong' });
+          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
         }
       })
       .catch(error => {
@@ -251,8 +260,9 @@ const EditIdeaAPI = (token, ideaId, ideaDataToSubmit) => {
       .post(`${ApiGatewayBaseUrl}/ideas/${ideaId}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          Tenant: `https://${jwtDecode(token).data.tenantSubdomain
-            }.ideaboxapp.app`,
+          Tenant: `https://${
+            jwtDecode(token).data.tenantSubdomain
+          }.ideaboxapp.app`,
         },
       })
       .then(response => {
@@ -263,7 +273,7 @@ const EditIdeaAPI = (token, ideaId, ideaDataToSubmit) => {
             message: response.data.status.message,
           });
         } else {
-          resolve({ status: 'SOMETHING_WRONG', message: 'Something went wrong' });
+          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
         }
       })
       .catch(error => {
@@ -297,11 +307,12 @@ const DeleteIdeasAPI = (token, ideaId) => {
   return new Promise(resolve => {
     axios
       .delete(`${ApiGatewayBaseUrl}/ideas`, {
-        data: { id: ideaId },
+        data: {id: ideaId},
         headers: {
           Authorization: `Bearer ${token}`,
-          Tenant: `https://${jwtDecode(token).data.tenantSubdomain
-            }.ideaboxapp.app`,
+          Tenant: `https://${
+            jwtDecode(token).data.tenantSubdomain
+          }.ideaboxapp.app`,
         },
       })
       .then(response => {
@@ -313,7 +324,7 @@ const DeleteIdeasAPI = (token, ideaId) => {
             data: response.data.data,
           });
         } else {
-          resolve({ status: 'SOMETHING_WRONG', message: 'Something went wrong' });
+          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
         }
       })
       .catch(error => {
@@ -333,10 +344,88 @@ const DeleteIdeasAPI = (token, ideaId) => {
   });
 };
 
+const JoinIdeaRequestAPI = (token, ideaId) => {
+  return new Promise(resolve => {
+    axios
+      .post(
+        `${ApiGatewayBaseUrl}/ideas/${ideaId}/join`,
+        {notes: 'Boleh join ga?'},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Tenant: `https://${
+              jwtDecode(token).data.tenantSubdomain
+            }.ideaboxapp.app`,
+          },
+        },
+      )
+      .then(response => {
+        // console.log(response.data.data);
+        if (response.data.status === 200) {
+          resolve({
+            status: 'SUCCESS',
+            message: response.data.messages,
+          });
+        } else {
+          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
+        }
+      })
+      .catch(error => {
+        // console.log(error.response?.data?.message);
+        if (error.response?.status === 400) {
+          resolve({
+            status: 'ERROR',
+            message: error.response.data?.messages,
+          });
+        } else {
+          resolve({
+            status: 'SERVER_ERROR',
+            message: 'Failed to contact server',
+          });
+        }
+      });
+  });
+};
+
+const GetSubmittedIdeasAPI = token => {
+  return new Promise(resolve => {
+    axios
+      .get(`${ApiGatewayBaseUrl}/ideas/submitted`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Tenant: `https://${
+            jwtDecode(token).data.tenantSubdomain
+          }.ideaboxapp.app`,
+        },
+      })
+      .then(response => {
+        // console.log(response.data);
+        if (response.data.status === 200) {
+          resolve({
+            status: 'SUCCESS',
+            message: 'Successfully fetching submitted idea list',
+            data: response.data.data,
+          });
+        } else {
+          resolve({status: 'SOMETHING_WRONG', message: 'Something went wrong'});
+        }
+      })
+      .catch(error => {
+        // console.log(error.response?.data?.message);
+        resolve({
+          status: 'SERVER_ERROR',
+          message: 'Failed to contact server',
+        });
+      });
+  });
+};
+
 export {
   GetIdeasAPI,
   GetDetailIdeaAPI,
   CreateIdeaAPI,
   EditIdeaAPI,
   DeleteIdeasAPI,
+  JoinIdeaRequestAPI,
+  GetSubmittedIdeasAPI,
 };

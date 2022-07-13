@@ -83,6 +83,7 @@ import IcOutlinedRemove from './ic_outlined_remove.svg';
 import IcActiveTrash from './ic_active_trash.svg';
 import IcCalendar from './ic_calendar.svg';
 import IcTickLight from './ic_tick_light.svg';
+import IcTickGreen from './ic_tick_green.svg';
 import IcCloseLight from './ic_close_light.svg';
 import IcActiveOpenFile from './ic_active_open_file.svg';
 import IcTime from './ic_time.svg';
@@ -184,6 +185,7 @@ export {
   IcCalendar,
   IcChevronDown,
   IcTickLight,
+  IcTickGreen,
   IcCloseLight,
   IcActiveOpenFile,
   IcOutlinedRemove,

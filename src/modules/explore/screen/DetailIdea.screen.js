@@ -29,19 +29,24 @@ import RefreshFull from '../../../components/RefreshFull';
 import LeanCanvasItem from '../../../components/LeanCanvasItem';
 import LoadingProcessFull from '../../../components/LoadingProcessFull';
 import MultilineTextView from '../../../components/MultilineTextView';
-import {GetDetailIdeaAPI} from '../../../config/RequestAPI/IdeaAPI';
+import {
+  GetDetailIdeaAPI,
+  JoinIdeaRequestAPI,
+} from '../../../config/RequestAPI/IdeaAPI';
 import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
 import DummyResponseDetailIdea from '../../riset/DummyResponseDetailIdea';
-import CardComment from '../../../components/CardCommentSementara';
+import CardComment from '../../../components/CardComment';
 import ModalMessage from '../../../components/ModalMessage';
 import {AddLikeAPI} from '../../../config/RequestAPI/LikeAPI';
 import jwtDecode from 'jwt-decode';
 import {AddCommentAPI} from '../../../config/RequestAPI/CommentAPI';
 import {useBackHandler} from '@react-native-community/hooks';
+import {useSelector} from 'react-redux';
 
 const DetailIdeaScreen = ({navigation, route}) => {
   // const ideaData = _.cloneDeep(DummyResponseDetailIdea);
+  const stateGlobal = useSelector(state => state);
 
   const decodedJwt = route.params?.userToken
     ? jwtDecode(route.params.userToken.authToken)
@@ -122,8 +127,9 @@ const DetailIdeaScreen = ({navigation, route}) => {
   }
 
   const likeStatus =
-    ideaData?.like?.filter(item => item.createdBy === decodedJwt.data.id)
-      .length > 0;
+    ideaData?.like?.filter(
+      item => item.createdBy.id === stateGlobal.decodedToken?.data.id,
+    ).length > 0;
 
   const fetchIdeas = () => {
     setLoading({...loading, visible: true, message: 'Please wait'});
@@ -149,20 +155,20 @@ const DetailIdeaScreen = ({navigation, route}) => {
         setDisableLikeButton(false);
         console.log(res);
         const tempIdeaData = {...ideaData};
-        if (res.status === 'SUCCESS' || res.status === 'UNDEFINED_HEADER') {
+        if (res.status === 'SUCCESS') {
           setChanged();
           let temptLikeList = tempIdeaData.like;
           if (likeStatus) {
             temptLikeList = [];
             temptLikeList = ideaData?.like?.filter(
-              item => item.createdBy !== decodedJwt.data.id,
+              item => item.createdBy.id !== decodedJwt.data.id,
             );
             tempIdeaData.totalLike = tempIdeaData.totalLike - 1;
           } else {
             temptLikeList.push({
               // id: '5',
+              createdBy: {id: decodedJwt.data.id, name: decodedJwt.data.name},
               ideaId: route.params?.ideaId,
-              createdBy: decodedJwt.data.id,
             });
             tempIdeaData.totalLike = tempIdeaData.totalLike + 1;
           }
@@ -198,20 +204,7 @@ const DetailIdeaScreen = ({navigation, route}) => {
       console.log(res);
       if (res.status === 'SUCCESS' || res.status === 'UNDEFINED_HEADER') {
         setChanged();
-        const tempCommentList = [...ideaData.comment];
-        tempCommentList.push({
-          // id: '5',
-          ideaId: ideaData.id,
-          commentId: '0',
-          comment: commentText,
-          createdBy: decodedJwt.data.id,
-          replyComment: [],
-        });
-        setIdeaData({
-          ...ideaData,
-          comment: tempCommentList,
-          totalComment: ideaData.totalComment + 1,
-        });
+        fetchIdeas();
         setCommentText('');
       } else if (
         res.status === 'SOMETHING_WRONG' ||
@@ -219,6 +212,35 @@ const DetailIdeaScreen = ({navigation, route}) => {
         res.status === 'UNAUTHORIZED' ||
         res.status === 'SERVER_ERROR'
       ) {
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Failed',
+          message: res.message,
+          type: 'confused',
+          // onClose: () => {},
+        });
+      }
+    });
+  };
+
+  const handleJoinRequest = () => {
+    setLoading({...loading, visible: true, message: 'Sending join request'});
+    JoinIdeaRequestAPI(
+      stateGlobal.userToken?.authToken,
+      parseInt(route.params?.ideaId),
+    ).then(res => {
+      setLoading({...loading, visible: false});
+      if (res.status === 'SUCCESS') {
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Success',
+          message: res.message,
+          type: 'smile',
+          // onClose: () => {},
+        });
+      } else {
         setMessageModal({
           ...messageModal,
           visible: true,
@@ -279,15 +301,16 @@ const DetailIdeaScreen = ({navigation, route}) => {
         contentContainerStyle={styles.contentContainer}>
         <CardProfile
           withJoinButton={true}
-          userData={route.params?.creatorData}
+          userData={ideaData?.user}
           onCreatorPress={() => {
             navigation.navigate('MyProfile', {
               editable: false,
-              userId: route.params?.creatorData.id,
+              userId: ideaData?.user.id,
               userToken: route.params?.userToken,
               ideaData: route.params?.ideaDataList,
             });
           }}
+          onJoinButtonPress={() => handleJoinRequest()}
         />
         <Gap height={16} />
         <View style={styles.interactions}>
@@ -518,35 +541,32 @@ const DetailIdeaScreen = ({navigation, route}) => {
           </View>
           <Gap height={32} />
           <View style={{flex: 1}}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <FlatList
-                data={ideaData?.comment}
-                keyExtractor={(_, index) => index.toString()}
-                scrollEnabled={false}
-                showsVerticalScrollIndicator={false}
-                inverted={false}
-                renderItem={({item, index}) => {
-                  return (
-                    <>
-                      <CardComment
-                        userList={route.params?.listUser}
-                        commentsData={item}
-                        onMainRepplyPress={(commentId, creatorName) => {
-                          setReplyData({
-                            status: true,
-                            commentIdToReply: commentId,
-                            nameToReply: creatorName,
-                          });
-                        }}
-                      />
-                      {index !== ideaData.comment.length - 1 && (
-                        <Gap height={16} />
-                      )}
-                    </>
-                  );
-                }}
-              />
-            </ScrollView>
+            {/* <ScrollView showsVerticalScrollIndicator={false}> */}
+            <FlatList
+              data={ideaData?.comment ? [...ideaData?.comment]?.reverse() : []}
+              keyExtractor={(_, index) => index.toString()}
+              scrollEnabled={true}
+              showsVerticalScrollIndicator={false}
+              inverted={true}
+              renderItem={({item, index}) => {
+                return (
+                  <>
+                    {index !== 0 && <Gap height={16} />}
+                    <CardComment
+                      commentsData={item}
+                      onMainRepplyPress={(commentId, creatorName) => {
+                        setReplyData({
+                          status: true,
+                          commentIdToReply: commentId,
+                          nameToReply: creatorName,
+                        });
+                      }}
+                    />
+                  </>
+                );
+              }}
+            />
+            {/* </ScrollView> */}
             <Divider />
             <Gap height={18} />
             {replyData.status === true && (

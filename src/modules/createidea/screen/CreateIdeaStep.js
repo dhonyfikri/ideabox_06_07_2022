@@ -1,18 +1,19 @@
-import { useBackHandler } from '@react-native-community/hooks';
+import {useBackHandler} from '@react-native-community/hooks';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Dimensions,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
+import {useSelector} from 'react-redux';
 import CreateAdditionalAttachment from '../../../components/CreateAdditionalAttachment';
 import CreateIdeaDescription from '../../../components/CreateIdeaDescription';
 import CreateLeanCanvas from '../../../components/CreateLeanCanvas';
@@ -24,13 +25,15 @@ import Header from '../../../components/Header';
 import LoadingProcessFull from '../../../components/LoadingProcessFull';
 import ModalMessage from '../../../components/ModalMessage';
 import RefreshFull from '../../../components/RefreshFull';
-import { ApiGatewayBaseUrl } from '../../../config/Environment.cfg';
-import { CreateIdeaAPI, GetIdeasAPI } from '../../../config/RequestAPI/IdeaAPI';
-import { colors } from '../../../utils/ColorsConfig/Colors';
+import {ApiGatewayBaseUrl} from '../../../config/Environment.cfg';
+import {CreateIdeaAPI, GetIdeasAPI} from '../../../config/RequestAPI/IdeaAPI';
+import {GetNecessaryCreateIdeaAPI} from '../../../config/RequestAPI/MultipleAPI';
+import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
 
-const CreateIdeaStep = ({ navigation, route }) => {
+const CreateIdeaStep = ({navigation, route}) => {
   const decodedJwt = jwtDecode(route.params?.userToken.authToken);
+  const stateGlobal = useSelector(state => state);
   const onNextCreateIdeaDescriptionReff = useRef(null);
   const onNextCreateStoryBehindReff = useRef(null);
   const onNextCreateLeanCanvasReff = useRef(null);
@@ -51,6 +54,9 @@ const CreateIdeaStep = ({ navigation, route }) => {
   const [indexActive, setIndexActive] = useState(0);
   const [contentMounted, setContentMounted] = useState(false);
   const [submittedIdea, setSubmittedIdea] = useState(false);
+  const [categoryList, setCategoryList] = useState([]);
+  const [userData, setUserData] = useState(null);
+  const [allUserData, setAllUserData] = useState(null);
   const [edited, setEdited] = useState(false);
   const [
     messageDiscardCreateModalVisible,
@@ -62,7 +68,7 @@ const CreateIdeaStep = ({ navigation, route }) => {
   ] = useState(false);
   const [messageSuccessModalVisible, setMessageSuccessModalVisible] =
     useState(false);
-  const [listIdea, setListIdea] = useState({ isSet: false, data: [] });
+  const [listIdea, setListIdea] = useState({isSet: false, data: []});
   const [listUserData, setListUserData] = useState([]);
   const [loading, setLoading] = useState({
     visible: true,
@@ -74,7 +80,7 @@ const CreateIdeaStep = ({ navigation, route }) => {
     message: undefined,
     title: undefined,
     type: 'smile',
-    onClose: () => { },
+    onClose: () => {},
   });
 
   const [idea, setIdea] = useState({
@@ -99,203 +105,64 @@ const CreateIdeaStep = ({ navigation, route }) => {
       proposedSolution: [],
     },
     inviteUsers: [],
-    // attachment: [],
     additionalFileLinkAttachment: [],
+    additionalFileAttachment: [],
   });
 
   const stepSession = [
-    { key: '1', title: 'Idea Description', mandatory: true },
-    { key: '1.5', title: '' },
-    { key: '2', title: 'Story Behind', mandatory: true },
-    { key: '2.5', title: '' },
-    { key: '3', title: 'Lean Canvas', mandatory: true },
-    { key: '3.5', title: '' },
-    { key: '4', title: 'Teams', mandatory: true },
-    { key: '4.5', title: '' },
-    { key: '5', title: 'Additional Attachment', mandatory: false },
+    {key: '1', title: 'Idea Description', mandatory: true},
+    {key: '1.5', title: ''},
+    {key: '2', title: 'Story Behind', mandatory: true},
+    {key: '2.5', title: ''},
+    {key: '3', title: 'Lean Canvas', mandatory: true},
+    {key: '3.5', title: ''},
+    {key: '4', title: 'Teams', mandatory: true},
+    {key: '4.5', title: ''},
+    {key: '5', title: 'Additional Attachment', mandatory: false},
   ];
 
   const formSession = [
-    { key: '1' },
-    { key: '2' },
-    { key: '3' },
-    { key: '4' },
-    { key: '5' },
+    {key: '1'},
+    {key: '2'},
+    {key: '3'},
+    {key: '4'},
+    {key: '5'},
   ];
 
-  const formFieldConpletingHandler = (index, isCompleted) => {
+  const formFieldCompletingHandler = (index, isCompleted) => {
     if (eachFormSessionCompleted[index] !== isCompleted) {
       let tempEachFormSessionCompleted = [...eachFormSessionCompleted];
       tempEachFormSessionCompleted[index] = isCompleted;
       setEachFormSessionCompleted(tempEachFormSessionCompleted);
     }
   };
-  const fetchIdeas = () => {
-    setLoading({ ...loading, visible: true });
-    GetIdeasAPI(route.params?.userToken?.authToken).then(res => {
+
+  const fetchNecessaryData = () => {
+    setLoading({...loading, visible: true});
+    GetNecessaryCreateIdeaAPI(
+      stateGlobal.userToken?.authToken,
+      'idea',
+      stateGlobal.decodedToken?.data.id,
+    ).then(res => {
+      setLoading({...loading, visible: false});
       if (res.status === 'SUCCESS') {
-        let fixResult = [];
-        let uniqueUserId = [];
-        res.data.map(item => {
-          uniqueUserId.push(item.createdBy);
-          item.like.map(item => {
-            uniqueUserId.push(item.createdBy);
-          });
-          item.comment.map(item => {
-            uniqueUserId.push(item.createdBy);
-          });
-          uniqueUserId.push(
-            jwtDecode(route.params?.userToken?.authToken).data.id,
-          );
-        });
-        if (Object.keys(res.data).length > 0) {
-          uniqueUserId = [...new Set(uniqueUserId)];
-        }
-        const request = userId => {
-          return axios.get(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
-            headers: {
-              Authorization: `Bearer ${route.params?.userToken?.authToken}`,
-              Tenant: `https://${jwtDecode(route.params?.userToken?.authToken).data
-                .tenantSubdomain
-                }.ideaboxapp.com`,
-            },
-          });
-        };
-
-        const listUser = [];
-        const listGetUserRequest = [];
-
-        uniqueUserId.map(item => {
-          listGetUserRequest.push(request(item));
-        });
-
-        axios
-          .all(listGetUserRequest)
-          .then(
-            axios.spread((...responses) => {
-              responses.map(item => {
-                if (item.data.data.length > 0) {
-                  listUser.push(item.data.data[0]);
-                }
-              });
-              // console.log(listUser);
-              res.data.map(item => {
-                const tempItem = item;
-                listUser.map(item => {
-                  if (item.id === tempItem.createdBy) {
-                    tempItem.user = item;
-                  }
-                });
-                fixResult.push(tempItem);
-              });
-              setListIdea(fixResult);
-              setListUserData(listUser);
-              setLoading({ ...loading, visible: false });
-            }),
-          )
-          .catch(errors => {
-            setLoading({ ...loading, visible: false });
-            setShowRefreshButton(true);
-            console.log(errors);
-          });
-
-        // setData({isSet: true, data: res.data});
-      } else if (
-        res.status === 'SOMETHING_WRONG' ||
-        res.status === 'NOT_FOUND' ||
-        res.status === 'UNDEFINED_HEADER' ||
-        res.status === 'UNAUTHORIZED' ||
-        res.status === 'SERVER_ERROR'
-      ) {
-        setLoading({ ...loading, visible: false });
+        setCategoryList(
+          res.data?.categoryData.map(item => {
+            return {label: item.name, value: item.id};
+          }),
+        );
+        setUserData(res.data?.userData);
+        setAllUserData(
+          res.data?.allUserData.filter(item =>
+            item.email.includes(stateGlobal.decodedToken.data.tenantSubdomain),
+          ),
+        );
+      } else if (res.status === 'SERVER_ERROR') {
         setShowRefreshButton(true);
       }
     });
   };
-  /*
-    const fetchIdeas = () => {
-      setLoading({ ...loading, visible: true });
-      GetIdeasAPI(route.params?.userToken?.authToken).then(res => {
-        if (res.status === 'SUCCESS') {
-          let fixResult = [];
-          let uniqueUserId = [];
-          res.data.map(item => {
-            uniqueUserId.push(item.createdBy);
-            item.like.map(item => {
-              uniqueUserId.push(item.createdBy);
-            });
-            item.comment.map(item => {
-              uniqueUserId.push(item.createdBy);
-            });
-            uniqueUserId.push(
-              jwtDecode(route.params?.userToken?.authToken).data.id,
-            );
-          });
-          if (res.data.length > 0) {
-            uniqueUserId = [...new Set(uniqueUserId)];
-          }
-          const request = userId => {
-            return axios.get(`${ApiGatewayBaseUrl}/users/profile/${userId}`, {
-              headers: {
-                Authorization: `Bearer ${route.params?.userToken?.authToken}`,
-                Tenant: `https://${jwtDecode(route.params?.userToken?.authToken).data
-                  .tenantSubdomain
-                  }.ideaboxapp.com`,
-              },
-            });
-          };
-  
-          const listUser = [];
-          const listGetUserRequest = [];
-  
-          uniqueUserId.map(item => {
-            listGetUserRequest.push(request(item));
-          });
-  
-          axios
-            .all(listGetUserRequest)
-            .then(
-              axios.spread((...responses) => {
-                responses.map(item => {
-                  if (item.data.data.length > 0) {
-                    listUser.push(item.data.data[0]);
-                  }
-                });
-                // console.log(listUser);
-                res.data.map(item => {
-                  const tempItem = item;
-                  listUser.map(item => {
-                    if (item.id === tempItem.createdBy) {
-                      tempItem.user = item;
-                    }
-                  });
-                  fixResult.push(tempItem);
-                });
-                setListIdea(fixResult);
-                setListUserData(listUser);
-                setLoading({ ...loading, visible: false });
-              }),
-            )
-            .catch(errors => {
-              setLoading({ ...loading, visible: false });
-              setShowRefreshButton(true);
-              console.log(errors);
-            });
-  
-          // setData({isSet: true, data: res.data});
-        } else if (
-          res.status === 'SOMETHING_WRONG' ||
-          res.status === 'NOT_FOUND' ||
-          res.status === 'UNDEFINED_HEADER' ||
-          res.status === 'UNAUTHORIZED' ||
-          res.status === 'SERVER_ERROR'
-        ) {
-          setLoading({ ...loading, visible: false });
-          setShowRefreshButton(true);
-        }
-      });
-    };
-  */
+
   const cancelCreateIdea = () => {
     if (edited) {
       setMessageDiscardCreateModalVisible(true);
@@ -305,15 +172,17 @@ const CreateIdeaStep = ({ navigation, route }) => {
   };
 
   const postCreateIdea = () => {
-    setLoading({ ...loading, visible: true, message: 'Uploading your idea' });
-    CreateIdeaAPI(route.params?.userToken.authToken, idea).then(res => {
-      setLoading({ ...loading, visible: false });
+    setLoading({...loading, visible: true, message: 'Uploading your idea'});
+    CreateIdeaAPI(stateGlobal.userToken.authToken, idea).then(res => {
+      setLoading({...loading, visible: false});
       setSubmittedIdea(false);
-      if (res.status === 'SUCCESS' || res.status === 'BACKEND_ERROR') {
+      console.log(res);
+      if (res.status === 'SUCCESS') {
         setMessageSuccessModalVisible(true);
       } else if (
         res.status === 'SOMETHING_WRONG' ||
         res.status === 'UNAUTHORIZED' ||
+        res.status === 'BACKEND_ERROR' ||
         res.status === 'VALIDATION_ERROR' ||
         res.status === 'SERVER_ERROR'
       ) {
@@ -333,7 +202,7 @@ const CreateIdeaStep = ({ navigation, route }) => {
       screen: 'Home',
       params: {
         userToken: route.params?.userToken,
-        refresh: { status: true },
+        refresh: {status: true},
       },
     });
   };
@@ -361,17 +230,13 @@ const CreateIdeaStep = ({ navigation, route }) => {
   useEffect(() => {
     if (submittedIdea) {
       // setSubmittedIdea(false);
-      // console.log(idea);
+      // console.log(idea.additionalFileAttachment);
       postCreateIdea();
     }
   }, [submittedIdea]);
 
   useEffect(() => {
-    console.log(decodedJwt);
-    fetchIdeas();
-    // setTimeout(function () {
-    //   setLoading({ ...loading, visible: false });
-    // }, 2000);
+    fetchNecessaryData();
   }, []);
 
   return (
@@ -390,8 +255,10 @@ const CreateIdeaStep = ({ navigation, route }) => {
       />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
-        style={{ flex: 1 }}>
-        <ScrollView showsVerticalScrollIndicator={false}>
+        style={{flex: 1}}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}>
           <Gap height={16} />
           <FlatList
             ref={stepSessionRef}
@@ -410,7 +277,7 @@ const CreateIdeaStep = ({ navigation, route }) => {
             }}
             showsHorizontalScrollIndicator={false}
             horizontal
-            renderItem={({ item, index }) => {
+            renderItem={({item, index}) => {
               return (
                 <View style={styles.indicatorStepItemWrapper}>
                   {item.title === '' ? (
@@ -420,7 +287,7 @@ const CreateIdeaStep = ({ navigation, route }) => {
                       marginVertical={0}
                     />
                   ) : (
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
                       <View
                         style={styles.indicatorStepNumberContainer(
                           index === indexActive * 2,
@@ -439,7 +306,7 @@ const CreateIdeaStep = ({ navigation, route }) => {
                         )}>
                         {item.title}{' '}
                         {item.mandatory && (
-                          <Text style={{ color: colors.alert }}>*</Text>
+                          <Text style={{color: colors.alert}}>*</Text>
                         )}
                       </Text>
                     </View>
@@ -461,14 +328,16 @@ const CreateIdeaStep = ({ navigation, route }) => {
             }}
             onContentSizeChange={() => {
               if (!contentMounted) {
+                setLoading({...loading, visible: false});
                 setContentMounted(true);
               }
             }}
             showsHorizontalScrollIndicator={false}
             horizontal
-            renderItem={({ item, index }) => {
+            renderItem={({item, index}) => {
               return (
                 <ScrollView
+                  nestedScrollEnabled={true}
                   onContentSizeChange={(_, height) => {
                     const _eachSessionHeight = [...eachFormSessionHeight];
                     _eachSessionHeight[index] = height;
@@ -478,13 +347,16 @@ const CreateIdeaStep = ({ navigation, route }) => {
                     <View style={styles.sessionComponentWrapper}>
                       <CreateIdeaDescription
                         onNextReff={onNextCreateIdeaDescriptionReff}
+                        categoryList={JSON.stringify(
+                          categoryList ? categoryList : [],
+                        )}
                         onEdited={() => {
                           if (!edited) {
                             setEdited(true);
                           }
                         }}
                         onUpdate={isCompleted => {
-                          formFieldConpletingHandler(index, isCompleted);
+                          formFieldCompletingHandler(index, isCompleted);
                         }}
                         onNextRequest={newIdeaDescription => {
                           setIdea({
@@ -500,7 +372,7 @@ const CreateIdeaStep = ({ navigation, route }) => {
                       <CreateStoryBehind
                         onNextReff={onNextCreateStoryBehindReff}
                         onUpdate={isCompleted => {
-                          formFieldConpletingHandler(index, isCompleted);
+                          formFieldCompletingHandler(index, isCompleted);
                         }}
                         onNextRequest={newStoryBehind => {
                           setIdea({
@@ -516,7 +388,7 @@ const CreateIdeaStep = ({ navigation, route }) => {
                       <CreateLeanCanvas
                         onNextReff={onNextCreateLeanCanvasReff}
                         onUpdate={isCompleted => {
-                          formFieldConpletingHandler(index, isCompleted);
+                          formFieldCompletingHandler(index, isCompleted);
                         }}
                         onNextRequest={newLeanCanvas => {
                           setIdea({
@@ -531,10 +403,11 @@ const CreateIdeaStep = ({ navigation, route }) => {
                     <View style={styles.sessionComponentWrapper}>
                       <CreateTeams
                         onNextReff={onNextCreateTeamsReff}
-                        listUserData={listUserData}
-                        myId={decodedJwt?.data.id}
+                        allUserData={allUserData}
+                        userData={userData}
+                        myId={stateGlobal.decodedToken?.data.id}
                         onUpdate={isCompleted => {
-                          formFieldConpletingHandler(index, isCompleted);
+                          formFieldCompletingHandler(index, isCompleted);
                         }}
                         onNextRequest={newTeams => {
                           setIdea({
@@ -550,7 +423,7 @@ const CreateIdeaStep = ({ navigation, route }) => {
                       <CreateAdditionalAttachment
                         onNextReff={onNextCreateAdditionalAttachmentReff}
                         onUpdate={isCompleted => {
-                          formFieldConpletingHandler(index, isCompleted);
+                          formFieldCompletingHandler(index, isCompleted);
                         }}
                         onNextRequest={(
                           newFileAttachment,
@@ -559,6 +432,7 @@ const CreateIdeaStep = ({ navigation, route }) => {
                           setIdea({
                             ...idea,
                             additionalFileLinkAttachment: newLinkAttachment,
+                            additionalFileAttachment: newFileAttachment,
                           });
                         }}
                       />
@@ -618,7 +492,7 @@ const CreateIdeaStep = ({ navigation, route }) => {
         visible={showRefreshBUtton}
         onPress={() => {
           setShowRefreshButton(false);
-          // fetchIdeas();
+          fetchNecessaryData();
         }}
         onOffsetTouch={() => navigation.goBack()}
       />
@@ -718,11 +592,11 @@ const CreateIdeaStep = ({ navigation, route }) => {
         message={messageModal.message}
         withBackButton
         onBack={() => {
-          setMessageModal({ ...messageModal, visible: false });
+          setMessageModal({...messageModal, visible: false});
           messageModal.onClose();
         }}
         onRequestClose={() => {
-          setMessageModal({ ...messageModal, visible: false });
+          setMessageModal({...messageModal, visible: false});
           messageModal.onClose();
         }}
       />
@@ -733,7 +607,7 @@ const CreateIdeaStep = ({ navigation, route }) => {
 export default CreateIdeaStep;
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: 'white' },
+  page: {flex: 1, backgroundColor: 'white'},
   indicatorStepItemWrapper: {
     paddingHorizontal: 6,
     justifyContent: 'center',
@@ -785,10 +659,10 @@ const styles = StyleSheet.create({
       type === 'previous'
         ? colors.white
         : type === 'next'
-          ? colors.primary
-          : 'nextDisabled'
-            ? colors.border
-            : colors.primary,
+        ? colors.primary
+        : 'nextDisabled'
+        ? colors.border
+        : colors.primary,
   }),
   actionButtonText: (type = 'next') => ({
     fontFamily: fonts.secondary[600],
@@ -798,10 +672,10 @@ const styles = StyleSheet.create({
       type === 'previous'
         ? colors.primary
         : type === 'next'
-          ? colors.white
-          : 'nextDisabled'
-            ? colors.white
-            : colors.white,
+        ? colors.white
+        : 'nextDisabled'
+        ? colors.white
+        : colors.white,
   }),
   customSuccessMessageStyle: {
     fontFamily: fonts.primary[400],

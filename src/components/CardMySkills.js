@@ -6,10 +6,10 @@ import fonts from '../utils/FontsConfig/Fonts';
 const CardMySkills = ({skills = []}) => {
   return (
     <View style={styles.container(skills.length > 0)}>
-      {skills.map((item, index) => {
+      {skills?.map((item, index) => {
         return (
           <View key={index.toString()} style={styles.tag(false)}>
-            <Text style={styles.tagText}>{item}</Text>
+            <Text style={styles.tagText}>{item.name}</Text>
           </View>
         );
       })}

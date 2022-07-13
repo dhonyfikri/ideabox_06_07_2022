@@ -28,6 +28,9 @@ import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import Gap from './Gap';
 import Header from './Header';
+import {useDispatch, useSelector} from 'react-redux';
+import {useEffect} from 'react';
+import {GetUserById} from '../config/RequestAPI/UserAPI';
 
 const Tab = createBottomTabNavigator();
 
@@ -100,6 +103,24 @@ const CustomTabIcon = ({children, onPress}) => {
 };
 
 const TabNavigation = ({navigation, route}) => {
+  const dispatch = useDispatch();
+  const stateGlobal = useSelector(state => state);
+
+  useEffect(() => {
+    GetUserById(stateGlobal.userToken, stateGlobal.decodedToken.data.id).then(
+      res => {
+        if (res.status === 'SUCCESS') {
+          if (res.data.length > 0) {
+            dispatch({
+              type: 'SET_USER_DATA',
+              value: res.data[0],
+            });
+          }
+        }
+      },
+    );
+  }, []);
+
   return (
     <>
       <StatusBar backgroundColor={colors.secondary} barStyle="dark-content" />
@@ -130,9 +151,9 @@ const TabNavigation = ({navigation, route}) => {
           <Tab.Screen
             name="Home"
             component={ExploreContent}
-            initialParams={{
-              userToken: route.params?.userToken,
-            }}
+            // initialParams={{
+            //   userToken: stateGlobal.userToken,
+            // }}
             options={{
               headerShown: false,
               tabBarIcon: ({focused}) => (
@@ -161,7 +182,7 @@ const TabNavigation = ({navigation, route}) => {
           <Tab.Screen
             name="Create"
             component={MainCreateIdea}
-            initialParams={{userToken: route.params?.userToken}}
+            initialParams={{userToken: stateGlobal.userToken}}
             options={{
               headerShown: false,
               tabBarIcon: ({focused}) => (
@@ -206,7 +227,7 @@ const TabNavigation = ({navigation, route}) => {
             name="Profile"
             component={Profile}
             initialParams={{
-              userToken: route.params?.userToken,
+              userToken: stateGlobal.userToken,
             }}
             options={{
               headerShown: false,

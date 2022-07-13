@@ -8,9 +8,10 @@ const CardComment = ({commentsData, onMainRepplyPress = () => {}}) => {
     <View>
       <CardCommentItem
         imageThumb={commentsData.createdBy.pictures}
+        commentId={commentsData.id}
         name={commentsData.createdBy.name}
         comment={commentsData.comment}
-        onReplyPress={name => onMainRepplyPress(name)}
+        onReplyPress={(commentId, name) => onMainRepplyPress(commentId, name)}
       />
       {commentsData.replyComment.length > 0 && (
         <>

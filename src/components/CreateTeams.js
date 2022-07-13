@@ -9,7 +9,8 @@ import Gap from './Gap';
 
 const CreateTeams = ({
   onNextReff,
-  listUserData,
+  allUserData,
+  userData,
   myId,
   onUpdate = () => {},
   onNextRequest = () => {},
@@ -20,7 +21,7 @@ const CreateTeams = ({
     email: '',
     teamStructure: null,
     workingLocation: '',
-    unitId: null,
+    unit: null,
     notes: 'Join yuk',
   };
   const [teams, setTeams] = useState([blankTeam]);
@@ -42,27 +43,21 @@ const CreateTeams = ({
           ? tempTeamItem.teamStructure
           : 'Hipster',
       workingLocation: tempTeamItem.workingLocation,
-      unitId: tempTeamItem.unitId,
+      unit: tempTeamItem.unit,
       notes: 'Join yuk',
     };
     setTeams(tempTeams);
   };
 
-  const matchToUserList = (index, email) => {
-    let tempTeamItem = {
-      ...blankTeam,
-      teamStructure: teams[index].teamStructure,
-      email: teams[index].email,
-    };
-    for (let i = 0; i < listUserData?.length; i++) {
-      if (listUserData[i].email === email) {
-        if (teams.filter(item => item.id === listUserData[i].id).length === 0) {
-          tempTeamItem = {...tempTeamItem, ...listUserData[i]};
-        }
-        break;
-      }
+  const addTeamToList = (index, data) => {
+    if (teams.filter(item => item.id === data.id).length === 0) {
+      let tempTeamItem = {
+        ...blankTeam,
+        ...data,
+        email: teams[index].email,
+      };
+      reconstructTeams(index, tempTeamItem);
     }
-    reconstructTeams(index, tempTeamItem);
   };
 
   useEffect(() => {
@@ -70,14 +65,9 @@ const CreateTeams = ({
       ...blankTeam,
       teamStructure: teams[0].teamStructure,
     };
-    for (let i = 0; i < listUserData?.length; i++) {
-      if (listUserData[i].id === myId) {
-        tempTeamItem = {...tempTeamItem, ...listUserData[i]};
-        break;
-      }
-    }
+    tempTeamItem = {...tempTeamItem, ...userData};
     reconstructTeams(0, tempTeamItem);
-  }, [listUserData]);
+  }, [userData]);
 
   useEffect(() => {
     let isCompleted = true;
@@ -101,13 +91,15 @@ const CreateTeams = ({
 
   useEffect(() => {
     if (onNextReff !== undefined) {
-      const teamsToPass = teams.map(item => {
-        return {
-          userId: item.id,
-          teamStructure: item.teamStructure,
-          notes: item.notes,
-        };
-      });
+      const teamsToPass = teams
+        .filter((_, index) => index !== 0)
+        .map(item => {
+          return {
+            userId: item.id,
+            teamStructure: item.teamStructure,
+            notes: item.notes,
+          };
+        });
       onNextReff.current = () => onNextRequest(teamsToPass);
     }
   });
@@ -124,31 +116,19 @@ const CreateTeams = ({
                 disableEmailField={item.id === myId}
                 title={`Team Member ${index + 1}`}
                 withSelfDelete={index !== 0 ? true : false}
+                allUserData={allUserData}
                 emailValue={item.email}
+                onVerifiedEmail={data => {
+                  addTeamToList(index, data);
+                }}
                 onEmailChange={newEmail => {
-                  // let tempTeams = [...teams];
-                  // tempTeams[index].email = newEmail;
-                  // setTeams(tempTeams);
-                  matchToUserList(index, newEmail);
+                  let tempTeams = [...teams];
+                  tempTeams[index] = {...blankTeam, email: newEmail};
+                  setTeams(tempTeams);
                 }}
                 nameValue={item.name}
-                onNameChange={newName => {
-                  let tempTeams = [...teams];
-                  tempTeams[index].name = newName;
-                  setTeams(tempTeams);
-                }}
                 workingLocationValue={item.workingLocation}
-                onWorkingLocationChange={newWorkingLocation => {
-                  let tempTeams = [...teams];
-                  tempTeams[index].workingLocation = newWorkingLocation;
-                  setTeams(tempTeams);
-                }}
-                unitValue={item.unitId}
-                onUnitChange={newUnitId => {
-                  let tempTeams = [...teams];
-                  tempTeams[index].unitId = newUnitId;
-                  setTeams(tempTeams);
-                }}
+                unitValue={item.unit}
                 teamStructureItem={[
                   {label: 'Hipster', value: 'Hipster'},
                   {label: 'Hustler', value: 'Hustler'},

@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   TextInput,
@@ -12,26 +13,43 @@ import {
   IcTickLight,
   IcVerticalDivider,
 } from '../assets/icon';
+import {AddMySkillSetAPI, GetSkillSetAPI} from '../config/RequestAPI/UserAPI';
 import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
 import EditActionButton from './EditActionButton';
 import Gap from './Gap';
 import ModalMessage from './ModalMessage';
+import {useSelector} from 'react-redux';
+import LoadingProcessFull from './LoadingProcessFull';
 
 const AddMySkills = ({
   openModalDiscardReff,
-  recomendationSkills = [],
   mySkills = [],
   onSavePress = () => {},
   onDiscardPress,
 }) => {
+  const stateGlobal = useSelector(state => state);
   const [currentSkills, setCurrentSkills] = useState([]);
   const [inputText, setInputText] = useState('');
+  const [skillSet, setSkillSet] = useState(null);
+  const [fetchSkillSetLoading, setFetchSkillSetLoading] = useState(false);
+  const [showFailedFetch, setShowFailedFetch] = useState(false);
   const [messageDiscardAddModalVisible, setMessageDiscardAddModalVisible] =
     useState(false);
   const [messageSuccessModalVisible, setMessageSuccessModalVisible] =
     useState(false);
   const [edited, setEdited] = useState(false);
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
+  const [loading, setLoading] = useState({
+    visible: false,
+    message: 'Please wait',
+  });
 
   useEffect(() => {
     if (openModalDiscardReff !== undefined) {
@@ -39,12 +57,46 @@ const AddMySkills = ({
     }
   }, [edited]);
 
-  useEffect(() => {
-    const filteredRecomendationSkills = recomendationSkills
-      .filter(ar => !mySkills.find(rm => rm.toLowerCase() === ar.toLowerCase()))
-      .map(item => ({item: item, signed: false, isRecomendation: true}));
+  const saveNewSkill = () => {
+    setLoading({...loading, visible: true});
+    AddMySkillSetAPI(
+      stateGlobal.userToken,
+      currentSkills
+        .filter(skill => skill.signed === true)
+        .map(item => {
+          return item.item.id;
+        }),
+    ).then(res => {
+      setLoading({...loading, visible: false});
+      if (res.status === 'SUCCESS') {
+        setMessageSuccessModalVisible(true);
+      } else {
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Failed',
+          message: 'Server Error!',
+          type: 'confused',
+        });
+      }
+    });
+  };
 
-    setCurrentSkills(filteredRecomendationSkills);
+  useEffect(() => {
+    setFetchSkillSetLoading(true);
+    setShowFailedFetch(false);
+    GetSkillSetAPI(stateGlobal.userToken).then(res => {
+      setFetchSkillSetLoading(false);
+      if (res.status === 'SUCCESS') {
+        const filteredRecomendationSkills = res.data
+          .filter(ar => !mySkills.find(rm => rm.id === ar.id))
+          .map(item => ({item: item, signed: false, isRecomendation: true}));
+
+        setCurrentSkills(filteredRecomendationSkills);
+      } else {
+        setShowFailedFetch(true);
+      }
+    });
   }, []);
 
   const discard = () => {
@@ -63,6 +115,23 @@ const AddMySkills = ({
 
   return (
     <>
+      {fetchSkillSetLoading && (
+        <View style={{alignItems: 'center'}}>
+          <ActivityIndicator color={colors.primary} size="large" />
+        </View>
+      )}
+      {showFailedFetch && (
+        <View style={{alignItems: 'center'}}>
+          <Text
+            style={{
+              fontFamily: fonts.secondary[400],
+              fontSize: 14,
+              textAlign: 'center',
+            }}>
+            Server Error!
+          </Text>
+        </View>
+      )}
       <View style={styles.container(currentSkills.length > 0)}>
         {currentSkills.map((item, index) => {
           return (
@@ -83,7 +152,7 @@ const AddMySkills = ({
                 setCurrentSkills(newSkillsSet);
                 stateEdited();
               }}>
-              <Text style={styles.tagText(item.signed)}>{item.item}</Text>
+              <Text style={styles.tagText(item.signed)}>{item.item.name}</Text>
               <Gap width={2} />
               <IcVerticalDivider />
               <Gap width={2} />
@@ -95,8 +164,9 @@ const AddMySkills = ({
       <Gap height={24} />
       <View style={styles.skillInputContainer}>
         <TextInput
+          editable={false}
           style={styles.input}
-          placeholder="Add another skills"
+          placeholder="Temporarily this feature is not used"
           value={inputText}
           onChangeText={text => {
             setInputText(text);
@@ -137,8 +207,11 @@ const AddMySkills = ({
           !edited || currentSkills.filter(item => item.signed).length <= 0
         }
         onDiscardPress={() => discard()}
-        onSavePress={() => setMessageSuccessModalVisible(true)}
+        onSavePress={() => saveNewSkill()}
       />
+
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
+
       {/* modal discard confirmation message */}
       <ModalMessage
         visible={messageDiscardAddModalVisible}
@@ -171,17 +244,29 @@ const AddMySkills = ({
         withBackButton
         onBack={() => {
           setMessageSuccessModalVisible(false);
-          const newSkillsToAdd = currentSkills
-            .filter(item => item.signed)
-            .map(item => item.item);
-          onSavePress(newSkillsToAdd);
+          onSavePress();
         }}
         onRequestClose={() => {
           setMessageSuccessModalVisible(false);
-          const newSkillsToAdd = currentSkills
-            .filter(item => item.signed)
-            .map(item => item.item);
-          onSavePress(newSkillsToAdd);
+          onSavePress();
+        }}
+      />
+
+      {/* modal message */}
+      <ModalMessage
+        visible={messageModal.visible}
+        withIllustration
+        illustrationType={messageModal.type}
+        title={messageModal.title}
+        message={messageModal.message}
+        withBackButton
+        onBack={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+        onRequestClose={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
         }}
       />
     </>

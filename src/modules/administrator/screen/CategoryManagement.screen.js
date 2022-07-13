@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import {IcAddOrangeRounded, IcSearch} from '../../../assets/icon';
+import AddCategoryField from '../../../components/AddCategoryField';
 import CardCategoryTail from '../../../components/CardCategoryTail';
 import Divider from '../../../components/Divider';
 import EditActionButton from '../../../components/EditActionButton';
@@ -109,9 +110,8 @@ const CategoryManagement = ({navigation, route}) => {
   const refRBSheetAction = useRef();
 
   const [categoryData, setCategoryData] = useState([]);
-  const [categoryDataToShowm, setCategoryDataToShow] = useState([]);
+  const [categoryDataToShow, setCategoryDataToShow] = useState([]);
   const [searchText, setSearchText] = useState('');
-  const [selectedIdea, setSelectedIdea] = useState(null);
   // hanya pembantu selama api belum jalan
   const [listUserData, setListUserData] = useState([]);
   const [ideaDataList, setIdeaDataList] = useState([]);
@@ -121,14 +121,22 @@ const CategoryManagement = ({navigation, route}) => {
   //   Math.floor(Math.random() * Math.floor(Math.random() * Date.now())),
   // );
 
-  const [modalDeleteIdeaVisible, setModalDeleteIdeaVisible] = useState(false);
+  const [modalDeleteCategoryVisible, setModalDeleteCategoryVisible] =
+    useState(false);
+  const [modalAddCategoryVisible, setModalAddCategoryVisible] = useState(false);
   const [
-    messageSuccessDeleteIdeaModalVisible,
-    setMessageSuccessDeleteIdeaModalVisible,
+    messageSuccessDeleteCategoryModalVisible,
+    setMessageSuccessDeleteCategoryModalVisible,
   ] = useState(false);
+  const [
+    messageSuccessAddCategoryModalVisible,
+    setMessageSuccessAddCategoryModalVisible,
+  ] = useState(false);
+  const [messageSuccessActiveDeactive, setMessageSuccessActiveDeactive] =
+    useState({visible: false, type: 'active'});
   const [deleteIdeaMessage, setDeleteIdeaMessage] = useState('');
   const [loading, setLoading] = useState({
-    visible: true,
+    visible: false,
     message: 'Please Wait',
   });
   const [showRefreshBUtton, setShowRefreshButton] = useState(false);
@@ -166,6 +174,7 @@ const CategoryManagement = ({navigation, route}) => {
         }),
     );
     setLoading({...loading, visible: false});
+    setMessageSuccessActiveDeactive({visible: true, type: 'active'});
     refRBSheetAction.current.close();
   };
 
@@ -186,6 +195,7 @@ const CategoryManagement = ({navigation, route}) => {
         }),
     );
     setLoading({...loading, visible: false});
+    setMessageSuccessActiveDeactive({visible: true, type: 'deactive'});
     refRBSheetAction.current.close();
   };
 
@@ -199,8 +209,8 @@ const CategoryManagement = ({navigation, route}) => {
       ),
     );
     setLoading({...loading, visible: false});
-    setModalDeleteIdeaVisible(false);
-    setMessageSuccessDeleteIdeaModalVisible(true);
+    setModalDeleteCategoryVisible(false);
+    setMessageSuccessDeleteCategoryModalVisible(true);
   };
 
   const fetchIdeas = () => {
@@ -217,10 +227,10 @@ const CategoryManagement = ({navigation, route}) => {
           item.comment.map(item => {
             uniqueUserId.push(item.createdBy);
           });
-          uniqueUserId.push(
-            jwtDecode(route.params?.userToken?.authToken).data.id,
-          );
         });
+        uniqueUserId.push(
+          jwtDecode(route.params?.userToken?.authToken).data.id,
+        );
         if (res.data.length > 0) {
           uniqueUserId = [...new Set(uniqueUserId)];
         }
@@ -302,7 +312,7 @@ const CategoryManagement = ({navigation, route}) => {
   }, [categoryData]);
 
   useEffect(() => {
-    fetchIdeas();
+    // fetchIdeas();
     setCategoryData(dataFromServer);
   }, []);
 
@@ -313,7 +323,11 @@ const CategoryManagement = ({navigation, route}) => {
         onBackPress={() => navigation.goBack()}
         backText="Back"
         title="Category Management"
-        onNotificationPress={() => navigation.navigate('Notification')}
+        onNotificationPress={() =>
+          navigation.navigate('Notification', {
+            userToken: route.params?.userToken,
+          })
+        }
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -335,13 +349,13 @@ const CategoryManagement = ({navigation, route}) => {
             </TouchableOpacity>
           </View>
           <Gap width={4} />
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity onPress={() => setModalAddCategoryVisible(true)}>
             <IcAddOrangeRounded />
           </TouchableOpacity>
         </View>
         <Gap height={16} />
         <FlatList
-          data={categoryDataToShowm}
+          data={categoryDataToShow}
           keyExtractor={(_, index) => index.toString()}
           scrollEnabled={false}
           showsVerticalScrollIndicator={false}
@@ -432,7 +446,7 @@ const CategoryManagement = ({navigation, route}) => {
               style={{padding: 16}}
               onPress={() => {
                 refRBSheetAction.current.close();
-                setModalDeleteIdeaVisible(true);
+                setModalDeleteCategoryVisible(true);
               }}>
               <Text style={styles.buttonText('normal')}>Remove Category</Text>
             </TouchableOpacity>
@@ -463,21 +477,71 @@ const CategoryManagement = ({navigation, route}) => {
         visible={showRefreshBUtton}
         onPress={() => {
           setShowRefreshButton(false);
-          fetchIdeas();
+          // fetchIdeas();
         }}
         onOffsetTouch={() => navigation.goBack()}
       />
 
-      {/* Modal delete idea action */}
+      {/* Modal add category action */}
       <ModalAction
-        visible={modalDeleteIdeaVisible}
+        visible={modalAddCategoryVisible}
+        title="Add Category"
+        onCloseButtonPress={() => {
+          setModalAddCategoryVisible(false);
+        }}
+        onRequestClose={() => {
+          setModalAddCategoryVisible(false);
+        }}
+        contentBackground={colors.secondary}
+        withTitleDivider={false}>
+        <View
+          style={{
+            ...styles.noticeContainer,
+            backgroundColor: colors.divider,
+            marginHorizontal: -12,
+            paddingHorizontal: 12,
+            borderRadius: 0,
+          }}>
+          <Text style={styles.noticeText}>Add New Category</Text>
+        </View>
+        <Gap height={16} />
+        <AddCategoryField
+          categoryTypeItem={[
+            {label: 'Main Category', value: '1'},
+            {label: 'Sub Category', value: '2'},
+          ]}
+          mainCategoryItem={categoryData
+            .filter(item => item.parentId === '0')
+            .map(item => {
+              return {label: item.categoryName, value: item.id};
+            })}
+          onDiscardPress={() => {
+            setModalAddCategoryVisible(false);
+          }}
+          onSave={newCategory => {
+            let tempCategoryData = [...categoryData];
+            tempCategoryData.push({
+              ...newCategory,
+              createdBy: decodedJwt.data.id,
+              updatedBy: decodedJwt.data.id,
+            });
+            setCategoryData(tempCategoryData);
+            setModalAddCategoryVisible(false);
+            setMessageSuccessAddCategoryModalVisible(true);
+          }}
+        />
+      </ModalAction>
+
+      {/* Modal delete category action */}
+      <ModalAction
+        visible={modalDeleteCategoryVisible}
         title="Delete Idea"
         onCloseButtonPress={() => {
-          setModalDeleteIdeaVisible(false);
+          setModalDeleteCategoryVisible(false);
           setDeleteIdeaMessage('');
         }}
         onRequestClose={() => {
-          setModalDeleteIdeaVisible(false);
+          setModalDeleteCategoryVisible(false);
           setDeleteIdeaMessage('');
         }}
         contentBackground={colors.secondary}
@@ -531,7 +595,7 @@ const CategoryManagement = ({navigation, route}) => {
         <EditActionButton
           disableSaveButton={deleteIdeaMessage.trim().length <= 0}
           onDiscardPress={() => {
-            setModalDeleteIdeaVisible(false);
+            setModalDeleteCategoryVisible(false);
             setDeleteIdeaMessage('');
           }}
           onSavePress={() => {
@@ -539,9 +603,31 @@ const CategoryManagement = ({navigation, route}) => {
           }}
         />
       </ModalAction>
-      {/* modal success delete idea message */}
+
+      {/* modal success add category message */}
       <ModalMessage
-        visible={messageSuccessDeleteIdeaModalVisible}
+        visible={messageSuccessAddCategoryModalVisible}
+        withIllustration
+        illustrationType="smile"
+        title="Success"
+        message={
+          <Text>
+            You have <Text style={{color: colors.success}}>added</Text> this
+            category
+          </Text>
+        }
+        withBackButton
+        onBack={() => {
+          setMessageSuccessAddCategoryModalVisible(false);
+        }}
+        onRequestClose={() => {
+          setMessageSuccessAddCategoryModalVisible(false);
+        }}
+      />
+
+      {/* modal success delete category message */}
+      <ModalMessage
+        visible={messageSuccessDeleteCategoryModalVisible}
         withIllustration
         illustrationType="confused"
         title="You’re all done"
@@ -553,10 +639,46 @@ const CategoryManagement = ({navigation, route}) => {
         }
         withBackButton
         onBack={() => {
-          setMessageSuccessDeleteIdeaModalVisible(false);
+          setMessageSuccessDeleteCategoryModalVisible(false);
         }}
         onRequestClose={() => {
-          setMessageSuccessDeleteIdeaModalVisible(false);
+          setMessageSuccessDeleteCategoryModalVisible(false);
+        }}
+      />
+
+      {/* modal success active deactive message */}
+      <ModalMessage
+        visible={messageSuccessActiveDeactive.visible}
+        withIllustration
+        illustrationType={
+          messageSuccessActiveDeactive.type === 'active' ? 'smile' : 'confused'
+        }
+        title="You’re all done"
+        message={
+          messageSuccessActiveDeactive.type === 'active' ? (
+            <Text>
+              You have <Text style={{color: colors.success}}>Activated</Text>{' '}
+              this category
+            </Text>
+          ) : (
+            <Text>
+              You have <Text style={{color: colors.reject}}>Deactivated</Text>{' '}
+              category status!
+            </Text>
+          )
+        }
+        withBackButton
+        onBack={() => {
+          setMessageSuccessActiveDeactive({
+            ...messageSuccessActiveDeactive,
+            visible: false,
+          });
+        }}
+        onRequestClose={() => {
+          setMessageSuccessActiveDeactive({
+            ...messageSuccessActiveDeactive,
+            visible: false,
+          });
         }}
       />
     </View>
@@ -672,5 +794,15 @@ const styles = StyleSheet.create({
     fontFamily: fonts.primary[400],
     fontSize: 16,
     color: colors.text.tertiary,
+  },
+  noticeContainer: {
+    paddingVertical: 20,
+    borderRadius: 16,
+  },
+  noticeText: {
+    fontFamily: fonts.secondary[500],
+    fontSize: 16,
+    lineHeight: 24,
+    color: colors.text.primary,
   },
 });

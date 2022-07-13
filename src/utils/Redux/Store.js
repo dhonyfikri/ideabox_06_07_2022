@@ -16,6 +16,9 @@ const initialState = {
   storyBehindHeight: 0,
   leanCanvasHeight: 0,
   teamsHeight: 0,
+  userToken: null,
+  decodedToken: null,
+  userData: null,
 };
 
 const reducer = (state = initialState, action) => {
@@ -42,6 +45,15 @@ const reducer = (state = initialState, action) => {
   }
   if (action.type === 'SET_TEAMS_HEIGHT') {
     return {...state, teamsHeight: action.value};
+  }
+  if (action.type === 'SET_USER_TOKEN') {
+    return {...state, userToken: action.value};
+  }
+  if (action.type === 'SET_DECODED_TOKEN') {
+    return {...state, decodedToken: action.value};
+  }
+  if (action.type === 'SET_USER_DATA') {
+    return {...state, userData: action.value};
   }
 
   return state;

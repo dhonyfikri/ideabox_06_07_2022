@@ -1,5 +1,4 @@
-import jwtDecode from 'jwt-decode';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -11,45 +10,51 @@ import {
   View,
 } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { IcLikeActive, IcLikeInactive, IcSmileEmote } from '../assets/icon';
-import { AddCommentAPI } from '../config/RequestAPI/CommentAPI';
-import { AddLikeAPI } from '../config/RequestAPI/LikeAPI';
-import { colors } from '../utils/ColorsConfig/Colors';
+import {useSelector} from 'react-redux';
+import {IcLikeActive, IcLikeInactive, IcSmileEmote} from '../assets/icon';
+import {AddCommentAPI} from '../config/RequestAPI/CommentAPI';
+import {AddLikeAPI} from '../config/RequestAPI/LikeAPI';
+import {colors} from '../utils/ColorsConfig/Colors';
 import fonts from '../utils/FontsConfig/Fonts';
-import CardComment from './CardCommentSementara';
+import CardComment from './CardComment';
+import CardReply from './CardReply';
+import Divider from './Divider';
 import Gap from './Gap';
-import { InitialIcon, InitialNumberIcon } from './InitialIcon';
+import {InitialIcon, InitialNumberIcon} from './InitialIcon';
 import LoadingProcessFull from './LoadingProcessFull';
 import ModalMessage from './ModalMessage';
-import Divider from './Divider';
-import CardReply from './CardReply';
+import {MediaAddress} from '../config/Environment.cfg';
+import {JoinIdeaRequestAPI} from '../config/RequestAPI/IdeaAPI';
 
 const CardContentNew = ({
-  userToken,
   ideaId,
   creatorId,
   creatorName,
+  creatorPicture,
   title,
   description,
+  cover,
   likes,
   comments,
-  listUser,
-  onCreatorPress = () => { },
-  onIdeaPress = () => { },
+  // listUser,
+  onCreatorPress = () => {},
+  onIdeaPress = () => {},
+  onCommentChange,
 }) => {
+  const stateGlobal = useSelector(state => state);
   const refRBSheetComment = useRef();
-  const decodedJwt = jwtDecode(userToken.authToken);
+  const decodedJwt = stateGlobal.decodedToken;
   const [likeList, setLikeList] = useState([]);
   const [commentList, setCommentList] = useState([]);
   const [classicCommentText, setClassicCommentText] = useState('');
   const [advanceCommentText, setAdvanceCommentText] = useState('');
-  const [loading, setLoading] = useState({ visible: false, message: undefined });
+  const [loading, setLoading] = useState({visible: false, message: undefined});
   const [messageModal, setMessageModal] = useState({
     visible: false,
     message: undefined,
     title: undefined,
     type: 'smile',
-    onClose: () => { },
+    onClose: () => {},
   });
   const [replyData, setReplyData] = useState({
     replying: false,
@@ -59,15 +64,13 @@ const CardContentNew = ({
   const [disableLikeButton, setDisableLikeButton] = useState(false);
 
   const likeStatus =
-    likeList.filter(item => item.createdBy === decodedJwt.data.id).length > 0;
+    likeList.filter(
+      item => item.createdBy.id === stateGlobal.decodedToken?.data.id,
+    ).length > 0;
 
-  const lastLikeUser = listUser
-    .map(
-      userItem =>
-        userItem.id === likeList.slice(-1)[0]?.createdBy && userItem.name,
-    )
-    .filter(item => item !== false)[0]
-    ?.replace(/(?:^|\s)\S/g, function (a) {
+  const lastLikeUser = likeList
+    .slice(-1)[0]
+    ?.createdBy.name.replace(/(?:^|\s)\S/g, function (a) {
       return a.toUpperCase();
     });
 
@@ -75,25 +78,40 @@ const CardContentNew = ({
     setClassicCommentText('');
     setCommentList(comments ? comments : []);
     setLikeList(likes ? likes : []);
-  }, [ideaId, creatorId, creatorName, title, description, likes, comments]);
+  }, [
+    ideaId,
+    creatorId,
+    creatorName,
+    creatorPicture,
+    title,
+    description,
+    likes,
+    comments,
+  ]);
 
   const handleLike = () => {
     setDisableLikeButton(true);
-    AddLikeAPI(userToken.authToken, parseInt(ideaId)).then(res => {
+    AddLikeAPI(stateGlobal.userToken?.authToken, parseInt(ideaId)).then(res => {
       setDisableLikeButton(false);
       console.log(res);
-      if (res.status === 'SUCCESS' || res.status === 'UNDEFINED_HEADER') {
+      if (res.status === 'SUCCESS') {
         let temptLikeList = [...likeList];
         if (likeStatus) {
           temptLikeList = [];
           temptLikeList = likeList.filter(
-            item => item.createdBy !== decodedJwt.data.id,
+            item => item.createdBy.id !== stateGlobal.decodedToken?.data.id,
           );
         } else {
           temptLikeList.push({
-            // id: '5',
-            ideaId: ideaId,
-            createdBy: decodedJwt.data.id,
+            // id: '12',
+            createdBy: {
+              id: stateGlobal.decodedToken?.data.id,
+              name: stateGlobal.decodedToken?.data.name,
+              teamStructure: stateGlobal.userData?.teamStructure,
+              roleId: stateGlobal.decodedToken?.data.roleId,
+              pictures: stateGlobal.userData?.pictures,
+            },
+            createdDate: '2022-07-06 03:18:29',
           });
         }
         setLikeList(temptLikeList);
@@ -101,6 +119,7 @@ const CardContentNew = ({
         res.status === 'SOMETHING_WRONG' ||
         res.status === 'NOT_FOUND' ||
         res.status === 'UNAUTHORIZED' ||
+        res.status === 'UNDEFINED_HEADER' ||
         res.status === 'SERVER_ERROR'
       ) {
         setMessageModal({
@@ -117,31 +136,23 @@ const CardContentNew = ({
 
   const handleComment = (type = 'CLASSIC') => {
     if (type) {
-      setLoading({ ...loading, visible: true, message: 'Adding your comment' });
+      setLoading({...loading, visible: true, message: 'Adding your comment'});
       AddCommentAPI(
-        userToken.authToken,
+        stateGlobal.userToken?.authToken,
         parseInt(ideaId),
         type === 'CLASSIC' ? classicCommentText : advanceCommentText,
       ).then(res => {
-        setLoading({ ...loading, visible: false });
-        console.log(res);
-        if (res.status === 'SUCCESS' || res.status === 'UNDEFINED_HEADER') {
+        setLoading({...loading, visible: false});
+        // console.log(res);
+        if (res.status === 'SUCCESS') {
           const tempCommentList = [...commentList];
-          tempCommentList.push({
-            // id: '5',
-            ideaId: ideaId,
-            commentId: '0',
-            comment:
-              type === 'CLASSIC' ? classicCommentText : advanceCommentText,
-            createdBy: decodedJwt.data.id,
-            replyComment: [],
-          });
-          setCommentList(tempCommentList);
+          onCommentChange();
           setClassicCommentText('');
           setAdvanceCommentText('');
         } else if (
           res.status === 'SOMETHING_WRONG' ||
           res.status === 'NOT_FOUND' ||
+          res.status === 'UNDEFINED_HEADER' ||
           res.status === 'UNAUTHORIZED' ||
           res.status === 'SERVER_ERROR'
         ) {
@@ -156,6 +167,34 @@ const CardContentNew = ({
         }
       });
     }
+  };
+
+  const handleJoinRequest = () => {
+    setLoading({...loading, visible: true, message: 'Sending join request'});
+    JoinIdeaRequestAPI(stateGlobal.userToken?.authToken, parseInt(ideaId)).then(
+      res => {
+        setLoading({...loading, visible: false});
+        if (res.status === 'SUCCESS') {
+          setMessageModal({
+            ...messageModal,
+            visible: true,
+            title: 'Success',
+            message: res.message,
+            type: 'smile',
+            // onClose: () => {},
+          });
+        } else {
+          setMessageModal({
+            ...messageModal,
+            visible: true,
+            title: 'Failed',
+            message: res.message,
+            type: 'confused',
+            // onClose: () => {},
+          });
+        }
+      },
+    );
   };
 
   return (
@@ -182,11 +221,25 @@ const CardContentNew = ({
             marginRight: 8,
           }}
           onPress={() => onCreatorPress(creatorId)}>
-          <InitialIcon width={36} height={36} name={creatorName} />
+          <View
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 36 / 2,
+              overflow: 'hidden',
+            }}>
+            <View style={{position: 'absolute', left: 0, top: 0}}>
+              <InitialIcon width={36} height={36} name={creatorName} />
+            </View>
+            <Image
+              style={{width: '100%', height: '100%', resizeMode: 'cover'}}
+              source={{uri: `${MediaAddress}/${creatorPicture}`}}
+            />
+          </View>
           <Gap width={8} />
           <Text
             numberOfLines={1}
-            style={{ fontFamily: 'Poppins-SemiBold', fontSize: 12, flex: 1 }}>
+            style={{fontFamily: 'Poppins-SemiBold', fontSize: 12, flex: 1}}>
             {creatorName}
           </Text>
         </TouchableOpacity>
@@ -195,7 +248,7 @@ const CardContentNew = ({
             paddingVertical: 6.5,
             paddingHorizontal: 8,
             backgroundColor:
-              creatorId === decodedJwt.data?.id
+              creatorId === stateGlobal.decodedToken?.data.id
                 ? colors.success
                 : colors.primary,
             borderRadius: 32,
@@ -203,11 +256,16 @@ const CardContentNew = ({
             justifyContent: 'center',
             alignItems: 'center',
           }}
-          disabled={creatorId === decodedJwt.data?.id ? true : false}>
-          {creatorId !== decodedJwt.data?.id ? (
+          onPress={() => {
+            handleJoinRequest();
+          }}
+          disabled={
+            creatorId === stateGlobal.decodedToken?.data.id ? true : false
+          }>
+          {creatorId !== stateGlobal.decodedToken?.data.id ? (
             <Image
               source={require('../assets/icon/joinidea.png')}
-              style={{ width: 20, height: 20 }}
+              style={{width: 20, height: 20}}
             />
           ) : (
             <Gap height={20} />
@@ -221,26 +279,33 @@ const CardContentNew = ({
               lineHeight: 14,
               marginHorizontal: 8,
             }}>
-            {creatorId === decodedJwt.data?.id ? 'Joined' : 'Join Idea'}
+            {creatorId === stateGlobal.decodedToken?.data.id
+              ? 'Joined'
+              : 'Join Idea'}
           </Text>
         </TouchableOpacity>
       </View>
       <TouchableOpacity
-        style={{ marginVertical: 17, flexDirection: 'row' }}
+        style={{marginVertical: 17, flexDirection: 'row'}}
         onPress={() => onIdeaPress(ideaId)}>
-        <Image
-          source={require('../assets/icon/dummyhistory.png')}
+        <View
           style={{
             width: 96,
             height: 96,
             borderRadius: 8,
             marginRight: 16,
-          }}
-        />
-        <View style={{ flex: 1 }}>
+            overflow: 'hidden',
+            backgroundColor: colors.divider,
+          }}>
+          <Image
+            style={{width: '100%', height: '100%', resizeMode: 'cover'}}
+            source={{uri: `${MediaAddress}/${cover}`}}
+          />
+        </View>
+        <View style={{flex: 1}}>
           <Text
             numberOfLines={2}
-            style={{ fontFamily: 'Poppins-Bold', fontSize: 16 }}>
+            style={{fontFamily: 'Poppins-Bold', fontSize: 16}}>
             {title}
           </Text>
           <Text
@@ -255,7 +320,7 @@ const CardContentNew = ({
           </Text>
         </View>
       </TouchableOpacity>
-      <View style={{ height: 1, backgroundColor: '#D3D2D2' }} />
+      <View style={{height: 1, backgroundColor: '#D3D2D2'}} />
       <View
         style={{
           flexDirection: 'row',
@@ -263,7 +328,7 @@ const CardContentNew = ({
           marginVertical: 21,
         }}>
         <TouchableOpacity
-          style={{ width: 26, height: 26, justifyContent: 'center' }}
+          style={{width: 26, height: 26, justifyContent: 'center'}}
           onPress={() => {
             if (!disableLikeButton) {
               handleLike();
@@ -280,20 +345,33 @@ const CardContentNew = ({
               }}>
               {likeList.slice(-3).map((likeItem, index) => {
                 return (
-                  <InitialIcon
-                    key={index.toString()}
-                    width={26}
-                    height={26}
-                    marginLeft={index === 0 ? 0 : -5}
-                    name={
-                      listUser
-                        .map(
-                          userItem =>
-                            userItem.id === likeItem.createdBy && userItem.name,
-                        )
-                        .filter(item => item !== false)[0]
-                    }
-                  />
+                  <View
+                    style={{
+                      width: 26,
+                      height: 26,
+                      borderRadius: 26 / 2,
+                      overflow: 'hidden',
+                      marginLeft: index === 0 ? 0 : -5,
+                    }}>
+                    <View style={{position: 'absolute', left: 0, top: 0}}>
+                      <InitialIcon
+                        key={index.toString()}
+                        width={26}
+                        height={26}
+                        name={likeItem.createdBy?.name}
+                      />
+                    </View>
+                    <Image
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        resizeMode: 'cover',
+                      }}
+                      source={{
+                        uri: `${MediaAddress}/${likeItem.createdBy?.pictures}`,
+                      }}
+                    />
+                  </View>
                 );
               })}
               {likeList.length > 3 && (
@@ -305,9 +383,10 @@ const CardContentNew = ({
               )}
             </View>
             <View
-              style={{
-                minWidth: 100,
-              }}>
+            // style={{
+            //   minWidth: 100,
+            // }}
+            >
               <Text
                 numberOfLines={1}
                 style={{
@@ -315,36 +394,36 @@ const CardContentNew = ({
                   fontSize: 12,
                 }}>
                 Liked by{' '}
-                <Text style={{ fontWeight: 'bold' }}>
+                <Text style={{fontWeight: 'bold'}}>
                   {lastLikeUser
                     ? lastLikeUser.length === 0
                       ? '-'
                       : lastLikeUser.length < 9
-                        ? lastLikeUser
-                        : lastLikeUser.slice(0, 9 - 3) + '...'
+                      ? lastLikeUser
+                      : lastLikeUser.slice(0, 9 - 3) + '...'
                     : '-'}
                 </Text>
               </Text>
             </View>
-            <View style={{ flex: 1 }}>
+            <View style={{flex: 1, minWidth: 95}}>
               {likeList.length > 1 && (
                 <Text
                   numberOfLines={1}
-                  style={{ fontFamily: 'Roboto-Regular', fontSize: 12 }}>
+                  style={{fontFamily: 'Roboto-Regular', fontSize: 12}}>
                   {' and '}
                   {likeList.length - 1 <= 999
                     ? likeList.length - 1
                     : '+999'}{' '}
-                  <Text style={{ fontWeight: 'bold' }}>Others</Text>
+                  <Text style={{fontWeight: 'bold'}}>Others</Text>
                 </Text>
               )}
             </View>
           </>
         ) : (
-          <View numberOfLines={1} style={{ flex: 1, marginLeft: 8 }}>
+          <View numberOfLines={1} style={{flex: 1, marginLeft: 8}}>
             <Text
               numberOfLines={1}
-              style={{ fontFamily: 'Roboto-Regular', fontSize: 12 }}>
+              style={{fontFamily: 'Roboto-Regular', fontSize: 12}}>
               {' '}
               No likes yet
             </Text>
@@ -363,25 +442,24 @@ const CardContentNew = ({
               View all {commentList ? commentList.length : 0} comment
             </Text>
           </TouchableOpacity>
-          <View style={{ marginVertical: 16 }}>
+          <View style={{marginVertical: 16}}>
             {commentList.slice(-2).map((itemComment, index) => (
               <Text
                 key={index.toString()}
+                numberOfLines={2}
                 style={{
                   fontFamily: 'Roboto-Regular',
                   fontSize: 12,
                   marginBottom: 8,
                 }}>
-                <Text numberOfLines={1} style={{ fontWeight: 'bold' }}>
-                  {listUser.map(
-                    itemUser =>
-                      itemComment.createdBy === itemUser.id &&
-                      itemUser.name.replace(/(?:^|\s)\S/g, function (a) {
-                        return a.toUpperCase();
-                      }),
-                  )}
+                <Text style={{fontWeight: 'bold'}}>
+                  {itemComment.createdBy.name?.replace(
+                    /(?:^|\s)\S/g,
+                    function (a) {
+                      return a.toUpperCase();
+                    },
+                  )}{' '}
                 </Text>
-                <Text style={{ fontWeight: 'bold' }}>{itemComment.createdBy.name}{' '}</Text>{itemComment.createdBy.name}
                 {itemComment.comment}
               </Text>
             ))}
@@ -403,7 +481,32 @@ const CardContentNew = ({
             alignItems: 'flex-start',
             flex: 1,
           }}>
-          <InitialIcon width={26} height={26} name={decodedJwt.data.name} />
+          <View
+            style={{
+              width: 26,
+              height: 26,
+              borderRadius: 26 / 2,
+              overflow: 'hidden',
+            }}>
+            <View style={{position: 'absolute', left: 0, top: 0}}>
+              <InitialIcon
+                width={26}
+                height={26}
+                name={stateGlobal.decodedToken?.data.name}
+              />
+            </View>
+            <Image
+              style={{
+                width: '100%',
+                height: '100%',
+                resizeMode: 'cover',
+              }}
+              source={{
+                uri: `${MediaAddress}/${stateGlobal.userData?.pictures}`,
+              }}
+            />
+          </View>
+
           <Gap width={8} />
           <TextInput
             placeholder="Add Comment..."
@@ -460,9 +563,10 @@ const CardContentNew = ({
           },
         }}>
         <View style={styles.bottomSheetContentContainer}>
-          <View style={{ flexDirection: 'row' }}>
+          <View style={{flexDirection: 'row'}}>
             <Text style={styles.bottomSheetTitle}>
               {commentList.length > 100 ? '100+' : commentList.length}
+              {' Comment'}
               {commentList.length > 1 && 's'}
             </Text>
             <TouchableOpacity
@@ -472,34 +576,39 @@ const CardContentNew = ({
             </TouchableOpacity>
           </View>
           <Gap height={32} />
-          <View style={{ flex: 1 }}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <FlatList
-                data={commentList}
-                keyExtractor={(_, index) => index.toString()}
-                scrollEnabled={false}
-                showsVerticalScrollIndicator={false}
-                inverted={false}
-                renderItem={({ item, index }) => {
-                  return (
-                    <>
-                      <CardComment
-                        userList={listUser}
-                        commentsData={item}
-                        onMainRepplyPress={(commentId, creatorName) => {
-                          setReplyData({
-                            status: true,
-                            commentIdToReply: commentId,
-                            nameToReply: creatorName,
-                          });
-                        }}
-                      />
-                      {index !== commentList.length - 1 && <Gap height={16} />}
-                    </>
-                  );
-                }}
-              />
-            </ScrollView>
+          <View style={{flex: 1}}>
+            {/* <ScrollView showsVerticalScrollIndicator={false}> */}
+            <FlatList
+              data={[...commentList]?.reverse()}
+              keyExtractor={(_, index) => index.toString()}
+              scrollEnabled={true}
+              showsVerticalScrollIndicator={false}
+              inverted={true}
+              renderItem={({item, index}) => {
+                return (
+                  <>
+                    {index !== 0 && <Gap height={16} />}
+                    <CardComment
+                      // userList={listUser}
+                      commentsData={item}
+                      onMainRepplyPress={(commentId, creatorName) => {
+                        setReplyData({
+                          status: true,
+                          commentIdToReply: commentId,
+                          nameToReply: creatorName?.replace(
+                            /(?:^|\s)\S/g,
+                            function (a) {
+                              return a.toUpperCase();
+                            },
+                          ),
+                        });
+                      }}
+                    />
+                  </>
+                );
+              }}
+            />
+            {/* </ScrollView> */}
             <Divider />
             <Gap height={18} />
             {replyData.status === true && (
@@ -507,7 +616,7 @@ const CardContentNew = ({
                 <CardReply
                   name={replyData.nameToReply}
                   onClosePress={() =>
-                    setReplyData({ ...replyData, status: false })
+                    setReplyData({...replyData, status: false})
                   }
                 />
                 <Gap height={12} />
@@ -524,7 +633,7 @@ const CardContentNew = ({
                 borderColor: colors.text.primary,
                 overflow: 'hidden',
               }}>
-              <View style={{ flex: 1, justifyContent: 'center' }}>
+              <View style={{flex: 1, justifyContent: 'center'}}>
                 <TextInput
                   autoCorrect={false}
                   placeholder="Leave a comment"
@@ -537,12 +646,12 @@ const CardContentNew = ({
                     color: colors.text.primary,
                     padding: 0,
                   }}>
-                  <Text style={{ lineHeight: 22 }}>{advanceCommentText}</Text>
+                  <Text style={{lineHeight: 22}}>{advanceCommentText}</Text>
                 </TextInput>
               </View>
               <Gap width={16} />
-              <View style={{ justifyContent: 'flex-end' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{justifyContent: 'flex-end'}}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
                   <TouchableOpacity>
                     <IcSmileEmote />
                   </TouchableOpacity>
@@ -586,11 +695,11 @@ const CardContentNew = ({
         message={messageModal.message}
         withBackButton
         onBack={() => {
-          setMessageModal({ ...messageModal, visible: false });
+          setMessageModal({...messageModal, visible: false});
           messageModal.onClose();
         }}
         onRequestClose={() => {
-          setMessageModal({ ...messageModal, visible: false });
+          setMessageModal({...messageModal, visible: false});
           messageModal.onClose();
         }}
       />

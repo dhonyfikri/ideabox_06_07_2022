@@ -6,6 +6,9 @@ import fonts from '../utils/FontsConfig/Fonts';
 import EditActionButton from './EditActionButton';
 import Gap from './Gap';
 import ModalMessage from './ModalMessage';
+import {useSelector} from 'react-redux';
+import {EditMySkillSetAPI} from '../config/RequestAPI/UserAPI';
+import LoadingProcessFull from './LoadingProcessFull';
 
 const EditMySkills = ({
   openModalDiscardReff,
@@ -13,12 +16,49 @@ const EditMySkills = ({
   onSavePress = () => {},
   onDiscardPress,
 }) => {
+  const stateGlobal = useSelector(state => state);
   const [currentSkills, setCurrentSkills] = useState([...skills]);
   const [messageDiscardEditModalVisible, setMessageDiscardEditModalVisible] =
     useState(false);
   const [messageSuccessModalVisible, setMessageSuccessModalVisible] =
     useState(false);
   const [edited, setEdited] = useState(false);
+  const [messageModal, setMessageModal] = useState({
+    visible: false,
+    message: undefined,
+    title: undefined,
+    type: 'smile',
+    onClose: () => {},
+  });
+  const [loading, setLoading] = useState({
+    visible: false,
+    message: 'Please wait',
+  });
+
+  const saveEditSkill = () => {
+    setLoading({...loading, visible: true});
+    EditMySkillSetAPI(
+      stateGlobal.userToken,
+      currentSkills
+        .filter(skill => true)
+        .map(item => {
+          return item.id;
+        }),
+    ).then(res => {
+      setLoading({...loading, visible: false});
+      if (res.status === 'SUCCESS') {
+        setMessageSuccessModalVisible(true);
+      } else {
+        setMessageModal({
+          ...messageModal,
+          visible: true,
+          title: 'Failed',
+          message: 'Server Error!',
+          type: 'confused',
+        });
+      }
+    });
+  };
 
   useEffect(() => {
     if (openModalDiscardReff !== undefined) {
@@ -49,7 +89,7 @@ const EditMySkills = ({
         {currentSkills.map((item, index) => {
           return (
             <View key={index.toString()} style={styles.tag}>
-              <Text style={styles.tagText}>{item}</Text>
+              <Text style={styles.tagText}>{item.name}</Text>
               <Gap width={2} />
               <IcVerticalDivider />
               <Gap width={2} />
@@ -70,8 +110,11 @@ const EditMySkills = ({
       <EditActionButton
         disableSaveButton={!edited}
         onDiscardPress={() => discard()}
-        onSavePress={() => setMessageSuccessModalVisible(true)}
+        onSavePress={() => saveEditSkill()}
       />
+
+      <LoadingProcessFull visible={loading.visible} message={loading.message} />
+
       {/* modal discard confirmation message */}
       <ModalMessage
         visible={messageDiscardEditModalVisible}
@@ -104,11 +147,29 @@ const EditMySkills = ({
         withBackButton
         onBack={() => {
           setMessageSuccessModalVisible(false);
-          onSavePress(currentSkills);
+          onSavePress();
         }}
         onRequestClose={() => {
           setMessageSuccessModalVisible(false);
-          onSavePress(currentSkills);
+          onSavePress();
+        }}
+      />
+
+      {/* modal message */}
+      <ModalMessage
+        visible={messageModal.visible}
+        withIllustration
+        illustrationType={messageModal.type}
+        title={messageModal.title}
+        message={messageModal.message}
+        withBackButton
+        onBack={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
+        }}
+        onRequestClose={() => {
+          setMessageModal({...messageModal, visible: false});
+          messageModal.onClose();
         }}
       />
     </>

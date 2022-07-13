@@ -1,8 +1,7 @@
-import { useIsFocused } from '@react-navigation/native';
-import axios from 'axios';
-import jwtDecode from 'jwt-decode';
-import React, { useEffect, useRef, useState } from 'react';
+import {useIsFocused} from '@react-navigation/native';
+import React, {useEffect, useRef, useState} from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   RefreshControl,
@@ -14,18 +13,22 @@ import {
   View,
 } from 'react-native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
-import { RadioButton } from 'react-native-paper';
+import {RadioButton} from 'react-native-paper';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import {useDispatch, useSelector} from 'react-redux';
 import CardContentNew from '../../../components/CardContentNew';
+import Gap from '../../../components/Gap';
 import ModalMessage from '../../../components/ModalMessage';
-import { ApiGatewayBaseUrl } from '../../../config/Environment.cfg';
-import { GetIdeasAPI } from '../../../config/RequestAPI/IdeaAPI';
-import { colors } from '../../../utils/ColorsConfig/Colors';
+import {GetIdeasAPI} from '../../../config/RequestAPI/IdeaAPI';
+import {GetUserById} from '../../../config/RequestAPI/UserAPI';
+import {colors} from '../../../utils/ColorsConfig/Colors';
 import fonts from '../../../utils/FontsConfig/Fonts';
 import styles from '../style/Explore.style';
 
-const ExploreContent = ({ navigation, route }) => {
-  const [data, setData] = useState({ isSet: false, data: [] });
+const ExploreContent = ({navigation, route}) => {
+  const dispatch = useDispatch();
+  const stateGlobal = useSelector(state => state);
+  const [data, setData] = useState({isSet: false, data: []});
   const [listUserData, setListUserData] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(false);
   const [search, setSearch] = useState(false);
@@ -36,13 +39,15 @@ const ExploreContent = ({ navigation, route }) => {
   const [mostLikedIdea, setMostLikedIdea] = useState(false);
   const [mostCommentedIdea, setMostCommentedIdea] = useState(false);
   const [mostProductiveInovator, setMostProductiveInovator] = useState(false);
+  const [showIdeaLimit, setShowIdeaLimit] = useState(10);
+  const [getMoreIdeaLoading, setGetMoreIdeaLoading] = useState(false);
 
   const [messageModal, setMessageModal] = useState({
     visible: false,
     message: undefined,
     title: undefined,
     type: 'smile',
-    onClose: () => { },
+    onClose: () => {},
   });
 
   //filter
@@ -55,23 +60,42 @@ const ExploreContent = ({ navigation, route }) => {
   const [checked5, setChecked5] = useState(false);
   const [checked6, setChecked6] = useState(false);
 
-  const fetchIdeas = withIndicator => {
+  const fetchIdeas = (withIndicator, showLimit = 10) => {
     if (withIndicator) {
       setFetchLoading(true);
     }
-    console.log(route.params?.userToken?.authToken);
-    GetIdeasAPI(route.params?.userToken?.authToken).then(res => {
+    GetIdeasAPI(stateGlobal.userToken?.authToken, showLimit).then(res => {
+      setFetchLoading(false);
       if (res.status === 'SUCCESS') {
-        setData({ isSet: true, data: res.data });
-        setFetchLoading(false);
+        setData({isSet: true, data: res.data});
       }
     });
+  };
+
+  const getMoreIdeas = () => {
+    if (
+      !getMoreIdeaLoading &&
+      !fetchLoading &&
+      data.data?.length <= showIdeaLimit
+    ) {
+      setGetMoreIdeaLoading(true);
+      const tempShowIdeaLimit = showIdeaLimit + 10;
+      GetIdeasAPI(stateGlobal.userToken?.authToken, tempShowIdeaLimit).then(
+        res => {
+          setGetMoreIdeaLoading(false);
+          if (res.status === 'SUCCESS') {
+            setShowIdeaLimit(tempShowIdeaLimit);
+            setData({isSet: true, data: res.data});
+          }
+        },
+      );
+    }
   };
 
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    if (route.params?.userToken) {
+    if (stateGlobal.userToken !== null) {
       fetchIdeas(true);
     }
   }, []);
@@ -84,7 +108,7 @@ const ExploreContent = ({ navigation, route }) => {
     if (route.params?.refresh?.status) {
       navigation.setParams({
         ...route.params,
-        refresh: { status: false },
+        refresh: {status: false},
       });
     }
   }, [route.params?.refresh]);
@@ -97,7 +121,7 @@ const ExploreContent = ({ navigation, route }) => {
           justifyContent: 'space-between',
           marginBottom: 12,
         }}>
-        <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 14 }}>
+        <Text style={{fontFamily: 'Poppins-Regular', fontSize: 14}}>
           {props.name}
         </Text>
         <BouncyCheckbox
@@ -143,15 +167,15 @@ const ExploreContent = ({ navigation, route }) => {
   const ContainerHistory = props => {
     return (
       <View style={styles.containerHistory}>
-        <TouchableOpacity style={{ flex: 1 }}>
-          <Text style={{ fontFamily: 'Poppins-Medium', fontSize: 12 }}>
+        <TouchableOpacity style={{flex: 1}}>
+          <Text style={{fontFamily: 'Poppins-Medium', fontSize: 12}}>
             {props.title}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity>
           <Image
             source={require('../../../assets/icon/crossnew.png')}
-            style={{ width: 12, height: 12 }}
+            style={{width: 12, height: 12}}
           />
         </TouchableOpacity>
       </View>
@@ -161,7 +185,7 @@ const ExploreContent = ({ navigation, route }) => {
   const SearchHistory = () => {
     return (
       <View>
-        <TouchableOpacity style={{ alignItems: 'flex-end', padding: 16 }}>
+        <TouchableOpacity style={{alignItems: 'flex-end', padding: 16}}>
           <Text style={styles.textClear}>Clear History</Text>
         </TouchableOpacity>
         <ContainerHistory title={'Bisnis'} />
@@ -174,7 +198,7 @@ const ExploreContent = ({ navigation, route }) => {
   const ContainerLikeComment = props => {
     return (
       <View style={styles.containerMost}>
-        <Image source={props.leaderboard} style={{ width: 56, height: 56 }} />
+        <Image source={props.leaderboard} style={{width: 56, height: 56}} />
         <Image
           source={props.coveridea}
           style={{
@@ -184,8 +208,8 @@ const ExploreContent = ({ navigation, route }) => {
             marginHorizontal: 16,
           }}
         />
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>
+        <View style={{flex: 1}}>
+          <Text style={{fontFamily: 'Poppins-SemiBold', fontSize: 14}}>
             {props.titleidea}
           </Text>
           <View
@@ -203,7 +227,7 @@ const ExploreContent = ({ navigation, route }) => {
                 borderRadius: 26,
               }}
             />
-            <Text style={{ fontFamily: 'Roboto-Bold', fontSize: 12 }}>
+            <Text style={{fontFamily: 'Roboto-Bold', fontSize: 12}}>
               {props.name}
             </Text>
           </View>
@@ -220,7 +244,7 @@ const ExploreContent = ({ navigation, route }) => {
                 marginRight: 8,
               }}
             />
-            <Text style={{ fontFamily: 'Roboto-Regular', fontSize: 12, flex: 1 }}>
+            <Text style={{fontFamily: 'Roboto-Regular', fontSize: 12, flex: 1}}>
               {props.total} People {props.likecomment} this idea
             </Text>
           </View>
@@ -231,9 +255,9 @@ const ExploreContent = ({ navigation, route }) => {
 
   const MostLikedIdea = () => {
     return (
-      <View style={{ padding: 16 }}>
+      <View style={{padding: 16}}>
         <Text
-          style={{ fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16 }}>
+          style={{fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16}}>
           This Week
         </Text>
         <ContainerLikeComment
@@ -292,9 +316,9 @@ const ExploreContent = ({ navigation, route }) => {
 
   const MostCommentedIdea = () => {
     return (
-      <View style={{ padding: 16 }}>
+      <View style={{padding: 16}}>
         <Text
-          style={{ fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16 }}>
+          style={{fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16}}>
           This Week
         </Text>
         <ContainerLikeComment
@@ -334,7 +358,7 @@ const ExploreContent = ({ navigation, route }) => {
   const ContainerProductive = props => {
     return (
       <View style={styles.containerMost}>
-        <Image source={props.leaderboard} style={{ width: 56, height: 56 }} />
+        <Image source={props.leaderboard} style={{width: 56, height: 56}} />
         <Image
           source={props.imageavatar}
           style={{
@@ -345,7 +369,7 @@ const ExploreContent = ({ navigation, route }) => {
           }}
         />
         <View>
-          <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>
+          <Text style={{fontFamily: 'Poppins-SemiBold', fontSize: 14}}>
             {props.name}
           </Text>
           <View
@@ -354,7 +378,7 @@ const ExploreContent = ({ navigation, route }) => {
               alignItems: 'center',
               marginVertical: 4,
             }}>
-            <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 12 }}>
+            <Text style={{fontFamily: 'Poppins-Regular', fontSize: 12}}>
               {props.division}
             </Text>
           </View>
@@ -363,7 +387,7 @@ const ExploreContent = ({ navigation, route }) => {
               flexDirection: 'row',
               alignItems: 'center',
             }}>
-            <Text style={{ fontFamily: 'Poppins-Bold', fontSize: 12 }}>
+            <Text style={{fontFamily: 'Poppins-Bold', fontSize: 12}}>
               Submitted {props.total} Ideas
             </Text>
           </View>
@@ -374,9 +398,9 @@ const ExploreContent = ({ navigation, route }) => {
 
   const MostProductive = () => {
     return (
-      <View style={{ padding: 16 }}>
+      <View style={{padding: 16}}>
         <Text
-          style={{ fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16 }}>
+          style={{fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 16}}>
           This Week
         </Text>
         <ContainerProductive
@@ -408,7 +432,7 @@ const ExploreContent = ({ navigation, route }) => {
     return (
       <View>
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-          <View style={{ flexDirection: 'row' }}>
+          <View style={{flexDirection: 'row'}}>
             <TouchableOpacity
               onPress={() => {
                 setSearchHistory(true);
@@ -418,12 +442,12 @@ const ExploreContent = ({ navigation, route }) => {
               }}
               style={[
                 styles.rowSearch,
-                { borderBottomColor: searchHistory ? '#7C4BFF' : '#9CA3AF' },
+                {borderBottomColor: searchHistory ? '#7C4BFF' : '#9CA3AF'},
               ]}>
               <Text
                 style={[
                   styles.textRowSearch,
-                  { color: searchHistory ? 'black' : '#9CA3AF' },
+                  {color: searchHistory ? 'black' : '#9CA3AF'},
                 ]}>
                 Search History
               </Text>
@@ -437,12 +461,12 @@ const ExploreContent = ({ navigation, route }) => {
               }}
               style={[
                 styles.rowSearch,
-                { borderBottomColor: mostLikedIdea ? '#7C4BFF' : '#9CA3AF' },
+                {borderBottomColor: mostLikedIdea ? '#7C4BFF' : '#9CA3AF'},
               ]}>
               <Text
                 style={[
                   styles.textRowSearch,
-                  { color: mostLikedIdea ? 'black' : '#9CA3AF' },
+                  {color: mostLikedIdea ? 'black' : '#9CA3AF'},
                 ]}>
                 Most Liked Idea
               </Text>
@@ -463,7 +487,7 @@ const ExploreContent = ({ navigation, route }) => {
               <Text
                 style={[
                   styles.textRowSearch,
-                  { color: mostCommentedIdea ? 'black' : '#9CA3AF' },
+                  {color: mostCommentedIdea ? 'black' : '#9CA3AF'},
                 ]}>
                 Most Commented Idea
               </Text>
@@ -486,7 +510,7 @@ const ExploreContent = ({ navigation, route }) => {
               <Text
                 style={[
                   styles.textRowSearch,
-                  { color: mostProductiveInovator ? 'black' : '#9CA3AF' },
+                  {color: mostProductiveInovator ? 'black' : '#9CA3AF'},
                 ]}>
                 Most Productive Inovator
               </Text>
@@ -517,7 +541,7 @@ const ExploreContent = ({ navigation, route }) => {
         }}>
         <Image
           source={require('../../../assets/icon/dummyhistory.png')}
-          style={{ width: 80, height: 80, borderRadius: 4, marginRight: 16 }}
+          style={{width: 80, height: 80, borderRadius: 4, marginRight: 16}}
         />
         <View>
           <Text
@@ -528,7 +552,7 @@ const ExploreContent = ({ navigation, route }) => {
             }}>
             Idea 1
           </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Image
               source={require('../../../assets/icon/dummyavatar.png')}
               style={{
@@ -538,7 +562,7 @@ const ExploreContent = ({ navigation, route }) => {
                 marginRight: 4,
               }}
             />
-            <Text style={{ fontFamily: 'Roboto-Bold', fontSize: 14 }}>
+            <Text style={{fontFamily: 'Roboto-Bold', fontSize: 14}}>
               Vanesha Sirsilla
             </Text>
           </View>
@@ -551,7 +575,7 @@ const ExploreContent = ({ navigation, route }) => {
       <SafeAreaView style={styles.container}>
         <ScrollView>
           <View
-            style={{ flexDirection: 'row', alignItems: 'center', padding: 16 }}>
+            style={{flexDirection: 'row', alignItems: 'center', padding: 16}}>
             <TouchableOpacity onPress={() => setSearch(false)}>
               <Image
                 source={require('../../../assets/icon/backnew.png')}
@@ -561,9 +585,9 @@ const ExploreContent = ({ navigation, route }) => {
                 }}
               />
             </TouchableOpacity>
-            <View style={[styles.searchBar, { marginHorizontal: 5, flex: 1 }]}>
+            <View style={[styles.searchBar, {marginHorizontal: 5, flex: 1}]}>
               <TextInput
-                style={{ fontSize: 12, color: 'black', padding: 0 }}
+                style={{fontSize: 12, color: 'black', padding: 0}}
                 placeholder="Search..."
                 onChangeText={val => setSearchInput(val)}
               />
@@ -598,16 +622,16 @@ const ExploreContent = ({ navigation, route }) => {
                 }}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View
-                    style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    style={{justifyContent: 'center', alignItems: 'center'}}>
                     <Text
-                      style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>
+                      style={{fontFamily: 'Poppins-SemiBold', fontSize: 14}}>
                       Filter
                     </Text>
                   </View>
-                  <Text style={{ fontFamily: 'Poppins-Bold', fontSize: 16 }}>
+                  <Text style={{fontFamily: 'Poppins-Bold', fontSize: 16}}>
                     Idea Category
                   </Text>
-                  <Text style={{ fontFamily: 'Poppins-Light', fontSize: 12 }}>
+                  <Text style={{fontFamily: 'Poppins-Light', fontSize: 12}}>
                     You can select multiple options
                   </Text>
                   <View
@@ -672,18 +696,18 @@ const ExploreContent = ({ navigation, route }) => {
                       marginBottom: 12,
                     }}>
                     <Text
-                      style={{ fontFamily: 'Poppin-Regular', color: '#6B7280' }}>
+                      style={{fontFamily: 'Poppin-Regular', color: '#6B7280'}}>
                       Other Category
                     </Text>
                     <Image
                       source={require('../../../assets/icon/arrowdown.png')}
-                      style={{ width: 10, height: 6, marginRight: 6 }}
+                      style={{width: 10, height: 6, marginRight: 6}}
                     />
                   </TouchableOpacity>
-                  <Text style={{ fontFamily: 'Poppins-Bold', fontSize: 16 }}>
+                  <Text style={{fontFamily: 'Poppins-Bold', fontSize: 16}}>
                     Team Member
                   </Text>
-                  <Text style={{ fontFamily: 'Poppins-Light', fontSize: 12 }}>
+                  <Text style={{fontFamily: 'Poppins-Light', fontSize: 12}}>
                     Number of members in each team
                   </Text>
                   <View
@@ -793,7 +817,7 @@ const ExploreContent = ({ navigation, route }) => {
   }
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{ padding: 16 }}>
+      <View style={{padding: 16}}>
         <TouchableOpacity
           activeOpacity={1}
           style={styles.searchBar}
@@ -811,16 +835,9 @@ const ExploreContent = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView
-        refreshControl={
-          <RefreshControl
-            refreshing={fetchLoading}
-            onRefresh={() => fetchIdeas(true)}
-            colors={['#085D7A']} // add more array value to switching colors while progressing
-          />
-        }
-        contentContainerStyle={{
-          flexGrow: 1,
+      <View
+        style={{
+          flex: 1,
           justifyContent: 'center',
           padding: data.isSet && data.data.length === 0 ? 20 : 0,
           paddingBottom: 20,
@@ -838,52 +855,82 @@ const ExploreContent = ({ navigation, route }) => {
         ) : (
           <>
             <FlatList
-              data={data.data}
+              refreshControl={
+                <RefreshControl
+                  refreshing={fetchLoading}
+                  onRefresh={() => fetchIdeas(true)}
+                  colors={['#085D7A']} // add more array value to switching colors while progressing
+                />
+              }
+              onEndReached={({distanceFromEnd}) => {
+                console.log(distanceFromEnd);
+                if (distanceFromEnd >= 0) {
+                  getMoreIdeas();
+                }
+              }}
+              onEndReachedThreshold={0.1}
+              data={data.data.concat([{isAdditionalLoading: true}])}
               keyExtractor={(_, index) => index.toString()}
-              scrollEnabled={false}
+              scrollEnabled={true}
               showsVerticalScrollIndicator={false}
               inverted={false}
-              renderItem={({ item, index }) => (
-                <CardContentNew
-                  ideaId={item.id}
-                  userToken={route.params?.userToken}
-                  creatorId={item.user?.id}
-                  creatorName={item.user?.name?.replace(
-                    /(?:^|\s)\S/g,
-                    function (a) {
-                      return a.toUpperCase();
-                    },
-                  )}
-                  listUser={listUserData}
-                  title={item.desc[0].value}
-                  description={item.desc[1].value}
-                  likes={item.like}
-                  // totalComments={item.totalComment}
-                  comments={item.comment}
-                  // onLikeOrComment={() => fetchIdeas(true)}
-                  onIdeaPress={ideaId =>
-                    navigation.navigate('DetailIdea', {
-                      ideaId: ideaId,
-                      userToken: route.params?.userToken,
-                      creatorData: item.user,
-                      listUser: listUserData,
-                      ideaDataList: data.data,
-                    })
-                  }
-                  onCreatorPress={creatorId =>
-                    navigation.navigate('MyProfile', {
-                      editable: false,
-                      userId: creatorId,
-                      userToken: route.params?.userToken,
-                      ideaData: data.data,
-                    })
-                  }
-                />
-              )}
+              renderItem={({item, index}) =>
+                !item.isAdditionalLoading ? (
+                  <CardContentNew
+                    ideaId={item.id}
+                    creatorId={item.user?.id}
+                    creatorName={item.user?.name?.replace(
+                      /(?:^|\s)\S/g,
+                      function (a) {
+                        return a.toUpperCase();
+                      },
+                    )}
+                    creatorPicture={item.user?.pictures}
+                    // listUser={listUserData}
+                    title={item.desc[0].value}
+                    description={item.desc[1].value}
+                    cover={item.desc[2]?.value}
+                    likes={item.like}
+                    comments={item.comment}
+                    onIdeaPress={ideaId =>
+                      navigation.navigate('DetailIdea', {
+                        ideaId: ideaId,
+                        userToken: stateGlobal.userToken,
+                        // creatorData: item.user,
+                        // listUser: listUserData,
+                        ideaDataList: data.data,
+                      })
+                    }
+                    onCreatorPress={creatorId =>
+                      navigation.navigate('MyProfile', {
+                        editable: false,
+                        userId: creatorId,
+                        userToken: stateGlobal.userToken,
+                        ideaData: data.data,
+                      })
+                    }
+                    onCommentChange={() => {
+                      fetchIdeas(true);
+                    }}
+                  />
+                ) : (
+                  getMoreIdeaLoading && (
+                    <>
+                      <View style={{alignItems: 'center'}}>
+                        <ActivityIndicator
+                          color={colors.primary}
+                          size="large"
+                        />
+                      </View>
+                      <Gap height={16} />
+                    </>
+                  )
+                )
+              }
             />
           </>
         )}
-      </ScrollView>
+      </View>
       {/* modal message */}
       <ModalMessage
         visible={messageModal.visible && isFocused}
@@ -893,11 +940,11 @@ const ExploreContent = ({ navigation, route }) => {
         message={messageModal.message}
         withBackButton
         onBack={() => {
-          setMessageModal({ ...messageModal, visible: false });
+          setMessageModal({...messageModal, visible: false});
           messageModal.onClose();
         }}
         onRequestClose={() => {
-          setMessageModal({ ...messageModal, visible: false });
+          setMessageModal({...messageModal, visible: false});
           messageModal.onClose();
         }}
       />

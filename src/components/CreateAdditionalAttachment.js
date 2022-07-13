@@ -15,12 +15,14 @@ const CreateAdditionalAttachment = ({
 }) => {
   const blankAttachment = {
     type: null,
+    documentType: '',
     source: '',
     desc: '',
     documentName: '',
     link: '',
   };
   const [attachment, setAttachment] = useState([blankAttachment]);
+  // console.log(attachment);
 
   useEffect(() => {
     let isCompleted = true;
@@ -58,11 +60,19 @@ const CreateAdditionalAttachment = ({
   }, [attachment]);
 
   useEffect(() => {
-    const newFileAttachment = [];
+    const newFileAttachment = attachment
+      .filter(item => item.type === 'File')
+      .map(item => {
+        return {
+          name: item.desc,
+          source: item.source,
+          documentType: item.documentType,
+        };
+      });
     const newLinkAttachment = attachment
       .filter(item => item.type === 'Link')
       .map(item => {
-        return {name: item.desc, link: item.link};
+        return {description: item.desc, link: item.link};
       });
     if (onNextReff !== undefined) {
       if (attachment.length <= 1) {
@@ -109,10 +119,15 @@ const CreateAdditionalAttachment = ({
                 tempAttachment[index].link = newLink;
                 setAttachment(tempAttachment);
               }}
-              onSourceChange={(newSource, newDocumentSourceName = '') => {
+              onSourceChange={(
+                newSource,
+                newDocumentSourceName = '',
+                newDocumentType = '',
+              ) => {
                 let tempAttachment = [...attachment];
                 tempAttachment[index].source = newSource;
                 tempAttachment[index].documentName = newDocumentSourceName;
+                tempAttachment[index].documentType = newDocumentType;
                 setAttachment(tempAttachment);
               }}
               descValue={item.desc}
