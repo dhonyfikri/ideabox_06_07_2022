@@ -10,12 +10,37 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import Gap from '../../../components/Gap';
 import Header from '../../../components/Header';
 import LoadingProcessFull from '../../../components/LoadingProcessFull';
 import ModalMessage from '../../../components/ModalMessage';
 import {RegisterAPI} from '../../../config/RequestAPI/RegisterAPI';
 import {colors} from '../../../utils/ColorsConfig/Colors';
+import fonts from '../../../utils/FontsConfig/Fonts';
 import InputText from '../components/InputText';
+
+const CheckBoxNew = ({isChecked, onPress = () => {}}) => {
+  return (
+    <BouncyCheckbox
+      size={20}
+      fillColor={colors.primary}
+      unfillColor={colors.white}
+      disableBuiltInState
+      iconStyle={{
+        borderColor: isChecked ? colors.primary : colors.divider,
+        borderRadius: 6,
+        marginRight: -15,
+      }}
+      onPress={() => onPress(!isChecked)}
+      isChecked={isChecked}
+      style={{
+        marginRight: 0,
+        alignSelf: 'flex-end',
+      }}
+    />
+  );
+};
 
 export default function RegisterScreen({navigation, route}) {
   const [name, setName] = useState('');
@@ -192,22 +217,29 @@ export default function RegisterScreen({navigation, route}) {
             secureTextEntry={true}
             onChanges={text => setConfirmPassword(text)}
           />
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <CheckBox
-              disabled={false}
-              value={toggleCheckBox}
-              onValueChange={newValue => setToggleCheckBox(newValue)}
-              onCheckColor="red"
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <CheckBoxNew
+              isChecked={toggleCheckBox}
+              onPress={newValue => setToggleCheckBox(newValue)}
             />
+            <Gap width={8} />
             <Text style={styles.termCondition}>
               I have read & accept the{' '}
-              <Text style={{color: '#5F49D2', fontFamily: 'Poppins-SemiBold'}}>
+              <Text
+                style={{
+                  color: '#5F49D2',
+                  fontFamily: 'Poppins-SemiBold',
+                }}>
                 Terms & Conditions
               </Text>
             </Text>
           </View>
           <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-            <Text style={styles.getstarted}>Sing Up</Text>
+            <Text style={styles.getstarted}>Sign Up</Text>
           </TouchableOpacity>
           <Text style={styles.bottomText}>
             Already have an account?{' '}
@@ -279,9 +311,9 @@ const styles = StyleSheet.create({
   termCondition: {
     fontFamily: 'Poppins-Regular',
     fontSize: 14,
-    lineHeight: 17,
+    lineHeight: 20,
     color: 'black',
-    marginTop: 9.5,
+    // marginTop: 9.5,
   },
   button: {
     alignItems: 'center',
@@ -296,8 +328,8 @@ const styles = StyleSheet.create({
   },
   getstarted: {
     color: 'white',
-    fontWeight: '700',
     fontSize: 16,
+    fontFamily: fonts.secondary[700],
   },
   bottomText: {
     fontFamily: 'LeagueSpartan-Regular',

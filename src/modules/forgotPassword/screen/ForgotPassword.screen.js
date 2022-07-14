@@ -10,6 +10,7 @@ import {
 import React, {useState} from 'react';
 import Header from '../../../components/Header';
 import {colors} from '../../../utils/ColorsConfig/Colors';
+import fonts from '../../../utils/FontsConfig/Fonts';
 
 const ForgorPassword = ({navigation, route}) => {
   const [email, setEmail] = useState('');
@@ -139,7 +140,7 @@ const styles = StyleSheet.create({
   },
   getstarted: {
     color: 'white',
-    fontWeight: '700',
+    fontFamily: fonts.secondary[700],
     fontSize: 16,
   },
 });

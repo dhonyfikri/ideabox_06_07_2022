@@ -568,8 +568,8 @@ const CreateIdeaStep = ({navigation, route}) => {
               color: colors.text.primary,
             }}>
             You have{' '}
-            <Text style={styles.customSuccessMessageStyle}>submitted</Text>{' '}
-            about yourself!
+            <Text style={styles.customSuccessMessageStyle}>successfully</Text>{' '}
+            added an idea
           </Text>
         }
         withBackButton

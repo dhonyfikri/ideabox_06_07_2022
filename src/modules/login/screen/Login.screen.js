@@ -1,4 +1,3 @@
-import CheckBox from '@react-native-community/checkbox';
 import jwtDecode from 'jwt-decode';
 import React, {useState} from 'react';
 import {
@@ -10,13 +9,38 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import {useDispatch} from 'react-redux';
+import Gap from '../../../components/Gap';
 import LoadingProcessFull from '../../../components/LoadingProcessFull';
 import ModalMessage from '../../../components/ModalMessage';
 import {LoginAPI} from '../../../config/RequestAPI/LoginAPI';
 import {storeAsyncStorageObject} from '../../../utils/AsyncStorage/StoreAsyncStorage';
 import {colors} from '../../../utils/ColorsConfig/Colors';
+import fonts from '../../../utils/FontsConfig/Fonts';
 // import styles from '../style/Login.style';
+
+const CheckBoxNew = ({isChecked, onPress = () => {}}) => {
+  return (
+    <BouncyCheckbox
+      size={20}
+      fillColor={colors.primary}
+      unfillColor={colors.white}
+      disableBuiltInState
+      iconStyle={{
+        borderColor: isChecked ? colors.primary : colors.divider,
+        borderRadius: 6,
+        marginRight: -15,
+      }}
+      onPress={() => onPress(!isChecked)}
+      isChecked={isChecked}
+      style={{
+        marginRight: 0,
+        alignSelf: 'flex-end',
+      }}
+    />
+  );
+};
 
 const Login = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -134,18 +158,18 @@ const Login = ({navigation, route}) => {
         </Text>
         <View style={styles.buttonContainer}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <CheckBox
-              disabled={false}
-              value={toggleCheckBox}
-              onValueChange={newValue => setToggleCheckBox(newValue)}
-              onCheckColor="red"
+            <CheckBoxNew
+              isChecked={toggleCheckBox}
+              onPress={newValue => setToggleCheckBox(newValue)}
             />
+            <Gap width={8} />
             <Text
               style={[
                 styles.sideButtonContainer,
                 {
                   color: '#1A1A1A',
                   fontFamily: 'Poppins-Regular',
+                  lineHeight: 20,
                 },
               ]}>
               Remember Me
@@ -275,8 +299,8 @@ const styles = StyleSheet.create({
   },
   getstarted: {
     color: 'white',
-    fontWeight: '700',
     fontSize: 16,
+    fontFamily: fonts.secondary[700],
   },
   bottomText: {
     fontFamily: 'LeagueSpartan-Regular',

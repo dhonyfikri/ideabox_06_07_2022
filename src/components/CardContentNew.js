@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {
   FlatList,
   Image,
+  KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
   Text,
@@ -562,128 +563,132 @@ const CardContentNew = ({
             margin: 0,
           },
         }}>
-        <View style={styles.bottomSheetContentContainer}>
-          <View style={{flexDirection: 'row'}}>
-            <Text style={styles.bottomSheetTitle}>
-              {commentList.length > 100 ? '100+' : commentList.length}
-              {' Comment'}
-              {commentList.length > 1 && 's'}
-            </Text>
-            <TouchableOpacity
-              style={styles.cancelContainer}
-              onPress={() => refRBSheetComment.current.close()}>
-              <Text style={styles.bottomSheetCancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-          <Gap height={32} />
-          <View style={{flex: 1}}>
-            {/* <ScrollView showsVerticalScrollIndicator={false}> */}
-            <FlatList
-              data={[...commentList]?.reverse()}
-              keyExtractor={(_, index) => index.toString()}
-              scrollEnabled={true}
-              showsVerticalScrollIndicator={false}
-              inverted={true}
-              renderItem={({item, index}) => {
-                return (
-                  <>
-                    {index !== 0 && <Gap height={16} />}
-                    <CardComment
-                      // userList={listUser}
-                      commentsData={item}
-                      onMainRepplyPress={(commentId, creatorName) => {
-                        setReplyData({
-                          status: true,
-                          commentIdToReply: commentId,
-                          nameToReply: creatorName?.replace(
-                            /(?:^|\s)\S/g,
-                            function (a) {
-                              return a.toUpperCase();
-                            },
-                          ),
-                        });
-                      }}
-                    />
-                  </>
-                );
-              }}
-            />
-            {/* </ScrollView> */}
-            <Divider />
-            <Gap height={18} />
-            {replyData.status === true && (
-              <>
-                <CardReply
-                  name={replyData.nameToReply}
-                  onClosePress={() =>
-                    setReplyData({...replyData, status: false})
-                  }
-                />
-                <Gap height={12} />
-              </>
-            )}
-            <View
-              style={{
-                flexDirection: 'row',
-                // marginHorizontal: 16,
-                padding: 8,
-                paddingLeft: 16,
-                borderRadius: 20,
-                borderWidth: 1,
-                borderColor: colors.text.primary,
-                overflow: 'hidden',
-              }}>
-              <View style={{flex: 1, justifyContent: 'center'}}>
-                <TextInput
-                  autoCorrect={false}
-                  placeholder="Leave a comment"
-                  multiline
-                  onChangeText={text => setAdvanceCommentText(text)}
-                  style={{
-                    maxHeight: 100,
-                    fontFamily: fonts.primary[400],
-                    fontSize: 12,
-                    color: colors.text.primary,
-                    padding: 0,
-                  }}>
-                  <Text style={{lineHeight: 22}}>{advanceCommentText}</Text>
-                </TextInput>
-              </View>
-              <Gap width={16} />
-              <View style={{justifyContent: 'flex-end'}}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <TouchableOpacity>
-                    <IcSmileEmote />
-                  </TouchableOpacity>
-                  <Gap width={16} />
-                  <TouchableOpacity
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+          style={{flex: 1}}>
+          <View style={styles.bottomSheetContentContainer}>
+            <View style={{flexDirection: 'row'}}>
+              <Text style={styles.bottomSheetTitle}>
+                {commentList.length > 100 ? '100+' : commentList.length}
+                {' Comment'}
+                {commentList.length > 1 && 's'}
+              </Text>
+              <TouchableOpacity
+                style={styles.cancelContainer}
+                onPress={() => refRBSheetComment.current.close()}>
+                <Text style={styles.bottomSheetCancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+            <Gap height={32} />
+            <View style={{flex: 1}}>
+              {/* <ScrollView showsVerticalScrollIndicator={false}> */}
+              <FlatList
+                data={[...commentList]?.reverse()}
+                keyExtractor={(_, index) => index.toString()}
+                scrollEnabled={true}
+                showsVerticalScrollIndicator={false}
+                inverted={true}
+                renderItem={({item, index}) => {
+                  return (
+                    <>
+                      {index !== 0 && <Gap height={16} />}
+                      <CardComment
+                        // userList={listUser}
+                        commentsData={item}
+                        onMainRepplyPress={(commentId, creatorName) => {
+                          setReplyData({
+                            status: true,
+                            commentIdToReply: commentId,
+                            nameToReply: creatorName?.replace(
+                              /(?:^|\s)\S/g,
+                              function (a) {
+                                return a.toUpperCase();
+                              },
+                            ),
+                          });
+                        }}
+                      />
+                    </>
+                  );
+                }}
+              />
+              {/* </ScrollView> */}
+              <Divider />
+              <Gap height={18} />
+              {replyData.status === true && (
+                <>
+                  <CardReply
+                    name={replyData.nameToReply}
+                    onClosePress={() =>
+                      setReplyData({...replyData, status: false})
+                    }
+                  />
+                  <Gap height={12} />
+                </>
+              )}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  // marginHorizontal: 16,
+                  padding: 8,
+                  paddingLeft: 16,
+                  borderRadius: 20,
+                  borderWidth: 1,
+                  borderColor: colors.text.primary,
+                  overflow: 'hidden',
+                }}>
+                <View style={{flex: 1, justifyContent: 'center'}}>
+                  <TextInput
+                    autoCorrect={false}
+                    placeholder="Leave a comment"
+                    multiline
+                    onChangeText={text => setAdvanceCommentText(text)}
                     style={{
-                      paddingVertical: 8,
-                      paddingHorizontal: 24,
-                      borderRadius: 16,
-                      backgroundColor: colors.primary,
-                    }}
-                    onPress={() => {
-                      if (advanceCommentText.trim().length > 0) {
-                        handleComment('ADVANCE');
-                      }
+                      maxHeight: 100,
+                      fontFamily: fonts.primary[400],
+                      fontSize: 12,
+                      color: colors.text.primary,
+                      padding: 0,
                     }}>
-                    <Text
+                    <Text style={{lineHeight: 22}}>{advanceCommentText}</Text>
+                  </TextInput>
+                </View>
+                <Gap width={16} />
+                <View style={{justifyContent: 'flex-end'}}>
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <TouchableOpacity>
+                      <IcSmileEmote />
+                    </TouchableOpacity>
+                    <Gap width={16} />
+                    <TouchableOpacity
                       style={{
-                        fontFamily: fonts.secondary[600],
-                        fontSize: 12,
-                        lineHeight: 15,
-                        color: colors.white,
+                        paddingVertical: 8,
+                        paddingHorizontal: 24,
+                        borderRadius: 16,
+                        backgroundColor: colors.primary,
+                      }}
+                      onPress={() => {
+                        if (advanceCommentText.trim().length > 0) {
+                          handleComment('ADVANCE');
+                        }
                       }}>
-                      Post
-                    </Text>
-                  </TouchableOpacity>
+                      <Text
+                        style={{
+                          fontFamily: fonts.secondary[600],
+                          fontSize: 12,
+                          lineHeight: 15,
+                          color: colors.white,
+                        }}>
+                        Post
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
+              <Gap height={10} />
             </View>
-            <Gap height={10} />
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </RBSheet>
       <LoadingProcessFull visible={loading.visible} message={loading.message} />
       {/* modal message */}

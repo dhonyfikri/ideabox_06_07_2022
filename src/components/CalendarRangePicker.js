@@ -221,7 +221,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 8,
   },
-  pickAndUnlimitedButtonText: {textAlign: 'center', color: colors.white},
+  pickAndUnlimitedButtonText: {
+    textAlign: 'center',
+    color: colors.white,
+    fontFamily: fonts.secondary[400],
+  },
   unlimitedButton: {
     paddingVertical: 8,
     paddingHorizontal: 12,
