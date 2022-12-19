@@ -4,6 +4,7 @@ import {
   Animated,
   FlatList,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -270,6 +271,7 @@ const DetailIdeaScreen = ({navigation, route}) => {
 
   useEffect(() => {
     fetchIdeas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useBackHandler(() => {
